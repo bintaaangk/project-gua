@@ -1,0 +1,226 @@
+/* Latar belakang halaman beranda */
+body {
+  background-color: #f0f2f5; 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+}
+
+.beranda-container {
+  width: 100%;
+  max-width: 1200px; /* Batasi lebar di desktop */
+  margin: 0 auto;
+  padding-top: 70px; 
+  padding-bottom: 90px; /* Diperbesar untuk navbar bawah */
+  box-sizing: border-box;
+}
+
+/* Header Atas (Navbar Fixed) */
+.beranda-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 1.2rem 5%;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  z-index: 1000;
+  box-sizing: border-box;
+  text-align: left; 
+  
+  margin: 0 auto; 
+  max-width: 1200px;
+}
+
+/* Konten Utama (Scrollable) */
+.beranda-content {
+  width: 100%;
+  padding: 1rem 0; 
+  box-sizing: border-box;
+}
+
+/* === GAYA KONTEN (Hero & Kartu) === */
+
+.beranda-container .hero-section {
+  width: 100%; 
+  margin-top: 1rem;
+  min-height: 200px; 
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  display: flex;
+  background-color: #007bff; 
+  border-radius: 8px; 
+  overflow: hidden; 
+}
+.beranda-container .hero-content {
+  flex: 3; 
+  padding: 2rem; 
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start; 
+}
+.beranda-container .hero-content h1 {
+  font-size: 1.8rem; 
+  margin-top: 0;
+  line-height: 1.3;
+  margin-bottom: 1.5rem;
+}
+.beranda-container .sewa-sekarang-btn {
+  background-color: white;
+  color: #007bff; 
+  border: none;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+}
+.beranda-container .hero-right-empty {
+  flex: 1; 
+  background-color: rgba(0, 123, 255, 0.8); 
+}
+
+.beranda-container .vehicle-category-section {
+  width: 100%;
+  background-color: white;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); 
+  border: 1px solid #007bff; 
+}
+.beranda-container .vehicle-category-section h2 {
+  font-size: 1.6rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #007bff; 
+  display: inline-block; 
+}
+
+/* Grid untuk kartu kendaraan */
+.beranda-container .vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 1.5rem; 
+}
+
+.beranda-container .vehicle-card {
+  border: 2px solid #007bff; 
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  background-color: white;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+.beranda-container .vehicle-card img {
+  width: 100%;
+  max-height: 150px; 
+  object-fit: contain; 
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+.beranda-container .vehicle-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.4rem;
+  color: #333;
+}
+.beranda-container .vehicle-card p {
+  color: #555;
+  font-weight: bold;
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+}
+
+/* Tombol Detail (Link) */
+.beranda-container .detail-btn {
+  background-color: #007bff; 
+  color: white; 
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-decoration: none; 
+  display: inline-block; 
+}
+.beranda-container .detail-btn:hover {
+  background-color: #0056b3;
+}
+/* === AKHIR GAYA KONTEN === */
+
+
+/* === PERBAIKAN: Navbar Bawah (Bottom Nav) === */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 1200px; 
+  margin: 0 auto; 
+  background-color: white;
+  display: flex;
+  justify-content: space-around;
+  /* DIUBAH: Padding vertikal diperbesar untuk tinggi nav */
+  padding: 15px 0; /* Dibuat lebih tinggi */
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #888; 
+  /* DIUBAH: Font diperbesar sedikit */
+  font-size: 14px; /* Font teks lebih besar */
+  /* DIUBAH: Gap antara ikon dan teks */
+  gap: 5px; 
+  /* DIUBAH: Tambahkan padding horizontal untuk area klik yang lebih besar */
+  padding: 5px 10px; 
+  flex: 1; /* Agar setiap item memiliki lebar yang sama */
+}
+.bottom-nav-item svg {
+  /* DIUBAH: Ukuran ikon diperbesar */
+  width: 30px; /* Ikon lebih besar */
+  height: 30px;
+  stroke: #888; 
+}
+.bottom-nav-item.active {
+  color: #007bff; 
+}
+.bottom-nav-item.active svg {
+  stroke: #007bff; 
+  fill: #007bff; 
+  fill-opacity: 0.1;
+}
+/* === AKHIR PERBAIKAN === */
+
+/* Penyesuaian untuk mobile */
+@media (max-width: 768px) {
+   /* Di HP/Tablet, kita kembalikan ke 2 kolom */
+  .beranda-container .vehicle-grid {
+    grid-template-columns: repeat(2, 1fr); 
+  }
+}
+
+@media (max-width: 480px) {
+  .beranda-content {
+    padding: 1rem;
+  }
+  .beranda-container .hero-content h1 {
+    font-size: 1.4rem;
+  }
+   /* Di HP kecil, kita buat jadi 1 kolom */
+  .beranda-container .vehicle-grid {
+    grid-template-columns: 1fr;
+  }
+}

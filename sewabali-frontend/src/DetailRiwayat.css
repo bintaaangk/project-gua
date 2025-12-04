@@ -1,0 +1,246 @@
+body {
+  background-color: #f0f2f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+}
+
+.detail-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 60px; /* Jarak untuk header */
+  padding-bottom: 100px; /* Jarak untuk tombol CTA bawah */
+  box-sizing: border-box;
+}
+
+/* Header Atas */
+.detail-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 1rem 1.5rem;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+.back-button:hover {
+  background-color: #f0f0f0;
+}
+.detail-header span {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* Konten Utama */
+.detail-content {
+  padding: 1rem;
+}
+
+/* Gambar Kendaraan */
+.detail-image-gallery {
+  width: 100%;
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.detail-image-gallery img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+}
+
+/* Kartu Informasi */
+.detail-info-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.detail-title-price {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+}
+.detail-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+}
+.detail-price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #007bff;
+}
+.detail-price span {
+  font-size: 1rem;
+  font-weight: normal;
+  color: #555;
+}
+
+.detail-subtitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Gaya Spesifikasi */
+.detail-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 kolom */
+  gap: 1rem;
+}
+.spec-item {
+  display: flex;
+  align-items: center; 
+  gap: 0.75rem;
+  background-color: #f8f9fa;
+  padding: 0.75rem;
+  border-radius: 6px;
+}
+.spec-item svg {
+  flex-shrink: 0; 
+}
+.spec-text {
+  display: flex;
+  flex-direction: column; 
+  gap: 2px; 
+}
+.spec-title {
+  font-size: 0.85rem; 
+  color: #6c757d; 
+  font-weight: normal;
+}
+.spec-value {
+  font-size: 1rem; 
+  font-weight: 600; 
+  color: #333;
+}
+
+/* Deskripsi */
+.detail-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #555;
+  margin: 0;
+}
+
+/* Perental & Peta */
+.detail-perental {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+.detail-perental img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.perental-name {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+}
+.perental-address {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Map Container */
+.detail-map-container {
+  margin-top: 1rem;
+}
+.map-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+.map-frame {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Tombol CTA di Bawah */
+.detail-footer-cta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+.sewa-btn-detail {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  /* Properti Link */
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+.sewa-btn-detail:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .detail-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 kolom di desktop */
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+  .detail-image-gallery {
+    grid-column: 1 / 2;
+  }
+  .detail-info-card {
+    grid-column: 2 / 3;
+    margin-top: 0;
+  }
+}

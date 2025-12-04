@@ -1,0 +1,195 @@
+body {
+  background-color: #f0f2f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+}
+
+.pemesanan-container {
+  width: 100%;
+  max-width: 600px; /* Fokuskan di tengah untuk checkout */
+  margin: 0 auto;
+  padding-top: 60px; /* Jarak untuk header */
+  padding-bottom: 2rem; 
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+/* Header */
+.pemesanan-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 1rem 1.5rem;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+.pemesanan-header span {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* Konten Utama */
+.pemesanan-content {
+  padding: 1rem;
+}
+
+/* Card Style */
+.card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.card-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #333;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+/* Ringkasan Kendaraan */
+.summary-card {
+  /* Ganti background header agar lebih menonjol */
+  border-top: 5px solid #007bff; 
+}
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed #eee;
+}
+.summary-item img {
+  width: 80px;
+  height: 60px;
+  object-fit: contain;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+}
+.summary-text {
+  display: flex;
+  flex-direction: column;
+}
+.summary-vehicle-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+.summary-price-per-day {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+.summary-detail {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+}
+
+/* Formulir Detail Sewa */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+.form-group input:focus {
+  outline: 1px solid #007bff;
+  border-color: #007bff;
+}
+
+
+/* Biaya Section */
+.biaya-section {
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+  margin-top: 1.5rem;
+}
+.biaya-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  font-size: 1rem;
+}
+.biaya-item strong {
+  font-weight: 600;
+  color: #333;
+}
+.biaya-item.total {
+  font-size: 1.2rem;
+  color: #007bff;
+  padding-top: 0.5rem;
+  border-top: 2px dashed #eee;
+}
+.biaya-item.total strong {
+  color: #007bff;
+  font-weight: bold;
+}
+
+/* Tombol Konfirmasi */
+.konfirmasi-btn {
+  width: 100%;
+  padding: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+  transition: background-color 0.2s ease;
+}
+.konfirmasi-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Status Pesan */
+.pemesanan-status {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.pemesanan-status.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+.pemesanan-status.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}

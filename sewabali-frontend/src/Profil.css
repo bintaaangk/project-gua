@@ -1,0 +1,196 @@
+body {
+  background-color: #f0f2f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+}
+
+.profil-container {
+  width: 100%;
+  max-width: 600px; /* Tampilan seperti mobile */
+  margin: 0 auto;
+  padding: 20px;
+  padding-bottom: 100px; /* Ruang untuk navbar bawah */
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+/* --- 1. Header Kartu Biru --- */
+.profil-header-card {
+  background-color: #007bff; /* Warna biru utama */
+  border-radius: 10px;
+  padding: 2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  margin-bottom: 2rem;
+}
+
+.profil-avatar img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.profil-info h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.profil-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* --- 2. Menu List (Kartu Putih) --- */
+.profil-menu-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 0.5rem 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:hover {
+  background-color: #f9f9f9;
+}
+
+/* Ikon Menu */
+.menu-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+}
+
+.icon-user {
+  background-color: #e3f2fd; /* Biru muda */
+  color: #1976d2;
+}
+
+.icon-logout {
+  background-color: #ffebee; /* Merah muda */
+  color: #c62828;
+}
+
+.icon-about {
+  background-color: #f3e5f5; /* Ungu muda */
+  color: #7b1fa2;
+}
+
+/* Teks Menu */
+.menu-text {
+  flex-grow: 1;
+}
+
+.menu-text h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.menu-text p {
+  margin: 0.2rem 0 0 0;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.menu-arrow {
+  color: #ccc;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+
+/* --- 3. Navbar Bawah (Konsisten dengan Beranda) --- */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 1200px; 
+  margin: 0 auto; 
+  background-color: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0; 
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #888; 
+  font-size: 13px; 
+  gap: 5px; 
+  padding: 5px 10px; 
+  flex: 1; 
+}
+.bottom-nav-item svg {
+  width: 28px; 
+  height: 28px;
+  stroke: #888; 
+}
+.bottom-nav-item.active {
+  color: #007bff; 
+}
+.bottom-nav-item.active svg {
+  stroke: #007bff; 
+  fill: #007bff; 
+  fill-opacity: 0.1;
+}
+.bottom-nav-item span {
+  text-decoration: none;
+}
+/* Mobile */
+@media (max-width: 480px) {
+    .profil-container, .bottom-nav {
+        max-width: 100%;
+    }
+
+    /* Header Simple untuk Sub-Halaman Profil */
+.profil-header-simple {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 1rem 1.5rem;
+  z-index: 1000;
+}
+.profil-header-simple h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    margin-left: 10px;
+}
+}

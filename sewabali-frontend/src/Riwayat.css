@@ -1,0 +1,235 @@
+body {
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+}
+  
+.riwayat-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 120px; /* Ditambah karena ada Tab Bar di bawah Header */
+    padding-bottom: 100px;
+    box-sizing: border-box;
+}
+
+/* Header */
+.riwayat-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 1rem 5%;
+    z-index: 1000;
+    /* Border bottom dihapus karena akan digabung dengan tabs */
+}
+.riwayat-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+/* --- TAB KATEGORI (Baru) --- */
+.history-tabs {
+    position: fixed;
+    top: 60px; /* Di bawah header judul */
+    left: 0;
+    right: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 0.5rem 1rem;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto; /* Agar bisa di-scroll horizontal di HP */
+    white-space: nowrap;
+    z-index: 999;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    /* Hilangkan scrollbar jelek */
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
+}
+.history-tabs::-webkit-scrollbar { 
+    display: none; 
+}
+
+.history-tab-btn {
+    padding: 8px 16px;
+    border: 1px solid #eee;
+    background-color: #f8f9fa;
+    color: #555;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0; /* Agar tombol tidak mengecil */
+}
+
+.history-tab-btn.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+}
+/* --------------------------- */
+
+
+/* Content */
+.riwayat-content {
+    padding: 1rem;
+}
+
+/* Card Style */
+.history-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+}
+
+.history-card-top {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.history-card-body {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.history-img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    background-color: #f5f5f5;
+}
+
+.history-info h3 {
+    margin: 0 0 0.3rem 0;
+    font-size: 1rem;
+    color: #333;
+}
+.history-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+.history-price {
+    font-weight: bold;
+    color: #007bff !important;
+    margin-top: 0.2rem !important;
+}
+
+/* Footer & Status */
+.history-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.status-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+.status-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+.status-danger {
+    background-color: #f8d7da;
+    color: #842029;
+}
+.status-default {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.btn-action-small {
+    background-color: #fff;
+    border: 1px solid #007bff;
+    color: #007bff;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+.empty-state {
+    text-align: center;
+    color: #888;
+    margin-top: 3rem;
+}
+
+/* Navbar Bawah */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 1200px; 
+    margin: 0 auto; 
+    background-color: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 0; 
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #888; 
+    font-size: 13px; 
+    gap: 5px; 
+    padding: 5px 10px; 
+    flex: 1; 
+}
+.bottom-nav-item svg {
+    width: 28px; 
+    height: 28px;
+    stroke: #888; 
+}
+.bottom-nav-item.active {
+    color: #007bff; 
+}
+.bottom-nav-item.active svg {
+    stroke: #007bff; 
+    fill: #007bff; 
+    fill-opacity: 0.1;
+}
+.bottom-nav-item span {
+    text-decoration: none;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .riwayat-container {
+        padding-top: 130px; /* Sesuaikan agar header + tab tidak menutupi konten */
+    }
+    .riwayat-header, .history-tabs {
+        max-width: 100%;
+    }
+}

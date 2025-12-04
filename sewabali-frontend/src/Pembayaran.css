@@ -1,0 +1,195 @@
+/* Reset & Base Styles */
+body {
+  background-color: #f0f2f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+}
+
+.pembayaran-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 60px; /* Jarak untuk header */
+  padding-bottom: 2rem; 
+  min-height: 100vh;
+}
+
+/* Header */
+.pembayaran-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 1rem 1.5rem;
+  z-index: 1000;
+}
+.back-button {
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+  color: #333;
+  text-decoration: none;
+}
+.pembayaran-header span {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* Konten Utama */
+.pembayaran-content {
+  padding: 1.5rem;
+}
+
+/* Status Messages */
+.pembayaran-status {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+}
+.pembayaran-status.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+.pembayaran-status.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Kartu Umum */
+.card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.card-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-top: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 1rem;
+}
+
+/* Ringkasan Kendaraan */
+.summary-card {
+    border: 1px solid #007bff; /* Border biru seperti desain lama */
+}
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+.summary-item img {
+  width: 70px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+.summary-text {
+  display: flex;
+  flex-direction: column;
+}
+.summary-vehicle-name {
+  font-weight: bold;
+}
+.summary-price-per-day {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+.summary-detail {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+/* Tagihan */
+.tagihan-price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+.tagihan-label {
+  font-size: 1rem;
+  color: #333;
+}
+.tagihan-amount {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #dc3545; /* Warna merah untuk jumlah yang harus dibayar */
+}
+
+/* Detail Transfer */
+.transfer-card h2 {
+    color: #007bff; /* Judul biru */
+}
+.transfer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+.transfer-info strong {
+  color: #333;
+  font-weight: bold;
+}
+
+/* Form Upload */
+.form-group.file-upload {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+.file-label {
+    display: block;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    text-align: left;
+    transition: background-color 0.2s;
+}
+.file-label:hover {
+    background-color: #e0e0e0;
+}
+
+.upload-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.upload-btn:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+.upload-btn:disabled {
+  background-color: #adb5bd;
+  cursor: not-allowed;
+}

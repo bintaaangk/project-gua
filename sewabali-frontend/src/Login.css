@@ -1,0 +1,174 @@
+/* Register Page Container */
+.register-page-container {
+  width: 100%;
+  min-height: 100vh;
+  background-image: url('background.jpeg'); /* Background yang sama dengan Landing Page */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem; /* Padding agar tidak terlalu mepet ke tepi */
+  box-sizing: border-box;
+  position: relative; /* Diperlukan untuk panah kembali */
+}
+
+/* Panah Kembali */
+.back-arrow-link {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+  z-index: 10;
+}
+
+.back-arrow-link svg path {
+  fill: white;
+}
+
+.back-arrow-link:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+
+/* Wrapper untuk logo dan form, agar bisa di tengah */
+.register-form-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 500px; /* Batasi lebar maksimal form */
+    width: 100%;
+    z-index: 5;
+}
+
+.register-logo {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white; /* Warna putih agar kontras dengan background */
+    margin-bottom: 1.5rem; /* Jarak antara logo dan card */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Sedikit efek bayangan pada teks */
+}
+
+/* Register Card */
+.register-card {
+  background-color: rgba(255, 255, 255, 0.9); /* Sedikit transparan agar background terlihat */
+  padding: 2.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px; /* Lebar card form */
+  text-align: center;
+}
+
+.register-card h2 {
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.2rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: bold;
+  color: #555;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+.form-group textarea {
+  resize: vertical; /* Izinkan textarea di-resize vertikal */
+  min-height: 80px;
+}
+
+/* Button Daftar / Login */
+.daftar-btn {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.daftar-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Messages (Success/Error) */
+.register-message {
+  padding: 0.8rem;
+  margin-bottom: 1.5rem;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  text-align: left;
+}
+.register-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+.register-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Link Text (Daftar/Login) */
+.login-link-text {
+  margin-top: 1.8rem;
+  font-size: 0.95rem;
+  color: #666;
+}
+.login-link-text a {
+  color: #007bff; /* Warna biru untuk link */
+  text-decoration: none;
+  font-weight: bold;
+}
+.login-link-text a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .register-page-container {
+        padding: 1rem;
+    }
+    .register-card {
+        padding: 1.5rem;
+    }
+    .register-logo {
+        font-size: 2rem;
+    }
+    .register-card h2 {
+        font-size: 1.5rem;
+    }
+}

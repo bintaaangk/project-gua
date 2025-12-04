@@ -1,0 +1,267 @@
+body {
+  background-color: #f0f2f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+}
+
+.pencarian-container {
+  width: 100%;
+  max-width: 1200px; /* Diperlebar agar sama dengan Beranda di Desktop */
+  margin: 0 auto;
+  padding-top: 70px; /* Jarak dari header */
+  padding-bottom: 90px; /* Jarak dari navbar bawah yang diperbesar */
+  box-sizing: border-box;
+}
+
+/* Header Atas (Navbar Fixed) */
+.pencarian-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: white; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 0.8rem 1rem; 
+  z-index: 1000;
+  box-sizing: border-box;
+  display: flex; 
+  align-items: center;
+  max-width: 1200px; 
+  margin: 0 auto;
+  border-top: 5px solid #007bff;
+}
+
+/* Tombol Kembali */
+.back-button {
+  display: flex;
+  align-items: center;
+  color: #333;
+  text-decoration: none;
+  padding: 8px 10px;
+  margin-right: 15px; 
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  font-size: 1rem;
+}
+.back-button:hover {
+    background-color: #f0f0f0;
+}
+.back-button svg {
+    margin-right: 5px;
+}
+
+
+/* Wrapper Input Pencarian */
+.search-input-wrapper {
+  flex-grow: 1;
+  position: relative;
+  margin-right: 20px; 
+}
+
+/* Input Pencarian (Kapsul Modern & Menonjol) */
+.search-input {
+  width: 100%;
+  padding: 12px 15px; 
+  padding-right: 40px; /* Ruang untuk tombol clear */
+  border: none; /* Hilangkan border */
+  background-color: #f5f5f5;
+  border-radius: 50px; /* Dibuat sangat membulat (Kapsul) */
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s, background-color 0.2s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+}
+.search-input:focus {
+  outline: none; 
+  background-color: white;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.6); /* Efek shadow lebih kuat saat fokus */
+}
+
+/* Tombol Clear (X) */
+.clear-button {
+  position: absolute;
+  right: 5px; 
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px; 
+}
+
+/* Tombol Filter */
+.filter-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px; 
+  transition: background-color 0.2s;
+  border-radius: 6px;
+}
+.filter-button:hover {
+    background-color: #f0f0f0;
+}
+
+
+/* Konten Utama (Scrollable) */
+.pencarian-content {
+  width: 100%;
+  padding: 1rem; 
+  box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Daftar Hasil & Card */
+.search-results {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* --- TAMBAHAN BARU: Gaya Kategori --- */
+.category-selector {
+  display: flex;
+  gap: 10px;
+  padding: 0 1rem 1rem 1rem; /* Padding di bawah header */
+  background-color: #f0f2f5; /* Sesuaikan dengan background body */
+}
+
+.category-btn {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 20px; /* Kapsul kecil */
+  background-color: white;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-btn.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+  font-weight: 600;
+}
+/* --- AKHIR TAMBAHAN --- */
+
+
+.search-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+.search-card {
+  display: flex;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eee;
+}
+
+.search-card-image {
+  flex-shrink: 0;
+  width: 150px;
+  height: 100px;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.search-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.search-card-info {
+  padding: 0.75rem 1rem;
+  flex-grow: 1;
+}
+.search-card-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0 0 0.25rem 0;
+  color: #333;
+}
+.search-card-subtitle {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0 0 0.5rem 0;
+}
+.search-card-price {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #007bff;
+  margin: 0;
+}
+.search-card-location {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 0.25rem;
+}
+
+/* Navbar Bawah (Bottom Nav) */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 1200px; 
+  margin: 0 auto; 
+  background-color: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0; 
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #888; 
+  font-size: 13px; 
+  gap: 5px; 
+  padding: 5px 10px; 
+  flex: 1; 
+}
+.bottom-nav-item svg {
+  width: 28px; 
+  height: 28px;
+  stroke: #888; 
+}
+.bottom-nav-item.active {
+  color: #007bff; 
+}
+.bottom-nav-item.active svg {
+  stroke: #007bff; 
+  fill: #007bff; 
+  fill-opacity: 0.1;
+}
+.bottom-nav-item span {
+  text-decoration: none;
+}
+
+/* Penyesuaian untuk mobile */
+@media (max-width: 480px) {
+  .pencarian-container {
+    max-width: 100%; 
+  }
+  .pencarian-header {
+    max-width: 100%;
+  }
+  .search-results {
+    padding: 0.5rem;
+  }
+  .bottom-nav {
+    max-width: 100%;
+  }
+}

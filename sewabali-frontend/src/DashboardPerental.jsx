@@ -234,10 +234,6 @@ function DashboardPerental() {
                 <div className="icon-box blue">🚗</div>
                 <span className="menu-text">Unit Saya</span>
             </div>
-            <div className="menu-card" onClick={() => navigate('/mengarahkan-unit')}>
-                <div className="icon-box green">📍</div>
-                <span className="menu-text">Arahkan Unit</span>
-            </div>
             <div className="menu-card" onClick={() => navigate('/pesanan-masuk')}>
                 <div className="icon-box orange">📦</div>
                 <span className="menu-text">Pesanan</span>

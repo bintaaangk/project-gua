@@ -25,7 +25,6 @@ import PesananMasuk from './Pesananmasuk';
 import ProfilPerental from './ProfilPerental';
 import NotifikasiPerental from './NotifikasiPerental';
 import AdminDashboard from './AdminDashboard';
-import MengarahkanUnit from './MengarahkanUnit.jsx'; // Import halaman Mengarahkan Unit
 
 function App() {
   return (
@@ -58,7 +57,6 @@ function App() {
         <Route path="/syarat-ketentuan" element={<SyaratKetentuan />} />
         <Route path="/hubungi-kami" element={<HubungiKami />} />
         <Route path="/notifikasi" element={<Notifikasi />} />
-        <Route path="/mengarahkan-unit" element={<MengarahkanUnit />} /> {/* <-- RUTE BARU */}
         <Route path="/perental/dashboard" element={<DashboardPerental />} />
         <Route path="/pesanan-masuk" element={<PesananMasuk />} />
         <Route path="/perental/profil" element={<ProfilPerental />} />

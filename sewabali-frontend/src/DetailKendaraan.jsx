@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import './DetailKendaraan.css'; // File CSS
 
 // --- DATA TIRUAN (MOCK DATA) ---
@@ -36,6 +36,7 @@ const SpecIcon = ({ d, title, value }) => (
 
 function DetailKendaraan() {
   const { id } = useParams(); 
+  const navigate = useNavigate();
   const [kendaraan, setKendaraan] = useState(null);
 
   useEffect(() => {
@@ -56,14 +57,18 @@ function DetailKendaraan() {
     window.open(`https://wa.me/${kendaraan.perental.no_hp}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div className="mobile-detail-page">
       
       {/* Header Sticky (Transparan saat scroll di atas, putih saat turun - simplenya kita buat putih) */}
       <header className="detail-navbar">
-        <Link to="/beranda" className="btn-back-circle">
+        <button className="btn-back-circle" onClick={handleBack} style={{background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center'}}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-        </Link>
+        </button>
         <span className="nav-title">Detail Mobil</span>
         <button className="btn-share-circle">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Beranda.css'; 
 
 // --- DAFTAR LOKASI TIRUAN ---
@@ -9,19 +9,27 @@ const MOCK_LOCATIONS = ['Denpasar', 'Kuta', 'Ubud', 'Seminyak', 'Canggu', 'Jimba
 // Komponen Kartu Kendaraan
 function VehicleCard({ item }) {
   const formattedPrice = `Rp ${item.harga_per_hari.toLocaleString('id-ID')}`;
+  const navigate = useNavigate();
   
+  const handleSewaClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/pemesanan/${item.id}`);
+  };
+
   return (
-    <Link to={`/kendaraan/${item.id}`} className="mobile-vehicle-card">
-      <div className="card-img-container">
+    <Link to={`/kendaraan/${item.id}`} className="mobile-vehicle-card" onClick={(e) => e.preventDefault()}>
+      <div className="card-img-container" onClick={() => navigate(`/kendaraan/${item.id}`)}>
         <img 
           src={item.gambar_url} 
-          alt={item.nama} 
+          alt={item.nama}
+          onClick={() => navigate(`/kendaraan/${item.id}`)}
           onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/300x200/e0e0e0/777?text=Gambar+Rusak"; }} 
         />
-        <div className="card-type-badge">{item.tipe}</div>
+        <div className="card-type-badge" onClick={() => navigate(`/kendaraan/${item.id}`)}>{item.tipe}</div>
       </div>
       
-      <div className="card-details">
+      <div className="card-details" onClick={() => navigate(`/kendaraan/${item.id}`)}>
         <h3 className="vehicle-title">{item.nama}</h3>
         <div className="location-info">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
@@ -29,7 +37,7 @@ function VehicleCard({ item }) {
         </div>
         <div className="price-row">
             <span className="price-text">{formattedPrice}<small>/hari</small></span>
-            <button className="btn-sewa-sm">Sewa</button>
+            <button className="btn-sewa-sm" onClick={handleSewaClick}>Sewa</button>
         </div>
       </div>
     </Link>

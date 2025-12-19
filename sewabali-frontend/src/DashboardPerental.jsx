@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './DashboardPerental.css';
 
 // --- DATA DUMMY (UNTUK PREVIEW DESAIN) ---
@@ -176,7 +176,7 @@ function DashboardPerental() {
             
             <div className="unit-list">
                 {units.map(unit => (
-                    <div key={unit.id} className="unit-card-new">
+                    <Link key={unit.id} to={`/kendaraan/${unit.id}`} className="unit-card-new">
                         <div className="unit-img-top">
                             <img src={unit.gambar_url} alt={unit.nama} style={{width:'100%', height:'100%', objectFit:'cover'}} />
                             <span className="badge-avail" style={{
@@ -195,7 +195,7 @@ function DashboardPerental() {
                                 Rp {unit.harga_per_hari.toLocaleString('id-ID')}<span>/hari</span>
                             </div>
                         </div>
-                    </div>
+                    </Link>
                 ))}
             </div>
         </div>

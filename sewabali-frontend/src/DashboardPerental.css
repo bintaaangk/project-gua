@@ -197,6 +197,17 @@
     overflow: hidden;
     box-shadow: 0 4px 15px -3px rgba(0,0,0,0.05);
     border: 1px solid #f1f5f9;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.unit-card-new:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px -5px rgba(0,0,0,0.15);
+    border-color: #2563eb;
 }
 
 .unit-img-top {

@@ -1,246 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 body {
-  background-color: #f0f2f5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
 }
 
-.detail-container {
+/* --- Container Mobile --- */
+.mobile-page-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 480px;
   margin: 0 auto;
-  padding-top: 60px; /* Jarak untuk header */
-  padding-bottom: 100px; /* Jarak untuk tombol CTA bawah */
-  box-sizing: border-box;
+  background-color: #ffffff;
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
 
-/* Header Atas */
-.detail-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  max-width: 1200px;
-  margin: 0 auto;
+/* --- Header --- */
+.page-header {
   display: flex;
   align-items: center;
-  background-color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 1rem 1.5rem;
-  z-index: 1000;
-  box-sizing: border-box;
-}
-.back-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 1rem;
-  cursor: pointer;
-  padding: 5px;
-  border-radius: 50%;
-  transition: background-color 0.2s ease;
-}
-.back-button:hover {
-  background-color: #f0f0f0;
-}
-.detail-header span {
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-/* Konten Utama */
-.detail-content {
-  padding: 1rem;
-}
-
-/* Gambar Kendaraan */
-.detail-image-gallery {
-  width: 100%;
-  background-color: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-sizing: border-box;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-.detail-image-gallery img {
-  width: 100%;
-  height: auto;
-  max-height: 400px;
-  object-fit: contain;
-}
-
-/* Kartu Informasi */
-.detail-info-card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-top: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.detail-title-price {
-  display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.5rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 1rem;
-}
-.detail-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin: 0;
-}
-.detail-price {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #007bff;
-}
-.detail-price span {
-  font-size: 1rem;
-  font-weight: normal;
-  color: #555;
+  padding: 16px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
-.detail-subtitle {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-/* Gaya Spesifikasi */
-.detail-specs-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* 2 kolom */
-  gap: 1rem;
-}
-.spec-item {
-  display: flex;
-  align-items: center; 
-  gap: 0.75rem;
-  background-color: #f8f9fa;
-  padding: 0.75rem;
-  border-radius: 6px;
-}
-.spec-item svg {
-  flex-shrink: 0; 
-}
-.spec-text {
-  display: flex;
-  flex-direction: column; 
-  gap: 2px; 
-}
-.spec-title {
-  font-size: 0.85rem; 
-  color: #6c757d; 
-  font-weight: normal;
-}
-.spec-value {
-  font-size: 1rem; 
-  font-weight: 600; 
-  color: #333;
-}
-
-/* Deskripsi */
-.detail-description {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #555;
-  margin: 0;
-}
-
-/* Perental & Peta */
-.detail-perental {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background-color: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-}
-.detail-perental img {
-  width: 50px;
-  height: 50px;
+.btn-back-circle {
+  width: 40px; height: 40px;
   border-radius: 50%;
-  object-fit: cover;
-}
-.perental-name {
-  display: block;
-  font-size: 1.1rem;
-  font-weight: bold;
+  border: 1px solid #eee;
+  display: flex; align-items: center; justify-content: center;
   color: #333;
-}
-.perental-address {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-/* Map Container */
-.detail-map-container {
-  margin-top: 1rem;
-}
-.map-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #555;
-}
-.map-frame {
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #ddd;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-
-/* Tombol CTA di Bawah */
-.detail-footer-cta {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 1200px;
-  margin: 0 auto;
-  background-color: white;
-  padding: 1rem 1.5rem;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-.sewa-btn-detail {
-  width: 100%;
-  padding: 1rem;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: white;
-  background-color: #007bff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  /* Properti Link */
-  display: block;
-  text-align: center;
   text-decoration: none;
 }
-.sewa-btn-detail:hover {
-  background-color: #0056b3;
+
+.header-title { font-size: 15px; font-weight: 600; color: #333; }
+
+/* --- Scroll Content --- */
+.scroll-content { padding-top: 20px; }
+
+/* Status Card */
+.status-card {
+  margin: 0 20px 20px;
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
 }
 
-/* Responsive */
-@media (min-width: 768px) {
-  .detail-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 kolom di desktop */
-    gap: 1.5rem;
-    padding: 1.5rem;
-  }
-  .detail-image-gallery {
-    grid-column: 1 / 2;
-  }
-  .detail-info-card {
-    grid-column: 2 / 3;
-    margin-top: 0;
-  }
+.status-card.warning {
+  background-color: #fffbeb;
+  border: 1px solid #fef3c7;
+}
+
+.status-icon-large { font-size: 24px; }
+.status-info h3 { margin: 0 0 4px 0; font-size: 14px; color: #92400e; font-weight: 700; }
+.status-info p { margin: 0; font-size: 12px; color: #b45309; line-height: 1.4; }
+
+/* Sections */
+.detail-section { padding: 20px; }
+.section-label { font-size: 14px; font-weight: 600; color: #333; margin: 0 0 16px 0; }
+
+.vehicle-card-mini {
+  display: flex;
+  gap: 12px;
+  background-color: #f9fafb;
+  padding: 12px;
+  border-radius: 12px;
+  align-items: center;
+}
+.vehicle-img {
+  width: 70px; height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.vehicle-details h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #333; }
+.vehicle-details p { margin: 0; font-size: 11px; color: #666; }
+
+.divider-thick {
+  height: 8px;
+  background-color: #f5f7fa;
+  width: 100%;
+}
+
+/* Info Rows */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #555;
+}
+.info-row:last-child { margin-bottom: 0; }
+.status-text-success { color: #16a34a; font-weight: 600; }
+
+/* Document List */
+.doc-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px dashed #eee;
+  font-size: 13px;
+}
+.doc-row:last-child { border-bottom: none; }
+.doc-status.uploaded { color: #007bff; font-weight: 500; }
+
+/* Renter Info */
+.renter-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #eee;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.renter-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.renter-avatar-placeholder {
+  width: 40px; height: 40px;
+  background-color: #e0f2fe;
+  color: #007bff;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+.renter-name-text { margin: 0; font-size: 13px; font-weight: 600; color: #333; }
+.renter-sub { margin: 0; font-size: 11px; color: #888; }
+
+.btn-whatsapp {
+  background-color: #25D366;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.loading-screen {
+  display: flex; align-items: center; justify-content: center; height: 100vh; color: #888;
 }

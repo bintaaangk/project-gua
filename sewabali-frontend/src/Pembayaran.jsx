@@ -1,153 +1,171 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './Pembayaran.css'; // File CSS baru
+import './Pembayaran.css'; 
 
 function Pembayaran() {
-  const { id } = useParams(); // ID Pemesanan (dari URL)
+  const { id } = useParams(); // id_pemesanan (opsional, bisa ambil dari session)
   const navigate = useNavigate();
   const [buktiFile, setBuktiFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
   
-  // State untuk menyimpan data yang diambil dari sessionStorage
+  // State data
   const [pemesanan, setPemesanan] = useState(null);
 
-  // Ambil data harga dari sessionStorage saat dimuat
   useEffect(() => {
+    // Ambil data dari Session Storage
     const savedData = sessionStorage.getItem('lastPemesananDetails');
     if (savedData) {
-      const details = JSON.parse(savedData);
-      // Data yang dibutuhkan untuk halaman Pembayaran
-      setPemesanan({
-        id_pemesanan: details.id_pemesanan,
-        total_harga: details.total_harga,
-        id_kendaraan: details.kendaraan.id, 
-        kendaraan: details.kendaraan,
-        perental: details.kendaraan.perental, 
-      });
+      setPemesanan(JSON.parse(savedData));
     } else {
-      // Kasus jika user langsung akses halaman ini tanpa Pemesanan
-      setError("Data pemesanan tidak ditemukan. Silakan pesan ulang.");
+      alert("Data pemesanan tidak ditemukan.");
+      navigate('/beranda');
     }
-  }, [id]); 
+  }, [navigate]); 
 
   const formattedTotal = pemesanan ? `Rp ${pemesanan.total_harga.toLocaleString('id-ID')}` : 'Rp 0';
 
   const handleFileChange = (e) => {
-    setBuktiFile(e.target.files[0]);
-    setError('');
+    if (e.target.files && e.target.files[0]) {
+        setBuktiFile(e.target.files[0]);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!buktiFile) {
-      setError("Mohon upload bukti transfer Anda.");
+      alert("Mohon upload bukti transfer Anda.");
       return;
     }
     
     setLoading(true);
-    setError('');
 
     try {
-      // Menggunakan FormData untuk mengirim file dan data lainnya
-      const formData = new FormData();
-      formData.append('id_pemesanan', pemesanan.id_pemesanan);
-      formData.append('total_bayar', pemesanan.total_harga); 
-      formData.append('no_rekening_perental', pemesanan.kendaraan.perental.no_rekening);
-      formData.append('bukti_pembayaran', buktiFile);
-
-      // Kirim data ke API Laravel
-      // Endpoint: POST /api/pembayaran (memproses upload file)
-      const response = await axios.post('http://localhost:8000/api/pembayaran', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      setMessage("Pembayaran berhasil diupload. Mengarahkan ke Riwayat...");
+      // --- SIMULASI SIMPAN KE RIWAYAT (LocalStorage) ---
       
-      // Hapus data dari sessionStorage setelah sukses
+      const newHistoryItem = {
+        id: pemesanan.id_pemesanan, 
+        kendaraan: pemesanan.kendaraan.nama, 
+        img: pemesanan.kendaraan.gambar_url,
+        tanggal: pemesanan.tanggal_pesan,
+        durasi: `${pemesanan.durasi_hari} Hari`,
+        total: pemesanan.total_harga,
+        status: "Menunggu Verifikasi",
+        timestamp: new Date().getTime() 
+      };
+
+      // Ambil riwayat lama & gabungkan
+      const existingData = localStorage.getItem('userTransactionHistory');
+      let historyArray = existingData ? JSON.parse(existingData) : [];
+      historyArray.unshift(newHistoryItem);
+      localStorage.setItem('userTransactionHistory', JSON.stringify(historyArray));
+      
+      // Bersihkan session agar tidak double
       sessionStorage.removeItem('lastPemesananDetails'); 
 
+      // Simulasi loading
       setTimeout(() => {
-        navigate('/riwayat'); // Redirect ke halaman Riwayat
-      }, 3000);
+        navigate('/riwayat'); 
+      }, 1500);
 
     } catch (err) {
-      console.error("Upload gagal:", err.response || err);
-      // Ambil pesan error validasi dari Laravel (jika ada)
-      const serverError = err.response?.data?.errors?.bukti_pembayaran?.[0] || 'Terjadi kesalahan pada server. (Cek console log)';
-      setError('Upload gagal. ' + serverError);
+      console.error("Error:", err);
+      alert('Gagal memproses pembayaran.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (!pemesanan) {
-    return <div className="loading-page">{error ? error : "Memuat ringkasan tagihan..."}</div>;
-  }
+  if (!pemesanan) return <div className="loading-screen">Memuat tagihan...</div>;
 
   return (
-    <div className="pembayaran-container">
-      {/* Header */}
-      <header className="pembayaran-header">
-        {/* Kembali ke halaman Pemesanan */}
-        <Link to={`/pemesanan/${pemesanan.id_kendaraan}`} className="back-button">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z" fill="#333"/></svg>
+    <div className="mobile-page-container">
+      
+      {/* Header Sticky */}
+      <header className="page-header">
+        <Link to="/unggah-dokumen" className="btn-back-circle">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
         </Link>
-        <span>Konfirmasi Pembayaran</span>
+        <span className="header-title">Pembayaran</span>
+        <div style={{width: 40}}></div>
       </header>
 
-      <main className="pembayaran-content">
-        {message && <div className="pembayaran-status success">{message}</div>}
-        {error && <div className="pembayaran-status error">{error}</div>}
-
-        {/* 1. Ringkasan Tagihan */}
-        <div className="card tagihan-card">
-          <h2 className="card-title">Total Tagihan</h2>
-          <div className="tagihan-price">
-            <span className="tagihan-label">Total yang harus dibayar:</span>
-            <strong className="tagihan-amount">{formattedTotal}</strong>
-          </div>
+      {/* Konten Scrollable */}
+      <div className="scroll-content">
+        
+        {/* Card Total Tagihan */}
+        <div className="payment-card total-card">
+            <div className="card-header-label">Total Tagihan</div>
+            <div className="total-amount">{formattedTotal}</div>
+            <div className="order-id-label">Order ID: #{pemesanan.id_pemesanan}</div>
         </div>
 
-        {/* 2. Detail Transfer (Informasi Perental) */}
-        <div className="card transfer-card">
-          <h2 className="card-title">Detail Transfer</h2>
-          <p>Silakan transfer sejumlah **{formattedTotal}** ke rekening perental:</p>
-          <div className="transfer-info">
-            <span>Nama Perental: <strong>{pemesanan.kendaraan.perental.nama}</strong></span>
-            <span>Nomor Rekening: <strong>{pemesanan.kendaraan.perental.no_rekening}</strong></span>
-          </div>
+        {/* Card Metode Transfer */}
+        <div className="payment-card bank-card">
+            <h3 className="card-title">Transfer Bank</h3>
+            <div className="bank-details">
+                <div className="bank-logo-placeholder">BCA</div>
+                <div className="bank-info">
+                    <span className="bank-name">BCA (Bank Central Asia)</span>
+                    <span className="account-name">{pemesanan.kendaraan.perental.nama}</span>
+                </div>
+            </div>
+            
+            <div className="rek-box">
+                <span className="rek-number">6023456872</span>
+                <button className="btn-copy">Salin</button>
+            </div>
+            
+            <div className="instruction-text">
+                <p>Silakan transfer sesuai nominal tepat hingga 3 digit terakhir untuk mempercepat verifikasi.</p>
+            </div>
         </div>
 
-        {/* 3. Form Upload Bukti */}
-        <form onSubmit={handleSubmit} className="card upload-card">
-          <h2 className="card-title">Upload Bukti Transfer</h2>
+        <div className="divider-thick"></div>
 
-          <div className="form-group file-upload">
-            {/* Label yang berfungsi sebagai tombol file */}
-            <label htmlFor="bukti_pembayaran" className="file-label">
-              {buktiFile ? buktiFile.name : 'Pilih file bukti (.jpg/.jpeg/.png) untuk diupload'}
-            </label>
-            <input 
-              type="file" 
-              id="bukti_pembayaran" 
-              name="bukti_pembayaran"
-              accept=".jpg,.jpeg,.png"
-              onChange={handleFileChange}
-              required
-              style={{ display: 'none' }} // Sembunyikan input file bawaan
-            />
-          </div>
-          
-          <button type="submit" className="upload-btn" disabled={loading}>
-            {loading ? 'Mengunggah...' : 'Upload & Selesaikan Pembayaran'}
-          </button>
+        {/* Form Upload Bukti */}
+        <form onSubmit={handleSubmit} className="upload-section">
+            <h3 className="section-label">Konfirmasi Pembayaran</h3>
+            <p className="upload-instruction">Sudah transfer? Upload bukti pembayaran Anda di sini.</p>
+            
+            <div className="custom-file-wrapper">
+                <input 
+                    type="file" 
+                    id="bukti_pembayaran" 
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden-input"
+                />
+                <label htmlFor="bukti_pembayaran" className={`file-box ${buktiFile ? 'uploaded' : ''}`}>
+                    {buktiFile ? (
+                        <div className="file-success">
+                            <span className="check-icon">✔</span>
+                            <span className="filename">{buktiFile.name}</span>
+                            <span className="change-text">Ganti Foto</span>
+                        </div>
+                    ) : (
+                        <div className="file-placeholder">
+                            <span className="icon-upload">📸</span>
+                            <span>Upload Struk Transfer</span>
+                        </div>
+                    )}
+                </label>
+            </div>
         </form>
-      </main>
+
+        <div style={{height: 100}}></div>
+      </div>
+
+      {/* Sticky Footer */}
+      <footer className="sticky-footer-action-single">
+        <button 
+            onClick={handleSubmit} 
+            className={`btn-block-primary ${loading ? 'disabled' : ''}`}
+            disabled={loading}
+        >
+            {loading ? 'Memproses...' : 'Kirim Bukti Pembayaran'}
+        </button>
+      </footer>
+
     </div>
   );
 }

@@ -3,8 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// PENTING: Import Controller dari Namespace yang benar (App\Http\Controllers\Api)
-use App\Http\Controllers\Api\RegisterController;
+// PENTING: Panggil AuthController yang baru
+use App\Http\Controllers\Api\AuthController; 
 use App\Http\Controllers\Api\KendaraanController;
 use App\Http\Controllers\Api\PemesananController;
 use App\Http\Controllers\Api\DokumenVerifikasiController;
@@ -16,16 +16,29 @@ use App\Http\Controllers\Api\PembayaranController;
 |--------------------------------------------------------------------------
 */
 
-// 1. Registrasi & Data Umum
-Route::post('/register', [RegisterController::class, 'register']);
-Route::get('/kendaraan', [KendaraanController::class, 'index']); // <-- Ini yang bikin 404
+// --- PINTU MASUK (LOGIN & REGISTER) ---
+// Perhatikan: Kita pakai [AuthController::class, ...]
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']); 
 
-// 2. Transaksi (Pemesanan -> Verifikasi -> Pembayaran)
-Route::post('/pemesanan', [PemesananController::class, 'store']);
-Route::post('/dokumen-verifikasi', [DokumenVerifikasiController::class, 'store']);
-Route::post('/pembayaran', [PembayaranController::class, 'store']);
+// 2. DATA UMUM
+Route::get('/kendaraan', [KendaraanController::class, 'index']);
 
-// (Opsional) Rute user jika butuh nanti
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// 3. FITUR YANG PERLU LOGIN (Penyewa & Perental)
+Route::middleware('auth:sanctum')->group(function () {
+    
+    // --- FITUR PENYEWA ---
+    Route::post('/pemesanan', [PemesananController::class, 'store']);
+    Route::post('/dokumen-verifikasi', [DokumenVerifikasiController::class, 'store']);
+    Route::post('/pembayaran', [PembayaranController::class, 'store']);
+    
+    // --- FITUR PERENTAL ---
+    Route::get('/kendaraan/perental', [KendaraanController::class, 'indexPerental']); 
+    Route::post('/kendaraan', [KendaraanController::class, 'store']); 
+    Route::get('/transaksi/perental', [PemesananController::class, 'indexPesananMasuk']);
+    Route::post('/transaksi/{id}/konfirmasi', [PemesananController::class, 'konfirmasiPesanan']);
+
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
 });

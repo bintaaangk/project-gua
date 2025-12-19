@@ -1,174 +1,207 @@
-/* Register Page Container */
-.register-page-container {
-  width: 100%;
-  min-height: 100vh;
-  background-image: url('background.jpeg'); /* Background yang sama dengan Landing Page */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem; /* Padding agar tidak terlalu mepet ke tepi */
-  box-sizing: border-box;
-  position: relative; /* Diperlukan untuk panah kembali */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
 }
 
-/* Panah Kembali */
-.back-arrow-link {
-  position: absolute;
-  top: 2rem;
-  left: 2rem;
-  width: 44px;
-  height: 44px;
+/* --- Container Mobile --- */
+.mobile-page-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 50%;
-  transition: background-color 0.2s ease;
+  flex-direction: column;
+  /* Agar konten bisa di tengah secara vertikal */
+  justify-content: center; 
+}
+
+/* Background Khusus Login (Ganti URL gambar jika ada) */
+.login-bg {
+  /* Menggunakan gambar pemandangan Bali + overlay gelap agar teks terbaca */
+  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), 
+              url('https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover no-repeat;
+  color: white;
+}
+
+/* --- Header --- */
+.login-header {
+  padding: 20px;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  box-sizing: border-box;
   z-index: 10;
 }
 
-.back-arrow-link svg path {
-  fill: white;
+.btn-back-transparent {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  width: 40px; height: 40px;
 }
 
-.back-arrow-link:hover {
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-
-/* Wrapper untuk logo dan form, agar bisa di tengah */
-.register-form-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 500px; /* Batasi lebar maksimal form */
-    width: 100%;
-    z-index: 5;
-}
-
-.register-logo {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: white; /* Warna putih agar kontras dengan background */
-    margin-bottom: 1.5rem; /* Jarak antara logo dan card */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Sedikit efek bayangan pada teks */
-}
-
-/* Register Card */
-.register-card {
-  background-color: rgba(255, 255, 255, 0.9); /* Sedikit transparan agar background terlihat */
-  padding: 2.5rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+/* --- Content --- */
+.login-content {
   width: 100%;
-  max-width: 400px; /* Lebar card form */
-  text-align: center;
-}
-
-.register-card h2 {
-  font-size: 1.8rem;
-  margin-bottom: 2rem;
-  color: #333;
-}
-
-/* Form Groups */
-.form-group {
-  margin-bottom: 1.2rem;
-  text-align: left;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.6rem;
-  font-weight: bold;
-  color: #555;
-}
-
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 0.9rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 20px;
   box-sizing: border-box;
-  font-size: 1rem;
+  /* Hapus flex: 1 agar tidak memaksa ke bawah, biarkan justify-content di container yang mengatur */
 }
 
-.form-group textarea {
-  resize: vertical; /* Izinkan textarea di-resize vertikal */
-  min-height: 80px;
+/* Branding */
+.login-branding {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-/* Button Daftar / Login */
-.daftar-btn {
+.brand-title {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Tambah shadow agar teks putih jelas */
+}
+
+.brand-subtitle {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* --- Login Card --- */
+.login-card {
+  background-color: white;
+  border-radius: 24px;
+  padding: 30px 24px;
+  color: #333;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2); /* Shadow lebih tebal agar pop-up */
+  animation: zoomIn 0.4s ease-out;
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.card-heading {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 24px 0;
+  color: #1e293b;
+  text-align: center; /* Heading di tengah */
+}
+
+/* Inputs */
+.input-field { margin-bottom: 16px; }
+.input-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.input-field input {
   width: 100%;
-  padding: 1rem;
-  border: none;
-  border-radius: 5px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background-color: #f8fafc;
+  outline: none;
+  transition: 0.2s;
+}
+
+.input-field input:focus {
+  border-color: #007bff;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Options */
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  font-size: 12px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.link-forgot {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Buttons */
+.btn-login-full {
+  width: 100%;
+  padding: 14px;
   background-color: #007bff;
   color: white;
-  font-size: 1.1rem;
-  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
-  margin-top: 1.5rem;
-  transition: background-color 0.2s ease;
+  transition: 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
+.btn-login-full:active { transform: scale(0.98); }
+.btn-login-full:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
-.daftar-btn:hover {
-  background-color: #0056b3;
+/* Footer Link */
+.register-link {
+  text-align: center;
+  font-size: 13px;
+  margin-top: 24px;
+  color: #64748b;
 }
-
-/* Messages (Success/Error) */
-.register-message {
-  padding: 0.8rem;
-  margin-bottom: 1.5rem;
-  border-radius: 5px;
-  font-size: 0.95rem;
-  font-weight: bold;
-  text-align: left;
-}
-.register-message.success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-.register-message.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-/* Link Text (Daftar/Login) */
-.login-link-text {
-  margin-top: 1.8rem;
-  font-size: 0.95rem;
-  color: #666;
-}
-.login-link-text a {
-  color: #007bff; /* Warna biru untuk link */
+.register-link a {
+  color: #007bff;
+  font-weight: 700;
   text-decoration: none;
-  font-weight: bold;
-}
-.login-link-text a:hover {
-  text-decoration: underline;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-    .register-page-container {
-        padding: 1rem;
-    }
-    .register-card {
-        padding: 1.5rem;
-    }
-    .register-logo {
-        font-size: 2rem;
-    }
-    .register-card h2 {
-        font-size: 1.5rem;
-    }
+/* Alert */
+.alert-message {
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.alert-message.error {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* Loader Animation */
+.loader-dots::after {
+  content: " . . .";
+  animation: dots 1.5s steps(5, end) infinite;
+}
+@keyframes dots {
+  0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);}
+  40% { color: white; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);}
+  60% { text-shadow: .25em 0 0 white, .5em 0 0 rgba(0,0,0,0);}
+  80%, 100% { text-shadow: .25em 0 0 white, .5em 0 0 white;}
 }

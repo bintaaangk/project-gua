@@ -1,226 +1,317 @@
-/* Latar belakang halaman beranda */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 body {
-  background-color: #f0f2f5; 
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
 }
 
-.beranda-container {
+/* --- Container Mobile --- */
+.mobile-page-container {
   width: 100%;
-  max-width: 1200px; /* Batasi lebar di desktop */
+  max-width: 480px; /* Lebar HP */
   margin: 0 auto;
-  padding-top: 70px; 
-  padding-bottom: 90px; /* Diperbesar untuk navbar bawah */
-  box-sizing: border-box;
+  background-color: #ffffff;
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  padding-bottom: 80px; /* Space navbar bawah */
 }
 
-/* Header Atas (Navbar Fixed) */
-.beranda-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background-color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 1.2rem 5%;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  z-index: 1000;
-  box-sizing: border-box;
-  text-align: left; 
-  
-  margin: 0 auto; 
-  max-width: 1200px;
-}
-
-/* Konten Utama (Scrollable) */
-.beranda-content {
-  width: 100%;
-  padding: 1rem 0; 
-  box-sizing: border-box;
-}
-
-/* === GAYA KONTEN (Hero & Kartu) === */
-
-.beranda-container .hero-section {
-  width: 100%; 
-  margin-top: 1rem;
-  min-height: 200px; 
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+/* --- Header --- */
+.home-header {
   display: flex;
-  background-color: #007bff; 
-  border-radius: 8px; 
-  overflow: hidden; 
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
-.beranda-container .hero-content {
-  flex: 3; 
-  padding: 2rem; 
-  color: white;
+
+.brand-logo {
+  font-size: 20px;
+  font-weight: 800;
+  color: #007bff; /* Warna brand */
+}
+
+.icon-btn {
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* --- Content Wrapper --- */
+.home-scroll-content {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: flex-start; 
+  gap: 20px;
 }
-.beranda-container .hero-content h1 {
-  font-size: 1.8rem; 
-  margin-top: 0;
+
+/* --- Hero Banner --- */
+.hero-banner {
+  margin: 0 20px;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border-radius: 20px;
+  padding: 25px 20px;
+  color: white;
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+.hero-text h1 {
+  margin: 0 0 8px 0;
+  font-size: 22px;
   line-height: 1.3;
-  margin-bottom: 1.5rem;
 }
-.beranda-container .sewa-sekarang-btn {
-  background-color: white;
-  color: #007bff; 
-  border: none;
-  padding: 0.7rem 1.5rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 4px;
+.hero-text p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* --- Filter Row --- */
+.filter-row {
+  position: sticky;
+  top: 60px; /* Di bawah header */
+  z-index: 40;
+  background-color: #fff;
+  padding: 5px 0 10px 0;
+}
+
+.chips-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 20px;
+  scrollbar-width: none;
+}
+.chips-scroll::-webkit-scrollbar { display: none; }
+
+.chip {
+  white-space: nowrap;
+  padding: 8px 16px;
+  border-radius: 50px;
+  border: 1px solid #f0f0f0;
+  background: #fff;
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
-}
-.beranda-container .hero-right-empty {
-  flex: 1; 
-  background-color: rgba(0, 123, 255, 0.8); 
+  flex-shrink: 0;
+  transition: 0.2s;
 }
 
-.beranda-container .vehicle-category-section {
-  width: 100%;
-  background-color: white;
-  margin-top: 2rem;
-  padding: 1.5rem;
-  box-sizing: border-box;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); 
-  border: 1px solid #007bff; 
+.chip.active {
+  background-color: #333;
+  color: white;
+  border-color: #333;
 }
-.beranda-container .vehicle-category-section h2 {
-  font-size: 1.6rem;
+
+.chip.active-blue {
+  background-color: #eff6ff;
+  color: #007bff;
+  border-color: #bfdbfe;
+}
+
+.sep {
+  width: 1px;
+  height: 20px;
+  background: #eee;
+  margin: 0 5px;
+}
+
+/* --- Sections --- */
+.section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-head {
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 16px;
   color: #333;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #007bff; 
-  display: inline-block; 
 }
 
-/* Grid untuk kartu kendaraan */
-.beranda-container .vehicle-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); 
-  gap: 1.5rem; 
+.link-all {
+  font-size: 12px;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
 }
 
-.beranda-container .vehicle-card {
-  border: 2px solid #007bff; 
-  border-radius: 8px;
-  padding: 1rem;
+/* Horizontal List */
+.horizontal-list {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 0 20px;
+  padding-bottom: 10px; /* Space shadow */
+  scrollbar-width: none;
+}
+.horizontal-list::-webkit-scrollbar { display: none; }
+
+/* --- Mobile Card Style --- */
+.mobile-vehicle-card {
+  width: 220px; /* Lebar card fix */
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-img-container {
+  position: relative;
+  height: 120px;
+  width: 100%;
+}
+.card-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-type-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.card-details {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vehicle-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.location-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #888;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.price-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #007bff;
+}
+.price-text small {
+  font-size: 10px;
+  font-weight: 400;
+  color: #999;
+}
+
+.btn-sewa-sm {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Loading & Empty */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  width: 30px; height: 30px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.empty-home {
   text-align: center;
-  background-color: white;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
-}
-.beranda-container .vehicle-card img {
-  width: 100%;
-  max-height: 150px; 
-  object-fit: contain; 
-  margin-bottom: 1rem;
-  border-radius: 4px;
-}
-.beranda-container .vehicle-card h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.4rem;
-  color: #333;
-}
-.beranda-container .vehicle-card p {
-  color: #555;
-  font-weight: bold;
-  font-size: 1.05rem;
-  margin-bottom: 1rem;
+  color: #999;
+  padding: 40px;
 }
 
-/* Tombol Detail (Link) */
-.beranda-container .detail-btn {
-  background-color: #007bff; 
-  color: white; 
-  border: none;
-  padding: 0.6rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: bold;
-  text-decoration: none; 
-  display: inline-block; 
-}
-.beranda-container .detail-btn:hover {
-  background-color: #0056b3;
-}
-/* === AKHIR GAYA KONTEN === */
-
-
-/* === PERBAIKAN: Navbar Bawah (Bottom Nav) === */
-.bottom-nav {
+/* --- Bottom Nav (Fixed) --- */
+.bottom-nav-fixed {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   width: 100%;
-  max-width: 1200px; 
+  max-width: 480px; /* Samakan container */
   margin: 0 auto; 
   background-color: white;
   display: flex;
   justify-content: space-around;
-  /* DIUBAH: Padding vertikal diperbesar untuk tinggi nav */
-  padding: 15px 0; /* Dibuat lebih tinggi */
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  padding: 12px 0; 
+  border-top: 1px solid #f0f0f0;
+  z-index: 100;
 }
+
 .bottom-nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  color: #888; 
-  /* DIUBAH: Font diperbesar sedikit */
-  font-size: 14px; /* Font teks lebih besar */
-  /* DIUBAH: Gap antara ikon dan teks */
-  gap: 5px; 
-  /* DIUBAH: Tambahkan padding horizontal untuk area klik yang lebih besar */
-  padding: 5px 10px; 
-  flex: 1; /* Agar setiap item memiliki lebar yang sama */
+  color: #999; 
+  font-size: 12px; 
+  gap: 4px; 
+  flex: 1; 
+  transition: color 0.2s;
 }
-.bottom-nav-item svg {
-  /* DIUBAH: Ukuran ikon diperbesar */
-  width: 30px; /* Ikon lebih besar */
-  height: 30px;
-  stroke: #888; 
-}
+
 .bottom-nav-item.active {
   color: #007bff; 
+  font-weight: 600;
 }
-.bottom-nav-item.active svg {
-  stroke: #007bff; 
-  fill: #007bff; 
-  fill-opacity: 0.1;
-}
-/* === AKHIR PERBAIKAN === */
-
-/* Penyesuaian untuk mobile */
-@media (max-width: 768px) {
-   /* Di HP/Tablet, kita kembalikan ke 2 kolom */
-  .beranda-container .vehicle-grid {
-    grid-template-columns: repeat(2, 1fr); 
-  }
-}
-
-@media (max-width: 480px) {
-  .beranda-content {
-    padding: 1rem;
-  }
-  .beranda-container .hero-content h1 {
-    font-size: 1.4rem;
-  }
-   /* Di HP kecil, kita buat jadi 1 kolom */
-  .beranda-container .vehicle-grid {
-    grid-template-columns: 1fr;
-  }
+.bottom-nav-item svg {
+  stroke: currentColor; 
 }

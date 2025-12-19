@@ -1,0 +1,346 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+/* ... (CSS sebelumnya tetap sama) ... */
+
+/* --- STYLE UNTUK KLIK MENU --- */
+.secondary-item.clickable {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  padding: 8px; /* Tambahan padding agar enak diklik */
+  border-radius: 8px;
+  margin: -8px; /* Kompensasi padding */
+}
+.secondary-item.clickable:active {
+  background-color: #f0f0f0;
+}
+
+/* --- MODAL OVERLAY --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Background gelap transparan */
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* Muncul dari bawah (Bottom Sheet Style) */
+  z-index: 999;
+  backdrop-filter: blur(2px);
+}
+
+/* --- MODAL CONTENT --- */
+.modal-content {
+  background-color: white;
+  width: 100%;
+  max-width: 480px; /* Samakan lebar dengan container */
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.btn-close-modal {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #999;
+  cursor: pointer;
+  padding: 5px;
+}
+
+/* --- MODAL FORM --- */
+.form-group-modal {
+  margin-bottom: 16px;
+}
+
+.form-group-modal label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.form-group-modal input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box; /* Penting agar padding tidak melebarkan input */
+}
+
+.form-group-modal input:focus {
+  border-color: #007bff;
+  background-color: #f9faff;
+}
+
+.btn-save-modal {
+  width: 100%;
+  padding: 14px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-save-modal:active { background-color: #0069d9; }
+
+/* --- ALERTS --- */
+.alert-error {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #fca5a5;
+}
+
+.alert-success {
+  background-color: #dcfce7;
+  color: #15803d;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #86efac;
+}
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
+}
+
+/* --- Container Mobile --- */
+.mobile-page-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+}
+
+/* --- Header --- */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.btn-back-circle {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid #eee;
+  display: flex; align-items: center; justify-content: center;
+  color: #333;
+  text-decoration: none;
+}
+
+.header-title { font-size: 16px; font-weight: 600; color: #333; }
+
+/* --- Profile Header --- */
+.profile-header-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+  background-color: #fff;
+}
+
+.avatar-large-wrapper {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.avatar-large {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #f0f0f0;
+}
+
+.btn-edit-photo-large {
+  position: absolute; bottom: 0; right: 0;
+  width: 32px; height: 32px;
+  background-color: #007bff;
+  color: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+
+.profile-subtitle {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  max-width: 250px;
+  margin: 0;
+}
+
+/* --- Info Card --- */
+.info-card {
+  margin: 0 20px 20px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.info-item { padding: 16px 0; }
+
+.info-item label {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500; /* Sedikit lebih tipis biar elegan */
+  color: #333;
+  min-height: 24px; /* Menjaga tinggi agar tidak loncat saat edit */
+}
+
+/* Styling Input Mode Edit */
+.input-inline {
+  flex: 1;
+  border: none;
+  border-bottom: 1px solid #007bff;
+  font-size: 14px;
+  font-family: inherit;
+  color: #333;
+  padding: 4px 0;
+  outline: none;
+  background: transparent;
+  margin-right: 10px;
+}
+
+.textarea-inline {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #333;
+  padding: 8px;
+  outline: none;
+  background: #fafafa;
+  margin-right: 10px;
+  resize: none;
+}
+
+.text-dark { color: #333; font-weight: 600; }
+
+.icon-lock { font-size: 12px; opacity: 0.5; }
+
+.verified-badge {
+  font-size: 10px;
+  background-color: #d1fae5;
+  color: #047857;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.btn-text-edit {
+  background: none; border: none;
+  color: #007bff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.btn-text-edit:active { opacity: 0.6; }
+
+.divider-thin {
+  height: 1px;
+  background-color: #f0f0f0;
+  width: 100%;
+}
+
+/* --- Secondary Card --- */
+.info-card-secondary {
+  margin: 0 20px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.secondary-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sec-icon { font-size: 20px; }
+.sec-text h4 { margin: 0; font-size: 14px; color: #333; }
+.sec-text p { margin: 0; font-size: 11px; color: #888; }
+.chevron { margin-left: auto; color: #ccc; font-size: 20px; }
+
+/* --- Footer --- */
+.sticky-footer-action-single {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  width: 100%; max-width: 480px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-top: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  z-index: 100;
+  box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+  box-sizing: border-box;
+}
+
+.btn-block-primary {
+  width: 100%;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-block-primary:active { transform: scale(0.98); background-color: #0069d9; }

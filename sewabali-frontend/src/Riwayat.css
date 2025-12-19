@@ -1,235 +1,233 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 body {
-    background-color: #f0f2f5;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-}
-  
-.riwayat-container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding-top: 120px; /* Ditambah karena ada Tab Bar di bawah Header */
-    padding-bottom: 100px;
-    box-sizing: border-box;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa; /* Warna latar belakang luar */
 }
 
-/* Header */
-.riwayat-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    max-width: 1200px;
-    margin: 0 auto;
-    background-color: white;
-    padding: 1rem 5%;
-    z-index: 1000;
-    /* Border bottom dihapus karena akan digabung dengan tabs */
-}
-.riwayat-header h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #333;
+/* --- Container Utama Mobile Style --- */
+.riwayat-page {
+  width: 100%;
+  max-width: 480px; /* Batasi lebar seperti HP */
+  margin: 0 auto;   /* Tengah layar */
+  background-color: #fff;
+  min-height: 100vh;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  position: relative;
+  padding-bottom: 90px; /* Ruang untuk navbar bawah */
 }
 
-/* --- TAB KATEGORI (Baru) --- */
-.history-tabs {
-    position: fixed;
-    top: 60px; /* Di bawah header judul */
-    left: 0;
-    right: 0;
-    max-width: 1200px;
-    margin: 0 auto;
-    background-color: white;
-    padding: 0.5rem 1rem;
-    display: flex;
-    gap: 10px;
-    overflow-x: auto; /* Agar bisa di-scroll horizontal di HP */
-    white-space: nowrap;
-    z-index: 999;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    /* Hilangkan scrollbar jelek */
-    -ms-overflow-style: none;  
-    scrollbar-width: none;  
-}
-.history-tabs::-webkit-scrollbar { 
-    display: none; 
+/* --- Header Sticky --- */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.history-tab-btn {
-    padding: 8px 16px;
-    border: 1px solid #eee;
-    background-color: #f8f9fa;
-    color: #555;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    flex-shrink: 0; /* Agar tombol tidak mengecil */
+.header-title-area {
+  padding: 16px 20px;
 }
 
-.history-tab-btn.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-    font-weight: 600;
-    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
-}
-/* --------------------------- */
-
-
-/* Content */
-.riwayat-content {
-    padding: 1rem;
+.header-title-area h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
 }
 
-/* Card Style */
-.history-card {
-    background-color: white;
-    border-radius: 10px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    border: 1px solid #eee;
+/* --- Tabs --- */
+.tabs-wrapper {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 0 20px 16px 20px;
+  scrollbar-width: none; /* Hide scrollbar Firefox */
+}
+.tabs-wrapper::-webkit-scrollbar { display: none; /* Hide scrollbar Chrome */ }
+
+.tab-pill {
+  white-space: nowrap;
+  padding: 8px 18px;
+  border-radius: 50px;
+  border: 1px solid #f0f0f0;
+  background: #fff;
+  color: #888;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
 }
 
-.history-card-top {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 0.5rem;
-    margin-bottom: 0.8rem;
-    font-size: 0.85rem;
-    color: #666;
+.tab-pill.active {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+  box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
 }
 
-.history-card-body {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
+/* --- List Content --- */
+.riwayat-list {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.history-img {
-    width: 80px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 6px;
-    background-color: #f5f5f5;
+/* --- Card Style --- */
+.transaction-card {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  transition: transform 0.1s;
 }
 
-.history-info h3 {
-    margin: 0 0 0.3rem 0;
-    font-size: 1rem;
-    color: #333;
-}
-.history-info p {
-    margin: 0;
-    font-size: 0.9rem;
-    color: #666;
-}
-.history-price {
-    font-weight: bold;
-    color: #007bff !important;
-    margin-top: 0.2rem !important;
+.transaction-card:active {
+  transform: scale(0.99);
 }
 
-/* Footer & Status */
-.history-card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* Card Header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 12px;
 }
+
+.date-text { color: #888; }
 
 .status-badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
-.status-success {
-    background-color: #d1e7dd;
-    color: #0f5132;
-}
-.status-warning {
-    background-color: #fff3cd;
-    color: #856404;
-}
-.status-danger {
-    background-color: #f8d7da;
-    color: #842029;
-}
-.status-default {
-    background-color: #e2e3e5;
-    color: #383d41;
+.badge-success { background: #d1fae5; color: #047857; }
+.badge-warning { background: #fef3c7; color: #b45309; }
+.badge-danger { background: #fee2e2; color: #b91c1c; }
+.badge-default { background: #f3f4f6; color: #4b5563; }
+
+/* Card Body */
+.card-body {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.btn-action-small {
-    background-color: #fff;
-    border: 1px solid #007bff;
-    color: #007bff;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    cursor: pointer;
+.vehicle-thumb {
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  object-fit: cover;
+  background-color: #f5f5f5;
 }
+
+.vehicle-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.vehicle-name {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.order-id {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  color: #999;
+}
+
+.price {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #007bff;
+}
+
+/* Card Actions */
+.card-actions {
+  display: flex;
+}
+
+.btn-action {
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  padding: 10px 0;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-action.primary {
+  background-color: #007bff;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+}
+.btn-action.primary:hover { background-color: #0069d9; }
+
+.btn-action.outline {
+  background-color: #fff;
+  color: #555;
+  border: 1px solid #e0e0e0;
+}
+.btn-action.outline:hover { background-color: #f9f9f9; }
+
+/* Empty State */
 .empty-state {
-    text-align: center;
-    color: #888;
-    margin-top: 3rem;
+  text-align: center;
+  padding-top: 50px;
+  color: #999;
+}
+.empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+/* --- Bottom Nav (Sama Persis dengan Profil) --- */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 480px; /* Samakan container */
+  margin: 0 auto; 
+  background-color: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0; 
+  border-top: 1px solid #f0f0f0;
+  z-index: 1000;
 }
 
-/* Navbar Bawah */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-width: 1200px; 
-    margin: 0 auto; 
-    background-color: white;
-    display: flex;
-    justify-content: space-around;
-    padding: 12px 0; 
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-}
 .bottom-nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: #888; 
-    font-size: 13px; 
-    gap: 5px; 
-    padding: 5px 10px; 
-    flex: 1; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #999; 
+  font-size: 12px; 
+  gap: 4px; 
+  flex: 1; 
+  transition: color 0.2s;
+}
+
+.bottom-nav-item.active {
+  color: #007bff; 
+  font-weight: 600;
 }
 .bottom-nav-item svg {
-    width: 28px; 
-    height: 28px;
-    stroke: #888; 
-}
-.bottom-nav-item.active {
-    color: #007bff; 
-}
-.bottom-nav-item.active svg {
-    stroke: #007bff; 
-    fill: #007bff; 
-    fill-opacity: 0.1;
-}
-.bottom-nav-item span {
-    text-decoration: none;
-}
-
-/* Mobile */
-@media (max-width: 480px) {
-    .riwayat-container {
-        padding-top: 130px; /* Sesuaikan agar header + tab tidak menutupi konten */
-    }
-    .riwayat-header, .history-tabs {
-        max-width: 100%;
-    }
+  stroke: currentColor; 
 }

@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
+}
+
+/* --- Layout Mobile --- */
+.mobile-page-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+}
+
+/* --- Header --- */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.btn-back-circle {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid #eee;
+  display: flex; align-items: center; justify-content: center;
+  color: #333;
+  text-decoration: none;
+  background: none;
+  cursor: pointer;
+}
+
+.header-title { font-size: 16px; font-weight: 600; color: #333; }
+
+/* --- Content Text (Privasi & Syarat) --- */
+.text-content {
+  padding: 20px;
+  color: #444;
+  line-height: 1.6;
+  font-size: 13px;
+  padding-bottom: 50px;
+}
+
+.text-content h3 {
+  color: #007bff;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.text-content p { margin-bottom: 12px; text-align: justify; }
+.text-content ul { padding-left: 20px; margin-bottom: 12px; }
+.text-content li { margin-bottom: 6px; }
+
+/* --- Hubungi Kami Styles --- */
+.contact-hero {
+  text-align: center;
+  padding: 30px 20px;
+  background-color: #f8f9fa;
+}
+.contact-hero h2 { margin: 0 0 8px 0; color: #333; }
+.contact-hero p { margin: 0; color: #666; font-size: 13px; }
+
+.contact-info-box {
+  margin: 20px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #555;
+}
+.contact-row:last-child { margin-bottom: 0; }
+.icon-c { font-size: 18px; width: 24px; text-align: center; }
+
+/* --- Form Hubungi Kami --- */
+.contact-form { padding: 0 20px 40px 20px; }
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
+}
+.form-input, .form-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+.form-textarea { resize: vertical; min-height: 100px; }
+
+.btn-send {
+  width: 100%;
+  padding: 14px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-send:hover { background-color: #0069d9; }
+.btn-send:active { transform: scale(0.98); }
+
+.alert-box {
+  padding: 12px;
+  background-color: #d1fae5;
+  color: #065f46;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 16px;
+  text-align: center;
+}

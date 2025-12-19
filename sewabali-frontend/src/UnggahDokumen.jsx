@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './UnggahDokumen.css'; // PERUBAHAN: Mengimpor CSS baru
+import './UnggahDokumen.css'; 
 
-// Asumsi ID Penyewa yang sedang login
 const ID_PENYEWA = 1; 
 
-// PERUBAHAN: Nama fungsi diganti
 function UnggahDokumen() { 
   const navigate = useNavigate();
   
@@ -16,114 +13,191 @@ function UnggahDokumen() {
     jaminan: null,
   });
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  
+  // Cek apakah ada data pemesanan sebelumnya (opsional, untuk validasi)
+  useEffect(() => {
+    const savedDetails = sessionStorage.getItem('lastPemesananDetails');
+    if (!savedDetails) {
+        // Jika user langsung tembak URL tanpa pesan dulu
+        // alert("Tidak ada data pemesanan aktif.");
+        // navigate('/beranda');
+    }
+  }, [navigate]);
 
   const handleFileChange = (e) => {
     const { name, files: selectedFiles } = e.target;
-    setFiles(prev => ({ ...prev, [name]: selectedFiles[0] }));
-    setError('');
+    if (selectedFiles && selectedFiles[0]) {
+        setFiles(prev => ({ ...prev, [name]: selectedFiles[0] }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!files.ktp || !files.jaminan) {
-      setError("Mohon lengkapi KTP dan Dokumen Jaminan.");
+      alert("Mohon lengkapi dokumen wajib (KTP & Jaminan).");
       return;
     }
 
     setLoading(true);
-    setError('');
 
     try {
-      const formData = new FormData();
-      formData.append('id_penyewa', ID_PENYEWA); 
-      formData.append('ktp', files.ktp);
-      formData.append('jaminan', files.jaminan);
-      
-      if (files.sim_c) {
-        formData.append('sim_c', files.sim_c);
-      }
+      // Simulasi Proses Upload
+      // const formData = new FormData(); ... (Logika backend)
 
-      // SIMULASI SUKSES 
-      setMessage("Dokumen berhasil diupload. Silakan lanjut ke Pembayaran.");
-      
+      // Ambil ID pemesanan dari session untuk redirect
       const savedDetails = JSON.parse(sessionStorage.getItem('lastPemesananDetails'));
       const newPemesananId = savedDetails ? savedDetails.id_pemesanan : 456; 
 
+      // Simulasi delay network
       setTimeout(() => {
-        // Redirect ke halaman Pembayaran
+        // Redirect ke halaman Pembayaran sesuai request kode asli Anda
         navigate(`/pembayaran/${newPemesananId}`); 
-      }, 2000);
+      }, 1500);
 
     } catch (err) {
-      console.error("Upload gagal:", err.response || err);
-      const serverError = err.response?.data?.errors?.ktp?.[0] || err.response?.data?.errors?.jaminan?.[0] || 'Terjadi kesalahan pada server.';
-      setError('Upload gagal. ' + serverError);
+      console.error("Upload gagal:", err);
+      alert('Terjadi kesalahan saat mengunggah dokumen.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    // PERUBAHAN: Nama class container diganti
-    <div className="unggah-container"> 
-      <header className="unggah-header">
-        <Link to="/beranda" className="back-button">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z" fill="#333"/></svg>
-          Back
+    <div className="mobile-page-container">
+      
+      {/* Header Sticky */}
+      <header className="page-header">
+        <Link to="/beranda" className="btn-back-circle">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
         </Link>
-        <span>Unggah Dokumen Verifikasi</span>
+        <span className="header-title">Verifikasi Dokumen</span>
+        <div style={{width: 40}}></div>
       </header>
 
-      <main className="unggah-content">
-        {message && <div className="status-message success">{message}</div>}
-        {error && <div className="status-message error">{error}</div>}
-
-        <div className="card guide-card">
-            <h2 className="card-title">Penting: Verifikasi Akun</h2>
-            <p>Untuk menyewa, Anda wajib mengunggah dokumen di bawah ini. Proses verifikasi memerlukan waktu maksimal 2 jam.</p>
-            <ul>
-                <li>Dokumen harus jelas dan tidak buram.</li>
-                <li>Hanya format JPG, JPEG, PNG, atau PDF yang diterima.</li>
-            </ul>
+      {/* Konten Scrollable */}
+      <div className="scroll-content">
+        
+        {/* Info Card */}
+        <div className="info-card-warning">
+            <div className="info-icon">⚠️</div>
+            <div className="info-text">
+                <h4>Penting!</h4>
+                <p>Dokumen wajib diunggah untuk verifikasi keamanan. Pastikan foto terlihat jelas dan tidak buram.</p>
+            </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="card upload-form-card">
-          <h2 className="card-title">Unggah Dokumen</h2>
-          
-          <div className="form-group">
-            <label>1. Kartu Tanda Penduduk (KTP) *</label>
-            <label htmlFor="ktp" className="file-label file-required">
-              {files.ktp ? files.ktp.name : 'Pilih file KTP'}
-            </label>
-            <input type="file" id="ktp" name="ktp" accept=".jpg,.jpeg,.png,.pdf" onChange={handleFileChange} required style={{ display: 'none' }} />
-          </div>
+        <div className="divider-thick"></div>
 
-          <div className="form-group">
-            <label>2. Surat Izin Mengemudi C (SIM C) (Opsional)</label>
-            <label htmlFor="sim_c" className="file-label">
-              {files.sim_c ? files.sim_c.name : 'Pilih file SIM C'}
-            </label>
-            <input type="file" id="sim_c" name="sim_c" accept=".jpg,.jpeg,.png,.pdf" onChange={handleFileChange} style={{ display: 'none' }} />
-          </div>
+        <form className="upload-form-section">
+            <h3 className="section-label">Upload Dokumen</h3>
 
-          <div className="form-group">
-            <label>3. Dokumen Jaminan (Cth: KK/Ijazah/STNK) *</label>
-            <label htmlFor="jaminan" className="file-label file-required">
-              {files.jaminan ? files.jaminan.name : 'Pilih dokumen jaminan'}
-            </label>
-            <input type="file" id="jaminan" name="jaminan" accept=".jpg,.jpeg,.png,.pdf" onChange={handleFileChange} required style={{ display: 'none' }} />
-          </div>
-          
-          <button type="submit" className="upload-btn" disabled={loading}>
-            {loading ? 'Mengunggah...' : 'Verifikasi Dokumen'}
-          </button>
+            {/* Input 1: KTP */}
+            <div className="input-group">
+                <label>1. Foto KTP (Wajib)</label>
+                <div className="custom-file-wrapper">
+                    <input 
+                        type="file" 
+                        id="ktp" 
+                        name="ktp" 
+                        accept="image/*,.pdf" 
+                        onChange={handleFileChange} 
+                        className="hidden-input"
+                    />
+                    <label htmlFor="ktp" className={`file-box ${files.ktp ? 'uploaded' : ''}`}>
+                        {files.ktp ? (
+                            <div className="file-success">
+                                <span className="check-icon">✔</span>
+                                <span className="filename">{files.ktp.name}</span>
+                                <span className="change-text">Ganti File</span>
+                            </div>
+                        ) : (
+                            <div className="file-placeholder">
+                                <span className="icon-upload">📷</span>
+                                <span>Ketuk untuk ambil foto KTP</span>
+                            </div>
+                        )}
+                    </label>
+                </div>
+            </div>
+
+            {/* Input 2: SIM C */}
+            <div className="input-group">
+                <label>2. Foto SIM C (Opsional)</label>
+                <div className="custom-file-wrapper">
+                    <input 
+                        type="file" 
+                        id="sim_c" 
+                        name="sim_c" 
+                        accept="image/*,.pdf" 
+                        onChange={handleFileChange} 
+                        className="hidden-input"
+                    />
+                    <label htmlFor="sim_c" className={`file-box ${files.sim_c ? 'uploaded' : ''}`}>
+                        {files.sim_c ? (
+                            <div className="file-success">
+                                <span className="check-icon">✔</span>
+                                <span className="filename">{files.sim_c.name}</span>
+                                <span className="change-text">Ganti File</span>
+                            </div>
+                        ) : (
+                            <div className="file-placeholder">
+                                <span className="icon-upload">📷</span>
+                                <span>Ketuk untuk ambil foto SIM</span>
+                            </div>
+                        )}
+                    </label>
+                </div>
+            </div>
+
+            {/* Input 3: Jaminan */}
+            <div className="input-group">
+                <label>3. Dokumen Jaminan (Wajib)</label>
+                <p className="sub-label">Contoh: KK Asli, Ijazah, atau STNK Pribadi</p>
+                <div className="custom-file-wrapper">
+                    <input 
+                        type="file" 
+                        id="jaminan" 
+                        name="jaminan" 
+                        accept="image/*,.pdf" 
+                        onChange={handleFileChange} 
+                        className="hidden-input"
+                    />
+                    <label htmlFor="jaminan" className={`file-box ${files.jaminan ? 'uploaded' : ''}`}>
+                        {files.jaminan ? (
+                            <div className="file-success">
+                                <span className="check-icon">✔</span>
+                                <span className="filename">{files.jaminan.name}</span>
+                                <span className="change-text">Ganti File</span>
+                            </div>
+                        ) : (
+                            <div className="file-placeholder">
+                                <span className="icon-upload">📄</span>
+                                <span>Pilih Dokumen Jaminan</span>
+                            </div>
+                        )}
+                    </label>
+                </div>
+            </div>
+
         </form>
-      </main>
+
+        <div style={{height: 100}}></div>
+      </div>
+
+      {/* Sticky Footer */}
+      <footer className="sticky-footer-action-single">
+        <button 
+            onClick={handleSubmit} 
+            className={`btn-block-primary ${loading ? 'disabled' : ''}`}
+            disabled={loading}
+        >
+            {loading ? 'Mengunggah...' : 'Lanjut ke Pembayaran'}
+        </button>
+      </footer>
+
     </div>
   );
 }
 
-export default UnggahDokumen; // PERUBAHAN: Nama fungsi diganti
+export default UnggahDokumen;

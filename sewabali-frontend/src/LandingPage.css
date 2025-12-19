@@ -1,330 +1,282 @@
-/* Reset & Base Styles */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f2f5; 
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
 }
 
-/* Container utama untuk background */
-.landing-page-container {
+/* --- Container Mobile --- */
+.mobile-page-container {
   width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background-color: #ffffff;
   min-height: 100vh;
-  /* Ganti 'background.jpeg' dengan nama file Anda di folder /public */
-  background-image: url('/background.jpeg'); 
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed; 
-  display: flex;
-  flex-direction: column;
-  align-items: center; 
-  padding-bottom: 4rem; 
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  overflow-x: hidden; /* Mencegah scroll horizontal halaman */
 }
 
-/* Loading State */
-.loading-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  font-size: 1.5rem;
-  color: #333;
-  background-color: #f0f2f5;
-}
-
-/* Navbar */
-.navbar {
-  position: fixed; 
-  top: 0;
-  left: 0;
-  width: 100%;
-  background-color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+/* --- Header --- */
+.lp-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.8rem 5%; 
-  z-index: 1000; 
-  box-sizing: border-box; 
+  padding: 16px 20px;
+  background-color: rgba(255, 255, 255, 0.95);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(5px);
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.navbar-left {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  text-decoration: none;
-}
-.navbar-left:hover {
+.lp-logo {
+  font-size: 18px;
+  font-weight: 800;
   color: #007bff;
+  letter-spacing: -0.5px;
 }
 
-/* Gaya Tombol Login/Daftar di Navbar */
-.navbar-right-auth {
+.lp-auth-buttons {
   display: flex;
-  gap: 10px; /* Jarak antara tombol */
+  gap: 8px;
 }
 
-.nav-auth-btn {
-  padding: 8px 15px; 
-  border-radius: 6px; 
-  font-size: 0.95rem; 
-  font-weight: 600; 
-  cursor: pointer;
+.btn-auth {
   text-decoration: none;
-  transition: all 0.2s ease;
-  display: inline-block;
-  text-align: center;
-  border: 1px solid #ccc; 
-  background-color: white; 
-  color: #333; 
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 50px;
+  transition: 0.2s;
 }
 
-.nav-auth-btn.login-btn {
-  border-color: #ddd; 
-  color: #555; 
-  background-color: white;
+.btn-auth.ghost {
+  color: #555;
+  background: transparent;
 }
-.nav-auth-btn.login-btn:hover {
-  background-color: #f8f8f8;
-  border-color: #bbb;
-  color: #333;
-}
+.btn-auth.ghost:hover { background-color: #f0f0f0; }
 
-.nav-auth-btn.register-btn {
-  background-color: #007bff; 
-  color: white; 
-  border-color: #007bff; 
+.btn-auth.primary {
+  background-color: #007bff;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }
-.nav-auth-btn.register-btn:hover {
-  background-color: #0056b3; 
-  border-color: #0056b3;
-}
+.btn-auth.primary:hover { background-color: #0069d9; }
 
-
-/* Hero Section */
-.hero-section {
-  width: 90%; 
-  max-width: 1200px; 
-  margin-top: 100px; 
+/* --- Hero Section --- */
+.lp-hero {
+  position: relative;
+  height: 320px;
+  margin: 20px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: url('https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;
   display: flex;
-  background-color: #007bff; 
-  border-radius: 8px; 
-  min-height: 250px; 
-  overflow: hidden; 
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.6));
 }
 
 .hero-content {
-  flex: 3; 
-  padding: 2.5rem 3rem; 
+  position: relative;
+  z-index: 2;
   color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start; 
+  padding: 20px;
 }
 
 .hero-content h1 {
-  font-size: 2.2rem; 
-  line-height: 1.3;
-  margin-bottom: 1.5rem;
+  font-size: 28px;
+  line-height: 1.2;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.sewa-sekarang-btn {
-  background-color: white;
-  color: #007bff; 
+.hero-content p {
+  font-size: 14px;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.btn-hero-cta {
+  background-color: #ffffff;
+  color: #007bff;
   border: none;
-  padding: 0.8rem 2rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 4px;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+  transition: transform 0.2s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.btn-hero-cta:active { transform: scale(0.95); }
+
+/* --- Sections --- */
+.lp-section {
+  padding: 0 0 20px 0;
 }
 
-.sewa-sekarang-btn:hover {
-  background-color: #e0e0e0;
+.section-header {
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
-.hero-right-empty {
-  flex: 1; 
-  background-color: rgba(0, 123, 255, 0.8); 
-}
-
-
-/* Vehicle Category Sections (Mobil & Motor) */
-.vehicle-category-section {
-  width: 90%; 
-  max-width: 1200px;
-  background-color: white;
-  margin-top: 2rem;
-  padding: 1.5rem 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); 
-  border: 1px solid #007bff; 
-  box-sizing: border-box;
-}
-
-.vehicle-category-section h2 {
-  font-size: 1.6rem;
+.section-header h3 {
+  margin: 0;
+  font-size: 16px;
   color: #333;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #007bff; 
-  display: inline-block; 
 }
 
-.vehicle-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem; 
-  justify-content: center; 
+.link-see-all {
+  font-size: 12px;
+  color: #007bff;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-/* Vehicle Card */
-.vehicle-card {
-  border: 2px solid #007bff; 
-  border-radius: 8px;
-  padding: 1rem;
-  text-align: center;
-  background-color: white;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
+/* Horizontal Scroll */
+.horizontal-scroll-list {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 0 20px;
+  padding-bottom: 10px; /* Space shadow */
+  scrollbar-width: none;
+}
+.horizontal-scroll-list::-webkit-scrollbar { display: none; }
+
+/* --- Card Style --- */
+.lp-card {
+  width: 160px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.lp-card:active { transform: scale(0.98); }
+
+.lp-img-wrapper {
+  height: 100px;
+  position: relative;
+}
+.lp-img-wrapper img {
+  width: 100%; height: 100%; object-fit: cover;
 }
 
-.vehicle-card:hover {
-  transform: translateY(-5px); 
+.lp-badge {
+  position: absolute;
+  top: 6px; left: 6px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
 }
 
-.vehicle-card img {
+.lp-info {
+  padding: 10px;
+}
+
+.lp-title {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  color: #333;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.lp-price {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #007bff;
+}
+.lp-price small { font-size: 9px; font-weight: 400; color: #999; }
+
+.lp-btn-action {
   width: 100%;
-  max-height: 160px; 
-  object-fit: contain; 
-  margin-bottom: 1rem;
-  background-color: #f9f9f9; 
-  padding: 0.5rem; 
-  border-radius: 4px;
-}
-
-.vehicle-card h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.4rem;
-  color: #333;
-}
-
-.vehicle-card p {
-  color: #555;
-  font-weight: bold;
-  font-size: 1.05rem;
-  margin-bottom: 1rem;
-}
-
-.detail-btn {
-  background-color: #007bff; 
-  color: white; 
+  padding: 6px;
+  background-color: #f0f7ff;
+  color: #007bff;
   border: none;
-  padding: 0.6rem 1.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: bold;
-  transition: background-color 0.2s ease;
 }
 
-.detail-btn:hover {
-  background-color: #0056b3; 
+/* --- Promo Banner --- */
+.promo-banner {
+  margin: 10px 20px 30px;
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(255, 154, 158, 0.3);
 }
+.promo-text h4 { margin: 0; font-size: 14px; color: #d63384; }
+.promo-text p { margin: 2px 0 0 0; font-size: 11px; color: #333; opacity: 0.7; }
+.promo-icon { font-size: 24px; }
 
+/* --- Footer --- */
+.lp-footer {
+  text-align: center;
+  padding: 20px;
+  border-top: 1px solid #f0f0f0;
+  color: #aaa;
+}
+.lp-footer p { margin: 2px 0; font-size: 11px; }
 
-/* STYLE UNTUK NOTIFIKASI TOAST */
-.toast-notification {
-  position: fixed; 
-  top: 2rem; 
+/* --- Toast Notification --- */
+.toast-message {
+  position: fixed;
+  bottom: 20px;
   left: 50%;
-  transform: translateX(-50%) translateY(-200%); 
-  background-color: #dc3545; 
-  color: white; 
-  padding: 1.2rem 2rem; 
-  border-radius: 8px; 
-  font-size: 1.1rem; 
-  font-weight: bold;
-  z-index: 2000; 
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  opacity: 0;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transform: translateX(-50%) translateY(100px); /* Mulai di bawah */
+  background-color: #333;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-size: 13px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1000;
+  white-space: nowrap;
 }
 
-.toast-notification.show {
-  transform: translateX(-50%) translateY(0); 
-  opacity: 1;
+.toast-message.show {
+  transform: translateX(-50%) translateY(0); /* Muncul */
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 0.8rem 3%;
-  }
-  .hero-section {
-    flex-direction: column; 
-    margin-top: 80px;
-    min-height: unset;
-  }
-  .hero-content {
-    flex: none;
-    width: 100%;
-    padding: 2rem;
-    text-align: center;
-    align-items: center;
-  }
-  .hero-content h1 {
-    font-size: 1.8rem;
-  }
-  .hero-right-empty {
-    display: none; 
-  }
-  .vehicle-category-section {
-    width: 95%;
-    padding: 1rem;
-  }
-  .vehicle-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-  .navbar-right-auth {
-    gap: 0.5rem;
-  }
-  .nav-auth-btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-  }
+/* Loading */
+.loading-screen {
+  display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; color: #999;
 }
-
-@media (max-width: 480px) {
-  .navbar-left {
-    font-size: 1.3rem;
-  }
-  .hero-content h1 {
-    font-size: 1.5rem;
-  }
-  .sewa-sekarang-btn {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
-  }
-  .vehicle-category-section h2 {
-    font-size: 1.3rem;
-  }
-  .vehicle-grid {
-    grid-template-columns: 1fr; 
-  }
-  .vehicle-card img {
-    max-height: 120px;
-  }
-  /* Notifikasi di HP kecil */
-  .toast-notification {
-    width: 90%;
-    padding: 1rem;
-    font-size: 0.9rem;
-    top: 1rem;
-  }
+.spinner {
+  width: 30px; height: 30px;
+  border: 3px solid #eee; border-top: 3px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
 }
+@keyframes spin { 100% { transform: rotate(360deg); } }

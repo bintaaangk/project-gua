@@ -1,196 +1,220 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 body {
-  background-color: #f0f2f5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
 }
 
-.profil-container {
+/* --- Container Mobile --- */
+.mobile-page-container {
   width: 100%;
-  max-width: 600px; /* Tampilan seperti mobile */
+  max-width: 480px;
   margin: 0 auto;
-  padding: 20px;
-  padding-bottom: 100px; /* Ruang untuk navbar bawah */
-  box-sizing: border-box;
+  background-color: #f8f9fa; /* Background halaman sedikit abu */
   min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  padding-bottom: 80px; /* Ruang untuk navbar bawah */
 }
 
-/* --- 1. Header Kartu Biru --- */
-.profil-header-card {
-  background-color: #007bff; /* Warna biru utama */
-  border-radius: 10px;
-  padding: 2rem 1.5rem;
+/* --- Header Background --- */
+.profile-header-bg {
+  height: 140px;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+}
+
+/* Wrapper Konten Utama */
+.profil-content-wrapper {
+  padding: 0 20px;
+  position: relative;
+  /* Margin negatif agar avatar menumpuk di atas header */
+  margin-top: -50px; 
+}
+
+/* --- Identity Section (Foto Profil & Nama) --- */
+.identity-section {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  color: white;
-  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
-  margin-bottom: 2rem;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 10;
 }
 
-.profil-avatar img {
-  width: 70px;
-  height: 70px;
+.avatar-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 12px;
+}
+
+/* Frame Putih di Sekeliling Foto */
+.avatar-frame {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: white;
+  padding: 4px; /* Ini yang membuat efek border putih tebal */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-sizing: border-box; 
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+  display: block;
 }
 
-.profil-info h2 {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: bold;
-}
-
-.profil-info p {
-  margin: 0;
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
-
-/* --- 2. Menu List (Kartu Putih) --- */
-.profil-menu-card {
-  background-color: white;
-  border-radius: 10px;
-  padding: 0.5rem 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  padding: 1.2rem 1.5rem;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.menu-item:last-child {
-  border-bottom: none;
-}
-
-.menu-item:hover {
-  background-color: #f9f9f9;
-}
-
-/* Ikon Menu */
-.menu-icon {
-  width: 40px;
-  height: 40px;
+/* Tombol Kamera di Sudut Kanan Bawah */
+.btn-camera {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: #1e293b; /* Warna gelap elegan */
+  color: white;
+  border: 2px solid white;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
 }
 
-.icon-user {
-  background-color: #e3f2fd; /* Biru muda */
-  color: #1976d2;
+.btn-camera:active {
+  transform: scale(0.9);
 }
 
-.icon-logout {
-  background-color: #ffebee; /* Merah muda */
-  color: #c62828;
-}
-
-.icon-about {
-  background-color: #f3e5f5; /* Ungu muda */
-  color: #7b1fa2;
-}
-
-/* Teks Menu */
-.menu-text {
-  flex-grow: 1;
-}
-
-.menu-text h3 {
+.user-name {
   margin: 0;
-  font-size: 1rem;
+  font-size: 20px;
+  font-weight: 700;
   color: #333;
-  font-weight: 600;
 }
 
-.menu-text p {
-  margin: 0.2rem 0 0 0;
-  font-size: 0.8rem;
+.user-username {
+  margin: 2px 0 12px 0;
+  font-size: 13px;
   color: #888;
 }
 
-.menu-arrow {
-  color: #ccc;
-  font-weight: bold;
-  font-size: 1.2rem;
+/* Tombol Edit Profil (Pill Shape) */
+.btn-edit-profile-pill {
+  background-color: white;
+  color: #007bff;
+  border: 1px solid #007bff;
+  padding: 8px 32px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.1);
 }
 
+.btn-edit-profile-pill:hover {
+  background-color: #007bff;
+  color: white;
+}
 
-/* --- 3. Navbar Bawah (Konsisten dengan Beranda) --- */
+/* --- Menu Settings --- */
+.menu-group {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1a1aa;
+  margin-bottom: 10px;
+  padding-left: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.menu-card {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background-color: #fff;
+  border: 1px solid #f3f4f6;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  text-decoration: none;
+  transition: transform 0.1s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.menu-card:active {
+  transform: scale(0.98);
+  background-color: #fafafa;
+}
+
+/* Ikon Menu Berwarna */
+.icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+.icon-box.blue { background-color: #eff6ff; color: #2563eb; }
+.icon-box.orange { background-color: #fff7ed; color: #ea580c; }
+.icon-box.purple { background-color: #f3e8ff; color: #9333ea; }
+.icon-box.red { background-color: #fef2f2; color: #ef4444; }
+
+.menu-text { flex: 1; }
+.menu-text h4 { margin: 0; font-size: 15px; font-weight: 600; color: #333; }
+.menu-text p { margin: 3px 0 0 0; font-size: 11px; color: #999; }
+
+.text-danger { color: #ef4444 !important; }
+.chevron { color: #d1d5db; font-size: 20px; }
+
+/* --- Bottom Navigation --- */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   width: 100%;
-  max-width: 1200px; 
-  margin: 0 auto; 
-  background-color: white;
+  max-width: 480px;
+  margin: 0 auto;
+  background-color: #fff;
   display: flex;
   justify-content: space-around;
-  padding: 12px 0; 
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  padding: 12px 0;
+  border-top: 1px solid #f0f0f0;
   z-index: 1000;
 }
+
 .bottom-nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-decoration: none;
-  color: #888; 
-  font-size: 13px; 
-  gap: 5px; 
-  padding: 5px 10px; 
-  flex: 1; 
+  color: #9ca3af;
+  font-size: 12px;
+  gap: 4px;
+  flex: 1;
+  transition: color 0.2s;
 }
-.bottom-nav-item svg {
-  width: 28px; 
-  height: 28px;
-  stroke: #888; 
-}
-.bottom-nav-item.active {
-  color: #007bff; 
-}
-.bottom-nav-item.active svg {
-  stroke: #007bff; 
-  fill: #007bff; 
-  fill-opacity: 0.1;
-}
-.bottom-nav-item span {
-  text-decoration: none;
-}
-/* Mobile */
-@media (max-width: 480px) {
-    .profil-container, .bottom-nav {
-        max-width: 100%;
-    }
 
-    /* Header Simple untuk Sub-Halaman Profil */
-.profil-header-simple {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  background-color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 1rem 1.5rem;
-  z-index: 1000;
+.bottom-nav-item.active {
+  color: #007bff;
+  font-weight: 600;
 }
-.profil-header-simple h2 {
-    margin: 0;
-    font-size: 1.2rem;
-    margin-left: 10px;
-}
+
+.bottom-nav-item svg {
+  stroke: currentColor;
 }

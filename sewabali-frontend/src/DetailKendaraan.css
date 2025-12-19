@@ -1,226 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 body {
-  background-color: #f0f2f5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
 }
 
-.detail-container {
+/* --- Container Mobile --- */
+.mobile-detail-page {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-top: 60px; /* Jarak untuk header */
-  padding-bottom: 100px; /* Jarak untuk tombol CTA bawah */
-  box-sizing: border-box;
+  max-width: 480px; /* Batasi lebar */
+  margin: 0 auto;   /* Tengah layar */
+  background-color: #ffffff;
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
 
-/* Header Atas */
-.detail-header {
-  position: fixed;
+/* --- Header --- */
+.detail-navbar {
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  max-width: 1200px;
-  margin: 0 auto;
+  z-index: 50;
+  background-color: #fff;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  background-color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 1rem 1.5rem;
-  z-index: 1000;
-  box-sizing: border-box;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
 }
-.back-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 1rem;
-  cursor: pointer;
-  padding: 5px;
+
+.btn-back-circle, .btn-share-circle {
+  width: 40px; height: 40px;
   border-radius: 50%;
-  transition: background-color 0.2s ease;
+  border: 1px solid #eee;
+  display: flex; align-items: center; justify-content: center;
+  color: #333;
+  text-decoration: none;
+  background: white;
+  transition: 0.2s;
 }
-.back-button:hover {
+.btn-back-circle:active, .btn-share-circle:active { background: #f5f5f5; }
+
+.nav-title { font-weight: 600; font-size: 16px; color: #333; }
+
+/* --- Hero Image --- */
+.hero-image-wrapper {
+  width: 100%;
+  height: 240px;
   background-color: #f0f0f0;
 }
-.detail-header span {
-  font-size: 1.1rem;
-  font-weight: bold;
+.hero-img {
+  width: 100%; height: 100%; object-fit: cover;
 }
 
-/* Konten Utama */
-.detail-content {
-  padding: 1rem;
+/* --- Info Section --- */
+.info-section { padding: 20px; }
+.vehicle-title-large {
+  font-size: 22px; font-weight: 700; color: #333; margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+.price-tag-large {
+  font-size: 18px; font-weight: 700; color: #007bff;
+}
+.price-tag-large .unit {
+  font-size: 14px; color: #888; font-weight: 400;
 }
 
-/* Gambar Kendaraan */
-.detail-image-gallery {
-  width: 100%;
-  background-color: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-sizing: border-box;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-.detail-image-gallery img {
-  width: 100%;
-  height: auto;
-  max-height: 400px;
-  object-fit: contain;
+.divider { height: 8px; background-color: #f5f7fa; width: 100%; }
+
+/* --- Specs --- */
+.spec-section { padding: 20px; }
+.section-heading { font-size: 16px; font-weight: 600; color: #333; margin: 0 0 16px 0; }
+
+.spec-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
-/* Kartu Informasi */
-.detail-info-card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-top: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.detail-title-price {
+.spec-box {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px 8px;
+  text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.5rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 1rem;
-}
-.detail-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin: 0;
-}
-.detail-price {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #007bff;
-}
-.detail-price span {
-  font-size: 1rem;
-  font-weight: normal;
-  color: #555;
-}
-
-.detail-subtitle {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-/* Gaya Spesifikasi */
-.detail-specs-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* 2 kolom */
-  gap: 1rem;
-}
-.spec-item {
-  display: flex;
-  align-items: center; 
-  gap: 0.75rem;
-  background-color: #f8f9fa;
-  padding: 0.75rem;
-  border-radius: 6px;
-}
-.spec-item svg {
-  flex-shrink: 0; 
-}
-/* WADAH BARU UNTUK TEKS */
-.spec-text {
-  display: flex;
-  flex-direction: column; /* Tumpuk atas-bawah */
-  gap: 2px; 
-}
-/* JUDUL (Transmisi, Kapasitas) */
-.spec-title {
-  font-size: 0.85rem; /* Dibuat lebih kecil */
-  color: #6c757d; /* Warna abu-abu */
-  font-weight: normal;
-}
-/* NILAI (Otomatis, 7 Kursi) */
-.spec-value {
-  font-size: 1rem; /* Ukuran normal */
-  font-weight: 600; /* Dibuat tebal */
-  color: #333;
-}
-
-
-/* Deskripsi */
-.detail-description {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #555;
-  margin: 0;
-}
-
-/* Perental */
-.detail-perental {
-  display: flex;
   align-items: center;
-  gap: 0.75rem;
-  background-color: #f8f9fa;
-  padding: 0.75rem;
-  border-radius: 6px;
 }
-.detail-perental img {
-  width: 40px;
-  height: 40px;
+
+.spec-icon-circle {
+  width: 36px; height: 36px;
   border-radius: 50%;
-  object-fit: cover;
-}
-.detail-perental span {
-  font-size: 1rem;
-  font-weight: bold;
+  background-color: #eff6ff;
+  color: #007bff;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px;
 }
 
-/* Tombol CTA di Bawah */
-.detail-footer-cta {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 1200px;
-  margin: 0 auto;
-  background-color: white;
-  /* Tambahkan padding di samping untuk layar lebar */
-  padding: 1rem 1.5rem;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+.spec-details { display: flex; flex-direction: column; }
+.spec-label { font-size: 10px; color: #888; margin-bottom: 2px; }
+.spec-val { font-size: 12px; font-weight: 600; color: #333; }
+
+/* --- Desc --- */
+.desc-section { padding: 20px; }
+.desc-text { font-size: 14px; line-height: 1.6; color: #555; margin: 0; }
+
+/* --- Renter --- */
+.renter-section { padding: 20px; }
+.renter-card {
+  display: flex; align-items: center;
+  background: #fff; border: 1px solid #eee;
+  border-radius: 12px; padding: 12px;
+  gap: 12px;
 }
-.sewa-btn-detail {
-  width: 100%;
-  padding: 1rem;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: white;
-  background-color: #007bff;
-  border: none;
-  border-radius: 8px;
+.renter-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.renter-info { flex: 1; }
+.renter-name { font-size: 14px; font-weight: 600; margin: 0 0 4px 0; color: #333; }
+.renter-loc { font-size: 12px; color: #888; margin: 0; }
+
+.btn-wa {
+  background-color: #25D366; border: none; color: white;
+  padding: 8px 16px; border-radius: 50px;
+  font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  /* PERBAIKAN: Agar Link/Button memenuhi lebar */
-  display: block;
-  text-align: center;
-  text-decoration: none; /* Karena ini Link sekarang */
-}
-.sewa-btn-detail:hover {
-  background-color: #0056b3;
 }
 
-/* Responsive */
-@media (min-width: 768px) {
-  .detail-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 kolom di desktop */
-    gap: 1.5rem;
-    padding: 1.5rem;
-  }
-  .detail-image-gallery {
-    grid-column: 1 / 2;
-  }
-  .detail-info-card {
-    grid-column: 2 / 3;
-    margin-top: 0;
-  }
+/* --- Map --- */
+.map-section { padding: 20px; }
+.map-wrapper {
+  width: 100%; height: 200px;
+  border-radius: 16px; overflow: hidden;
+  background: #eee;
+}
+
+/* --- Sticky Footer --- */
+.sticky-footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  width: 100%; max-width: 480px; /* Samakan container */
+  margin: 0 auto;
+  background-color: #fff;
+  border-top: 1px solid #eee;
+  padding: 16px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  z-index: 100;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+}
+
+.footer-price { display: flex; flex-direction: column; }
+.fp-label { font-size: 11px; color: #888; }
+.fp-value { font-size: 16px; font-weight: 700; color: #007bff; }
+
+.btn-sewa-now {
+  background-color: #007bff; color: white;
+  text-decoration: none;
+  padding: 12px 24px; border-radius: 12px;
+  font-weight: 600; font-size: 14px;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  transition: 0.2s;
+}
+.btn-sewa-now:active { background-color: #0056b3; transform: scale(0.98); }
+
+/* Loading */
+.loading-screen {
+  display: flex; align-items: center; justify-content: center;
+  height: 100vh; color: #888;
 }

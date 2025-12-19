@@ -16,6 +16,16 @@ import DetailRiwayat from './DetailRiwayat.jsx';
 import Profil from './Profil.jsx'; // <-- IMPORT BARU
 import AkunSaya from './AkunSaya.jsx';
 import AboutApp from './AboutApp.jsx';
+import KebijakanPrivasi from './KebijakanPrivasi';
+import SyaratKetentuan from './SyaratKetentuan';
+import HubungiKami from './HubungiKami';
+import Notifikasi from './Notifikasi'; // Import komponen baru
+import DashboardPerental from './DashboardPerental'; // Import file baru
+import PesananMasuk from './Pesananmasuk';
+import ProfilPerental from './ProfilPerental';
+import NotifikasiPerental from './NotifikasiPerental';
+import AdminDashboard from './AdminDashboard';
+import MengarahkanUnit from './MengarahkanUnit.jsx'; // Import halaman Mengarahkan Unit
 
 function App() {
   return (
@@ -44,6 +54,16 @@ function App() {
         <Route path="/profil" element={<Profil />} /> {/* <-- RUTE BARU */}
         <Route path="/akun-saya" element={<AkunSaya />} />
         <Route path="/about" element={<AboutApp />} />
+        <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
+        <Route path="/syarat-ketentuan" element={<SyaratKetentuan />} />
+        <Route path="/hubungi-kami" element={<HubungiKami />} />
+        <Route path="/notifikasi" element={<Notifikasi />} />
+        <Route path="/mengarahkan-unit" element={<MengarahkanUnit />} /> {/* <-- RUTE BARU */}
+        <Route path="/perental/dashboard" element={<DashboardPerental />} />
+        <Route path="/pesanan-masuk" element={<PesananMasuk />} />
+        <Route path="/perental/profil" element={<ProfilPerental />} />
+        <Route path="/perental/notifikasi" element={<NotifikasiPerental />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
       </Routes>
     </Router>

@@ -1,195 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 body {
-  background-color: #f0f2f5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
 }
 
-.pemesanan-container {
+/* --- Container Mobile --- */
+.mobile-page-container {
   width: 100%;
-  max-width: 600px; /* Fokuskan di tengah untuk checkout */
+  max-width: 480px;
   margin: 0 auto;
-  padding-top: 60px; /* Jarak untuk header */
-  padding-bottom: 2rem; 
-  box-sizing: border-box;
+  background-color: #ffffff;
   min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
 
-/* Header */
-.pemesanan-header {
-  position: fixed;
+/* --- Header --- */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  max-width: 600px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  background-color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 1rem 1.5rem;
-  z-index: 1000;
-  box-sizing: border-box;
+  z-index: 50;
 }
-.back-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 1rem;
-  cursor: pointer;
-  padding: 5px;
+
+.btn-back-circle {
+  width: 40px; height: 40px;
   border-radius: 50%;
-  transition: background-color 0.2s ease;
-}
-.pemesanan-header span {
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-/* Konten Utama */
-.pemesanan-content {
-  padding: 1rem;
-}
-
-/* Card Style */
-.card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-.card-title {
-  font-size: 1.4rem;
-  font-weight: bold;
-  margin-top: 0;
-  margin-bottom: 1.5rem;
+  border: 1px solid #eee;
+  display: flex; align-items: center; justify-content: center;
   color: #333;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 0.5rem;
+  text-decoration: none;
 }
 
-/* Ringkasan Kendaraan */
-.summary-card {
-  /* Ganti background header agar lebih menonjol */
-  border-top: 5px solid #007bff; 
+.header-title { font-size: 16px; font-weight: 600; color: #333; }
+
+/* --- Summary Section --- */
+.summary-section { padding: 20px; }
+
+.vehicle-thumb-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
 }
-.summary-item {
+
+.thumb-img {
+  width: 100px;
+  height: 70px;
+  border-radius: 10px;
+  object-fit: cover;
+  background-color: #f5f5f5;
+}
+
+.vehicle-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.price-label { font-size: 14px; color: #007bff; font-weight: 600; margin: 0 0 8px 0; }
+
+.renter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  background-color: #f9f9f9;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #666;
+}
+
+.divider-thick {
+  height: 8px;
+  background-color: #f5f7fa;
+  width: 100%;
+}
+
+/* --- Form Section --- */
+.form-section { padding: 20px; }
+.section-label { font-size: 14px; font-weight: 600; color: #333; margin: 0 0 16px 0; }
+
+.input-group { margin-bottom: 20px; }
+.input-group label {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.input-wrapper {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px dashed #eee;
-}
-.summary-item img {
-  width: 80px;
-  height: 60px;
-  object-fit: contain;
-  border-radius: 4px;
-  background-color: #f8f8f8;
-}
-.summary-text {
-  display: flex;
-  flex-direction: column;
-}
-.summary-vehicle-name {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-.summary-price-per-day {
-  color: #6c757d;
-  font-size: 0.95rem;
-}
-.summary-detail {
-  display: flex;
-  justify-content: space-between;
-  font-size: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-/* Formulir Detail Sewa */
-.form-group {
-  margin-bottom: 1.5rem;
-}
-.form-group label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+.custom-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
   color: #333;
 }
-.form-group input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-sizing: border-box;
-  font-size: 1rem;
-}
-.form-group input:focus {
-  outline: 1px solid #007bff;
-  border-color: #007bff;
-}
 
+.text-center { text-align: center; }
 
-/* Biaya Section */
-.biaya-section {
-  padding-top: 1.5rem;
-  border-top: 1px solid #eee;
-  margin-top: 1.5rem;
+/* Counter Button (+/-) */
+.btn-counter {
+  width: 44px;
+  height: 44px;
+  background-color: #f9f9f9;
+  border: none;
+  font-size: 18px;
+  color: #007bff;
+  cursor: pointer;
+  border-right: 1px solid #f0f0f0;
 }
-.biaya-item {
+.btn-counter:last-child { border-right: none; border-left: 1px solid #f0f0f0; }
+.btn-counter:active { background-color: #e0e0e0; }
+
+/* --- Cost Section --- */
+.cost-section { padding: 20px; }
+
+.cost-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.8rem;
-  font-size: 1rem;
-}
-.biaya-item strong {
-  font-weight: 600;
-  color: #333;
-}
-.biaya-item.total {
-  font-size: 1.2rem;
-  color: #007bff;
-  padding-top: 0.5rem;
-  border-top: 2px dashed #eee;
-}
-.biaya-item.total strong {
-  color: #007bff;
-  font-weight: bold;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #555;
 }
 
-/* Tombol Konfirmasi */
-.konfirmasi-btn {
-  width: 100%;
-  padding: 1rem;
+.cost-row.total {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #e0e0e0;
+  font-weight: 700;
+  font-size: 16px;
+  color: #333;
+}
+
+.highlight-price { color: #007bff; }
+
+/* --- Sticky Footer Action --- */
+.sticky-footer-action {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  width: 100%; max-width: 480px; /* Samakan container */
+  margin: 0 auto;
+  background-color: #fff;
+  border-top: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+}
+
+.total-display { display: flex; flex-direction: column; }
+.total-display span { font-size: 11px; color: #888; }
+.total-display strong { font-size: 18px; color: #007bff; }
+
+.btn-primary-action {
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 1.5rem;
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
-  transition: background-color 0.2s ease;
-}
-.konfirmasi-btn:hover {
-  background-color: #0056b3;
-}
-
-/* Status Pesan */
-.pemesanan-status {
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 4px;
+  padding: 12px 24px;
+  border-radius: 12px;
   font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
 }
-.pemesanan-status.success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-.pemesanan-status.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+.btn-primary-action:active { transform: scale(0.98); }
+.btn-primary-action.disabled { background-color: #ccc; cursor: not-allowed; }
+
+/* Loading */
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #999;
 }

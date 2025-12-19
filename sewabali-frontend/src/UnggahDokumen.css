@@ -1,153 +1,177 @@
-/* Reset & Base Styles */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 body {
-  background-color: #f0f2f5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
 }
 
-.unggah-container { /* PERUBAHAN NAMA CLASS */
+/* --- Container Mobile --- */
+.mobile-page-container {
   width: 100%;
-  max-width: 700px;
+  max-width: 480px;
   margin: 0 auto;
-  padding-top: 60px; 
-  padding-bottom: 2rem; 
+  background-color: #ffffff;
   min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
 
-/* Header */
-.unggah-header { /* PERUBAHAN NAMA CLASS */
-  position: fixed;
+/* --- Header --- */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  max-width: 700px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  background-color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 1rem 1.5rem;
-  z-index: 1000;
+  z-index: 50;
 }
-.back-button {
-  display: flex;
-  align-items: center;
-  margin-right: 1rem;
+
+.btn-back-circle {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid #eee;
+  display: flex; align-items: center; justify-content: center;
   color: #333;
   text-decoration: none;
 }
-.unggah-header span { /* PERUBAHAN NAMA CLASS */
-  font-size: 1.1rem;
-  font-weight: bold;
+
+.header-title { font-size: 16px; font-weight: 600; color: #333; }
+
+/* --- Info Card --- */
+.info-card-warning {
+  margin: 20px;
+  background-color: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
 }
 
-/* Konten Utama */
-.unggah-content { /* PERUBAHAN NAMA CLASS */
-  padding: 1.5rem;
-}
+.info-icon { font-size: 24px; }
+.info-text h4 { margin: 0 0 4px 0; font-size: 14px; color: #f57f17; }
+.info-text p { margin: 0; font-size: 12px; color: #f9a825; line-height: 1.4; }
 
-/* Status Messages */
-.status-message { /* PERUBAHAN NAMA CLASS */
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  border-radius: 8px;
-  font-weight: bold;
-  text-align: center;
-}
-.status-message.success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-.status-message.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6fb;
-}
-
-/* Kartu Panduan */
-.card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-.card-title {
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin-top: 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #eee;
-  margin-bottom: 1rem;
-}
-.guide-card ul {
-    margin-top: 0.5rem;
-    padding-left: 1.5rem;
-    font-size: 0.95rem;
-    color: #555;
-}
-
-/* Form Upload */
-.upload-form-card {
-    border: 1px solid #007bff;
-}
-.form-group {
-    margin-bottom: 1.5rem;
-}
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #333;
-}
-.file-label {
-    display: block;
-    cursor: pointer;
-    background-color: #f8f9fa;
-    color: #6c757d;
-    padding: 12px 15px;
-    border-radius: 8px;
-    border: 1px dashed #ccc;
-    text-align: left;
-    transition: background-color 0.2s;
-    font-size: 1rem;
-}
-.file-label.file-required {
-    border-color: #007bff;
-    border-style: solid;
-}
-.file-label:hover {
-    background-color: #e0e0e0;
-}
-
-.upload-btn {
+.divider-thick {
+  height: 8px;
+  background-color: #f5f7fa;
   width: 100%;
-  padding: 1rem;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: white;
-  background-color: #007bff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-top: 1rem;
-}
-.upload-btn:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-.upload-btn:disabled {
-  background-color: #adb5bd;
-  cursor: not-allowed;
 }
 
-/* Mobile Adjustments */
-@media (max-width: 480px) {
-    .unggah-header, .unggah-container { /* PERUBAHAN NAMA CLASS */
-        max-width: 100%;
-    }
-    .unggah-content { /* PERUBAHAN NAMA CLASS */
-        padding: 1rem;
-    }
+/* --- Form Upload --- */
+.upload-form-section { padding: 20px; }
+.section-label { font-size: 16px; font-weight: 700; color: #333; margin: 0 0 20px 0; }
+
+.input-group { margin-bottom: 24px; }
+.input-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
 }
+.sub-label {
+  font-size: 12px;
+  color: #888;
+  margin: -4px 0 8px 0;
+}
+
+/* Custom File Input Styling */
+.hidden-input { display: none; }
+
+.file-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100px;
+  border: 2px dashed #e0e0e0;
+  border-radius: 12px;
+  background-color: #fafafa;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.file-box:active { background-color: #f0f0f0; border-color: #bbb; }
+
+/* State: Belum Upload */
+.file-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #999;
+}
+.icon-upload { font-size: 24px; }
+.file-placeholder span { font-size: 12px; }
+
+/* State: Sudah Upload */
+.file-box.uploaded {
+  border: 2px solid #007bff;
+  background-color: #f0f7ff;
+}
+
+.file-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 10px;
+}
+
+.check-icon {
+  font-size: 18px;
+  color: #007bff;
+  margin-bottom: 4px;
+}
+
+.filename {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.change-text {
+  font-size: 10px;
+  color: #007bff;
+  text-decoration: underline;
+}
+
+/* --- Sticky Footer --- */
+.sticky-footer-action-single {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  width: 100%; max-width: 480px; /* Samakan container */
+  margin: 0 auto;
+  background-color: #fff;
+  border-top: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  z-index: 100;
+  box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+}
+
+.btn-block-primary {
+  width: 100%;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-block-primary:active { transform: scale(0.98); background-color: #0069d9; }
+.btn-block-primary.disabled { background-color: #ccc; cursor: not-allowed; }

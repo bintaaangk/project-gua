@@ -1,0 +1,300 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* --- LAYOUT UTAMA --- */
+.mobile-wrapper {
+    max-width: 480px;
+    margin: 0 auto;
+    background-color: #FFFFFF; /* Background putih bersih */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    box-shadow: 0 0 50px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* --- HEADER --- */
+.header-simple {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.btn-back-simple {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1E293B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.header-title-simple {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0F172A;
+}
+
+.btn-mark-read {
+    background: none;
+    border: none;
+    color: #2563EB;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* --- CONTENT LIST --- */
+.notif-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 100px; /* Space navbar */
+}
+
+/* --- NOTIFICATION ITEM --- */
+.notif-item {
+    display: flex;
+    padding: 20px 24px;
+    border-bottom: 1px solid #F8FAFC;
+    transition: background 0.2s;
+    position: relative;
+    cursor: pointer;
+}
+
+.notif-item:active {
+    background: #F8FAFC;
+}
+
+/* Style Khusus Belum Dibaca */
+.notif-item.unread {
+    background: #EFF6FF; /* Biru sangat muda */
+}
+.notif-item.unread::after {
+    content: '';
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 8px;
+    height: 8px;
+    background: #2563EB;
+    border-radius: 50%;
+}
+
+.notif-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+}
+
+/* Warna Icon Berdasarkan Tipe */
+.notif-icon-box.order { background: #DBEAFE; color: #2563EB; }   /* Biru (Pesanan) */
+.notif-icon-box.system { background: #F1F5F9; color: #64748B; }  /* Abu (Sistem) */
+.notif-icon-box.success { background: #DCFCE7; color: #16A34A; } /* Hijau (Berhasil) */
+.notif-icon-box.alert { background: #FEE2E2; color: #DC2626; }   /* Merah (Peringatan) */
+
+.notif-content {
+    flex: 1;
+    padding-right: 10px; /* Jarak biar gak nabrak dot unread */
+}
+
+.notif-title {
+    margin: 0 0 4px 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1E293B;
+    line-height: 1.4;
+}
+
+.notif-desc {
+    margin: 0 0 8px 0;
+    font-size: 0.85rem;
+    color: #64748B;
+    line-height: 1.5;
+}
+
+.notif-time {
+    font-size: 0.75rem;
+    color: #94A3B8;
+    font-weight: 500;
+}
+
+/* --- EMPTY STATE --- */
+.empty-state-notif {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    text-align: center;
+    padding: 20px;
+}
+.empty-state-notif svg {
+    width: 80px;
+    height: 80px;
+    color: #E2E8F0;
+    margin-bottom: 20px;
+}
+.empty-state-notif h3 { margin: 0 0 8px 0; color: #334155; }
+.empty-state-notif p { margin: 0; color: #94A3B8; font-size: 0.9rem; }
+
+/* --- BOTTOM NAV FLOATING (Global) --- */
+.bottom-nav-float {
+    position: absolute;
+    bottom: 24px;
+    left: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 20px;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    z-index: 99;
+    border: 1px solid rgba(255,255,255,0.5);
+}
+
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-btn svg { stroke-width: 2px; transition: all 0.2s; }
+.nav-btn.active { color: #2563eb; }
+.nav-btn.active svg { fill: rgba(37, 99, 235, 0.1); }
+/* --- MODAL DETAIL NOTIFIKASI (POPUP) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Gelap transparan */
+    z-index: 999;
+    display: flex;
+    align-items: flex-end; /* Muncul dari bawah */
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+.modal-sheet {
+    background: white;
+    width: 100%;
+    max-width: 480px; /* Sesuai lebar HP */
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+    transform: translateY(100%);
+    animation: slideUp 0.3s forwards;
+    position: relative;
+}
+
+/* Animasi */
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes slideUp { to { transform: translateY(0); } }
+
+/* Isi Modal */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1E293B;
+}
+
+.btn-close-modal {
+    background: #F1F5F9;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #64748B;
+}
+
+.detail-icon-large {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 16px;
+}
+
+/* Warna Icon Besar (Sama dgn list) */
+.detail-icon-large.order { background: #DBEAFE; color: #2563EB; }
+.detail-icon-large.success { background: #DCFCE7; color: #16A34A; }
+.detail-icon-large.alert { background: #FEE2E2; color: #DC2626; }
+.detail-icon-large.system { background: #F1F5F9; color: #64748B; }
+
+.detail-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.detail-time {
+    font-size: 0.85rem;
+    color: #94A3B8;
+    margin-bottom: 16px;
+    display: block;
+    font-weight: 500;
+}
+
+.detail-desc {
+    font-size: 0.95rem;
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.btn-action-primary {
+    width: 100%;
+    background: #2563EB;
+    color: white;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 700;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+}

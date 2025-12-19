@@ -11,9 +11,8 @@ class Kendaraan extends Model
 
     // Tambahkan ini agar Model Kendaraan bisa diisi
     protected $fillable = [
-        'nama',
-        'tipe',
-        'harga_per_hari',
-        'gambar_url',
-    ];
+    'user_id', 'nama', 'tipe', 'jenis', 'plat_nomor', 
+    'harga_per_hari', 'status', 'gambar_url',
+    'transmisi', 'kapasitas' // <-- WAJIB ADA
+];
 }

@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Profil.css'; 
 
 const NavIcon = ({ d, label, active, to }) => ( 
   <Link to={to} className={`bottom-nav-item ${active ? 'active' : ''}`}>
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d={d} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <div className="nav-icon-wrapper">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d={d} />
+        </svg>
+    </div>
     <span>{label}</span>
   </Link>
 );
@@ -14,109 +16,135 @@ const NavIcon = ({ d, label, active, to }) => (
 function Profil() {
   const navigate = useNavigate();
 
-  const user = {
+  const [user, setUser] = useState({
     nama: "Fikri Aditia",
     username: "@fikriaditia",
-    avatar: "https://placehold.co/100x100/ffffff/007bff?text=FA" 
-  };
+    avatar: "https://placehold.co/120x120/ffffff/007bff?text=FA"
+  });
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('userProfileData');
+    if (savedUser) {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(prev => ({
+            ...prev,
+            nama: parsedUser.nama || prev.nama,
+            avatar: parsedUser.avatar || prev.avatar 
+        }));
+    }
+  }, []);
 
   const handleLogout = () => {
-    // Konfirmasi logout
-    if(window.confirm("Apakah Anda yakin ingin keluar?")) {
-        sessionStorage.clear(); // Hapus data sesi
-        navigate('/'); // Kembali ke halaman awal (Login/Landing)
+    if(window.confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) {
+        sessionStorage.clear();
+        navigate('/'); 
+    }
+  };
+
+  const handleEditProfile = () => {
+      navigate('/akun-saya');
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const newAvatarUrl = URL.createObjectURL(file);
+        const newUserState = { ...user, avatar: newAvatarUrl };
+        setUser(newUserState);
+        const oldData = JSON.parse(localStorage.getItem('userProfileData')) || {};
+        localStorage.setItem('userProfileData', JSON.stringify({ ...oldData, avatar: newAvatarUrl }));
     }
   };
 
   return (
-    <div className="profil-container">
+    <div className="mobile-page-container">
       
-      <div className="profil-header-card">
-        <div className="profil-avatar">
-          <img src={user.avatar} alt="Profile" />
-        </div>
-        <div className="profil-info">
-          <h2>{user.nama}</h2>
-          <p>{user.username}</p>
-        </div>
-      </div>
+      {/* 1. Header Background Biru */}
+      <div className="profile-header-bg"></div>
 
-      <div className="profil-menu-card">
+      <div className="profil-content-wrapper">
         
-        {/* Link ke Akun Saya */}
-        <Link to="/akun-saya" className="menu-item">
-          <div className="menu-icon icon-user">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </div>
-          <div className="menu-text">
-            <h3>Akun Saya</h3>
-            <p>Make Changes to your account</p>
-          </div>
-          <div className="menu-arrow">&gt;</div>
-        </Link>
+        {/* 2. Kartu Identitas Floating */}
+        <div className="identity-section">
+            
+            {/* Wrapper Foto Profil */}
+            <div className="avatar-container">
+                <div className="avatar-frame">
+                    <img src={user.avatar} alt="Profile" className="avatar-img" />
+                </div>
+                
+                {/* Input File & Tombol Kamera */}
+                <input 
+                    type="file" 
+                    id="file-input-profile" 
+                    accept="image/*" 
+                    onChange={handlePhotoChange}
+                    style={{ display: 'none' }} 
+                />
+                <label htmlFor="file-input-profile" className="btn-camera">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                </label>
+            </div>
+            
+            <h2 className="user-name">{user.nama}</h2>
+            <p className="user-username">{user.username}</p>
 
-        {/* Tombol Logout (Bukan Link, tapi Div dengan onClick) */}
-        <div className="menu-item" onClick={handleLogout} style={{cursor: 'pointer'}}>
-          <div className="menu-icon icon-logout">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-          </div>
-          <div className="menu-text">
-            <h3>Log out</h3>
-            <p>Further secure your account for safety</p>
-          </div>
-          <div className="menu-arrow">&gt;</div>
+            <button className="btn-edit-profile-pill" onClick={handleEditProfile}>
+                Edit Profil
+            </button>
         </div>
 
-        {/* Link ke About App */}
-        <Link to="/about" className="menu-item">
-          <div className="menu-icon icon-about">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-          </div>
-          <div className="menu-text">
-            <h3>About App</h3>
-            <p>Version 1.0.0</p>
-          </div>
-          <div className="menu-arrow">&gt;</div>
-        </Link>
+        {/* 3. Menu List */}
+        <div className="menu-group">
+            <h3 className="section-title">PENGATURAN AKUN</h3>
+            
+            <Link to="/akun-saya" className="menu-card">
+                <div className="icon-box blue">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <div className="menu-text">
+                    <h4>Informasi Pribadi</h4>
+                    <p>Ubah nama, email, dan alamat</p>
+                </div>
+                <div className="chevron">&rsaquo;</div>
+            </Link>
 
+        </div>
+
+        <div className="menu-group">
+            <h3 className="section-title">LAINNYA</h3>
+
+            <Link to="/about" className="menu-card">
+                <div className="icon-box purple">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </div>
+                <div className="menu-text">
+                    <h4>Tentang Aplikasi</h4>
+                    <p>Versi 1.0.0</p>
+                </div>
+                <div className="chevron">&rsaquo;</div>
+            </Link>
+
+            <div className="menu-card logout" onClick={handleLogout}>
+                <div className="icon-box red">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </div>
+                <div className="menu-text">
+                    <h4 className="text-danger">Keluar</h4>
+                    <p>Keluar dari akun anda</p>
+                </div>
+                <div className="chevron">&rsaquo;</div>
+            </div>
+        </div>
+
+        <div style={{height: 100}}></div>
       </div>
 
       <nav className="bottom-nav">
-        <NavIcon
-          label="Beranda"
-          active={false}
-          to="/beranda" 
-          d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z"
-        />
-        <NavIcon
-          label="Pencarian"
-          active={false}
-          to="/pencarian" 
-          d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19ZM21 21L16.65 16.65"
-        />
-        <NavIcon
-          label="Riwayat"
-          active={false}
-          to="/riwayat"
-          d="M13 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V9L13 2Z"
-        />
-        <NavIcon
-          label="Profil"
-          active={true}
-          to="/profil"
-          d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z"
-        />
+        <NavIcon label="Beranda" active={false} to="/beranda" d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" />
+        <NavIcon label="Pencarian" active={false} to="/pencarian" d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19ZM21 21L16.65 16.65" />
+        <NavIcon label="Riwayat" active={false} to="/riwayat" d="M13 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V9L13 2Z" />
+        <NavIcon label="Profil" active={true} to="/profil" d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" />
       </nav>
     </div>
   );

@@ -1,195 +1,249 @@
-/* Register Page Container */
-.register-page-container {
-  width: 100%;
-  min-height: 100vh;
-  /* JANGAN LUPA GANTI URL INI JIKA PERLU */
-  background-image: url('/background.jpeg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem; 
-  box-sizing: border-box;
-  position: relative; 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
 }
 
-/* Panah Kembali */
-.back-arrow-link {
-  position: absolute
-  ;
-  top: 2rem;
-  left: 2rem;
+/* --- Container Mobile --- */
+.mobile-page-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Background Khusus Register (Gambar Pemandangan Bali) */
+.register-bg {
+  /* Ganti URL ini dengan gambar lokal Anda jika ada */
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+              url('https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover no-repeat;
+  color: white;
+  /* Agar background tetap penuh saat di-scroll */
+  background-attachment: fixed; 
+}
+
+/* --- Header --- */
+.register-header {
+  padding: 20px;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.btn-back-transparent {
   color: white;
   text-decoration: none;
-  z-index: 10;
-  transition: transform 0.2s ease;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4));
-}
-.back-arrow-link:hover {
-  transform: scale(1.2);
+  display: flex;
+  align-items: center;
+  width: 40px; height: 40px;
 }
 
-/* Wrapper untuk logo dan form */
-.register-form-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 550px; 
+/* --- Content --- */
+.register-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  /* Padding atas besar agar tidak tertutup header, padding bawah agar tidak mepet */
+  padding: 80px 20px 40px; 
+  /* Agar bisa di-scroll jika layar pendek */
+  overflow-y: auto; 
+}
+
+.register-branding {
+  text-align: center;
+  margin-bottom: 20px;
+  /* Shadow teks agar terbaca di atas gambar */
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.brand-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.brand-subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* --- Register Card --- */
+.register-card {
+  background-color: white;
+  border-radius: 24px;
+  padding: 30px 24px;
+  color: #333;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Inputs */
+.input-field { margin-bottom: 16px; }
+.input-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.input-field input, .input-field textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  box-sizing: border-box;
+  background-color: #f8fafc;
+  outline: none;
+  transition: 0.2s;
+  font-family: inherit;
+}
+
+.input-field textarea { resize: none; }
+
+.input-field input:focus, .input-field textarea:focus {
+  border-color: #007bff;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* --- CSS UNTUK AUTOCOMPLETE ALAMAT --- */
+.autocomplete-wrapper {
+    position: relative;
     width: 100%;
 }
 
-.register-logo {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: white; 
-    margin-bottom: 1.5rem; 
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); 
+.suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
-/* Register Card */
-.register-card {
-  background-color: rgba(255, 255, 255, 0.95); 
-  padding: 2.5rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  width: 100%;
-  max-width: 450px; /* Lebar Kartu Form */
-  text-align: center;
-  box-sizing: border-box;
+.suggestion-item {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.register-card h2 {
-  font-size: 1.8rem;
-  margin-bottom: 2rem;
-  color: #333;
+.suggestion-item:hover {
+    background-color: #f8f9fa;
+    color: #3B82F6;
 }
 
-/* Form Groups */
-.form-group {
-  margin-bottom: 1.2rem;
-  text-align: left;
+.suggestion-item:last-child {
+    border-bottom: none;
 }
-
-.form-group label {
+/* Role Selection Cards */
+.role-section { margin-bottom: 20px; }
+.field-label {
   display: block;
-  margin-bottom: 0.6rem;
-  font-weight: bold;
-  color: #555;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 8px;
 }
 
-.form-group input,
-.form-group textarea {
+.role-cards {
+  display: flex;
+  gap: 12px;
+}
+
+.role-card {
+  flex: 1;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+  background-color: #f8fafc;
+}
+
+.role-card:active { transform: scale(0.98); }
+
+.role-card.active {
+  border-color: #007bff;
+  background-color: #e0f2fe;
+  color: #007bff;
+  font-weight: 600;
+}
+
+.role-icon { font-size: 20px; }
+
+/* Button */
+.btn-register-full {
   width: 100%;
-  padding: 0.9rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-  font-size: 1rem;
-}
-
-.form-group textarea {
-  resize: vertical; 
-  min-height: 80px;
-}
-
-/* Button Daftar */
-.daftar-btn {
-  width: 100%;
-  padding: 1rem;
-  border: none;
-  border-radius: 5px;
+  padding: 14px;
   background-color: #007bff;
   color: white;
-  font-size: 1.1rem;
-  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
-  margin-top: 1.5rem;
-  transition: background-color 0.2s ease;
+  transition: 0.2s;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
+.btn-register-full:active { transform: scale(0.98); }
+.btn-register-full:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
-.daftar-btn:hover {
-  background-color: #0056b3;
+/* Links */
+.login-link {
+  text-align: center;
+  font-size: 13px;
+  margin-top: 20px;
+  color: #64748b;
 }
-
-/* Messages (Success/Error) */
-.register-message {
-  padding: 0.8rem;
-  margin-bottom: 1.5rem;
-  border-radius: 5px;
-  font-size: 0.95rem;
-  font-weight: bold;
-  text-align: left;
-}
-.register-message.success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-.register-message.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-/* Login/Register Link Text */
-.login-link-text {
-  margin-top: 1.8rem;
-  font-size: 0.95rem;
-  color: #666;
-}
-.login-link-text a {
-  color: #007bff; 
+.login-link a {
+  color: #007bff;
+  font-weight: 700;
   text-decoration: none;
-  font-weight: bold;
-}
-.login-link-text a:hover {
-  text-decoration: underline;
 }
 
-/* Tambahan untuk Role Radio Button */
-.form-group.role-group {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+/* Alert */
+.alert-message {
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 20px;
+  text-align: center;
 }
-
-.role-options {
-  display: flex;
-  flex-direction: column; 
-  gap: 0.8rem; 
-  margin-top: 0.8rem;
+.alert-message.error {
+  background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;
 }
-
-.role-options label {
-  display: flex;
-  align-items: center;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #333;
-}
-
-.role-options input[type="radio"] {
-  margin-right: 10px;
-  width: 18px; 
-  height: 18px; 
-  accent-color: #007bff; 
-}
-
-/* Responsive adjustments */
-@media (max-width: 600px) {
-    .register-page-container {
-        padding: 1rem;
-    }
-    .register-card {
-        padding: 1.5rem;
-        max-width: 95%;
-    }
-    .register-logo {
-        font-size: 2rem;
-    }
-    .register-card h2 {
-        font-size: 1.5rem;
-    }
+.alert-message.success {
+  background-color: #dcfce7; color: #166534; border: 1px solid #86efac;
 }

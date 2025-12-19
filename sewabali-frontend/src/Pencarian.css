@@ -1,267 +1,289 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 body {
-  background-color: #f0f2f5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fa;
 }
 
-.pencarian-container {
+/* --- Container Mobile --- */
+.pencarian-page {
   width: 100%;
-  max-width: 1200px; /* Diperlebar agar sama dengan Beranda di Desktop */
-  margin: 0 auto;
-  padding-top: 70px; /* Jarak dari header */
-  padding-bottom: 90px; /* Jarak dari navbar bawah yang diperbesar */
-  box-sizing: border-box;
-}
-
-/* Header Atas (Navbar Fixed) */
-.pencarian-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background-color: white; 
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 0.8rem 1rem; 
-  z-index: 1000;
-  box-sizing: border-box;
-  display: flex; 
-  align-items: center;
-  max-width: 1200px; 
-  margin: 0 auto;
-  border-top: 5px solid #007bff;
-}
-
-/* Tombol Kembali */
-.back-button {
-  display: flex;
-  align-items: center;
-  color: #333;
-  text-decoration: none;
-  padding: 8px 10px;
-  margin-right: 15px; 
-  font-weight: 500;
-  border-radius: 6px;
-  transition: background-color 0.2s;
-  font-size: 1rem;
-}
-.back-button:hover {
-    background-color: #f0f0f0;
-}
-.back-button svg {
-    margin-right: 5px;
-}
-
-
-/* Wrapper Input Pencarian */
-.search-input-wrapper {
-  flex-grow: 1;
+  max-width: 480px; /* Batasi lebar seperti HP */
+  margin: 0 auto;   /* Tengah layar */
+  background-color: #f8f9fa; /* Background sedikit abu */
+  min-height: 100vh;
   position: relative;
-  margin-right: 20px; 
+  padding-bottom: 90px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
 
-/* Input Pencarian (Kapsul Modern & Menonjol) */
-.search-input {
-  width: 100%;
-  padding: 12px 15px; 
-  padding-right: 40px; /* Ruang untuk tombol clear */
-  border: none; /* Hilangkan border */
-  background-color: #f5f5f5;
-  border-radius: 50px; /* Dibuat sangat membulat (Kapsul) */
-  font-size: 1rem;
-  box-sizing: border-box;
-  transition: box-shadow 0.2s, background-color 0.2s;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-}
-.search-input:focus {
-  outline: none; 
-  background-color: white;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.6); /* Efek shadow lebih kuat saat fokus */
+/* --- Sticky Header --- */
+.sticky-search-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
 }
 
-/* Tombol Clear (X) */
-.clear-button {
-  position: absolute;
-  right: 5px; 
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px; 
-}
-
-/* Tombol Filter */
-.filter-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px; 
-  transition: background-color 0.2s;
-  border-radius: 6px;
-}
-.filter-button:hover {
-    background-color: #f0f0f0;
-}
-
-
-/* Konten Utama (Scrollable) */
-.pencarian-content {
-  width: 100%;
-  padding: 1rem; 
-  box-sizing: border-box;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Daftar Hasil & Card */
-.search-results {
-  padding: 1rem;
+/* Row 1: Back + Input */
+.search-bar-row {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* --- TAMBAHAN BARU: Gaya Kategori --- */
-.category-selector {
-  display: flex;
+  align-items: center;
   gap: 10px;
-  padding: 0 1rem 1rem 1rem; /* Padding di bawah header */
-  background-color: #f0f2f5; /* Sesuaikan dengan background body */
+  padding: 12px 16px;
 }
 
-.category-btn {
-  padding: 8px 16px;
-  border: 1px solid #ccc;
-  border-radius: 20px; /* Kapsul kecil */
-  background-color: white;
-  color: #333;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.category-btn.active {
-  background-color: #007bff;
-  color: white;
-  border-color: #007bff;
-  font-weight: 600;
-}
-/* --- AKHIR TAMBAHAN --- */
-
-
-.search-card-link {
-  text-decoration: none;
-  color: inherit;
-}
-.search-card {
-  display: flex;
-  background-color: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  border: 1px solid #eee;
-}
-
-.search-card-image {
-  flex-shrink: 0;
-  width: 150px;
-  height: 100px;
-  padding: 0.5rem;
+.btn-back {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  color: #333;
+  transition: background 0.2s;
 }
-.search-card-image img {
+.btn-back:hover { background-color: #f0f0f0; }
+
+.input-container {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 10px 36px 10px 40px;
+  border-radius: 50px;
+  border: 1px solid #f0f0f0;
+  background-color: #f3f4f6;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input-container input:focus {
+  background-color: #fff;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  pointer-events: none;
+}
+
+.btn-clear {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #999;
+  cursor: pointer;
+}
+
+/* Row 2: Filter Horizontal */
+.filter-scroll-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  padding-bottom: 4px;
+}
+.filter-scroll-container::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+  white-space: nowrap;
+  padding: 6px 14px;
+  border-radius: 50px;
+  border: 1px solid #e5e7eb;
+  background-color: #fff;
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  flex-shrink: 0; /* Agar tidak menyusut */
+  transition: all 0.2s;
+}
+
+.filter-chip:hover { background-color: #f9fafb; }
+
+.filter-chip.active {
+  background-color: #333;
+  color: #fff;
+  border-color: #333;
+}
+
+.filter-chip.active-blue {
+  background-color: #eff6ff;
+  color: #007bff;
+  border-color: #bfdbfe;
+}
+
+.vertical-sep {
+  width: 1px;
+  height: 20px;
+  background-color: #e5e7eb;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* --- Content List --- */
+.search-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Mobile Card Style */
+.mobile-search-card {
+  display: flex;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #f0f0f0;
+  height: 110px; /* Tinggi fix agar rapi */
+}
+
+.card-img-wrapper {
+  width: 120px;
+  height: 100%;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.card-img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
-.search-card-info {
-  padding: 0.75rem 1rem;
-  flex-grow: 1;
+.badge-type {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
 }
-.search-card-title {
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin: 0 0 0.25rem 0;
+
+.card-info {
+  flex: 1;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.item-name {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
   color: #333;
-}
-.search-card-subtitle {
-  font-size: 0.9rem;
-  color: #6c757d;
-  margin: 0 0 0.5rem 0;
-}
-.search-card-price {
-  font-size: 1rem;
-  font-weight: bold;
-  color: #007bff;
-  margin: 0;
-}
-.search-card-location {
-  font-size: 0.85rem;
-  color: #888;
-  margin-top: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* Navbar Bawah (Bottom Nav) */
+.item-distance {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #888;
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.price-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+.price-label { font-size: 10px; color: #999; }
+.price-amount { font-size: 13px; font-weight: 700; color: #007bff; }
+.price-amount small { font-size: 10px; font-weight: 400; color: #999; }
+
+.btn-pesan {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* State Message */
+.state-message {
+  text-align: center;
+  padding-top: 60px;
+  color: #999;
+}
+.btn-reset-filter {
+  margin-top: 10px;
+  background: none;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 50px;
+  color: #666;
+  cursor: pointer;
+}
+
+/* --- Bottom Nav (Sama dengan Profil) --- */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   width: 100%;
-  max-width: 1200px; 
+  max-width: 480px; /* Samakan container */
   margin: 0 auto; 
   background-color: white;
   display: flex;
   justify-content: space-around;
   padding: 12px 0; 
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  border-top: 1px solid #f0f0f0;
   z-index: 1000;
 }
+
 .bottom-nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  color: #888; 
-  font-size: 13px; 
-  gap: 5px; 
-  padding: 5px 10px; 
+  color: #999; 
+  font-size: 12px; 
+  gap: 4px; 
   flex: 1; 
-}
-.bottom-nav-item svg {
-  width: 28px; 
-  height: 28px;
-  stroke: #888; 
-}
-.bottom-nav-item.active {
-  color: #007bff; 
-}
-.bottom-nav-item.active svg {
-  stroke: #007bff; 
-  fill: #007bff; 
-  fill-opacity: 0.1;
-}
-.bottom-nav-item span {
-  text-decoration: none;
+  transition: color 0.2s;
 }
 
-/* Penyesuaian untuk mobile */
-@media (max-width: 480px) {
-  .pencarian-container {
-    max-width: 100%; 
-  }
-  .pencarian-header {
-    max-width: 100%;
-  }
-  .search-results {
-    padding: 0.5rem;
-  }
-  .bottom-nav {
-    max-width: 100%;
-  }
+.bottom-nav-item.active {
+  color: #007bff; 
+  font-weight: 600;
+}
+.bottom-nav-item svg {
+  stroke: currentColor; 
 }

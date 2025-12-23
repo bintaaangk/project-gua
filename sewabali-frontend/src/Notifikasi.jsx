@@ -1,54 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import './Notifikasi.css';
 
-// Data Mockup Notifikasi
-const INITIAL_NOTIFICATIONS = [
-  {
-    id: 1,
-    type: 'payment',
-    title: 'Pembayaran Berhasil',
-    message: 'Pembayaran untuk Innova Zenix berhasil diverifikasi oleh sistem. Anda sekarang dapat melihat detail pesanan di halaman Riwayat. Terima kasih telah menggunakan layanan kami!',
-    time: 'Baru saja',
-    isRead: false,
-  },
-  {
-    id: 2,
-    type: 'info',
-    title: 'Menunggu Verifikasi',
-    message: 'Dokumen KTP dan SIM Anda sedang diperiksa oleh admin. Proses ini biasanya memakan waktu maksimal 1x24 jam. Kami akan memberitahu Anda segera setelah disetujui.',
-    time: '2 jam lalu',
-    isRead: false,
-  },
-  {
-    id: 3,
-    type: 'promo',
-    title: 'Diskon Spesial Bali!',
-    message: 'Liburan makin hemat! Gunakan kode promo BALISERU untuk mendapatkan diskon 20% untuk semua penyewaan motor minggu ini. Berlaku hingga 30 Desember.',
-    time: '1 hari lalu',
-    isRead: true,
-  },
-  {
-    id: 4,
-    type: 'system',
-    title: 'Selamat Datang',
-    message: 'Terima kasih telah mendaftar di SewaBali.id. Silakan lengkapi profil Anda (Foto & Alamat) untuk kemudahan transaksi penyewaan ke depannya.',
-    time: '3 hari lalu',
-    isRead: true,
-  }
-];
-
 function Notifikasi() {
-  const [notifList, setNotifList] = useState(INITIAL_NOTIFICATIONS);
+  const [notifList, setNotifList] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   // State untuk Modal Detail
   const [selectedNotif, setSelectedNotif] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  useEffect(() => {
+    async function fetchNotifikasi() {
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await axios.get('http://127.0.0.1:8000/api/notifikasi', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        setNotifList(response.data);
+      } catch (error) {
+        console.error('Gagal fetch notifikasi:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchNotifikasi();
+  }, []);
+
   // Fungsi Buka Notifikasi
   const handleOpenNotif = (item) => {
     setSelectedNotif(item);
     setShowModal(true);
+    
+    // Mark as read
+    if (!item.is_read) {
+      markAsRead(item.id);
+    }
+  };
 
     // Otomatis tandai sebagai sudah dibaca saat dibuka
     if (!item.isRead) {
@@ -114,20 +106,20 @@ function Notifikasi() {
                 notifList.map((item) => (
                     <div 
                         key={item.id} 
-                        className={`notif-item ${item.isRead ? 'read' : 'unread'}`}
+                        className={`notif-item ${item.is_read ? 'read' : 'unread'}`}
                         onClick={() => handleOpenNotif(item)}
                     >
                         <div className="notif-left">
-                            {getIcon(item.type)}
+                            {getIcon(item.tipe)}
                         </div>
                         <div className="notif-mid">
                             <div className="notif-head">
-                                <h4>{item.title}</h4>
-                                <span className="time">{item.time}</span>
+                                <h4>{item.tipe === 'dokumen_upload' ? 'Dokumen Diunggah' : item.tipe === 'dokumen_verified' ? 'Dokumen Disetujui' : item.tipe === 'dokumen_rejected' ? 'Dokumen Ditolak' : 'Notifikasi'}</h4>
+                                <span className="time">{new Date(item.created_at).toLocaleDateString('id-ID')}</span>
                             </div>
-                            <p>{item.message}</p>
+                            <p>{item.pesan}</p>
                         </div>
-                        {!item.isRead && <div className="notif-dot"></div>}
+                        {!item.is_read && <div className="notif-dot"></div>}
                     </div>
                 ))
             ) : (
@@ -149,14 +141,18 @@ function Notifikasi() {
                 <div className="modal-drag-bar"></div>
                 
                 <div className="modal-icon-wrapper">
-                    {getIcon(selectedNotif.type)}
+                    {getIcon(selectedNotif.tipe)}
                 </div>
 
-                <h3 className="modal-notif-title">{selectedNotif.title}</h3>
-                <span className="modal-notif-time">{selectedNotif.time}</span>
+                <h3 className="modal-notif-title">
+                  {selectedNotif.tipe === 'dokumen_upload' ? 'Dokumen Diunggah' : 
+                   selectedNotif.tipe === 'dokumen_verified' ? 'Dokumen Disetujui' : 
+                   selectedNotif.tipe === 'dokumen_rejected' ? 'Dokumen Ditolak' : 'Notifikasi'}
+                </h3>
+                <span className="modal-notif-time">{new Date(selectedNotif.created_at).toLocaleDateString('id-ID')}</span>
                 
                 <div className="modal-notif-body">
-                    <p>{selectedNotif.message}</p>
+                    <p>{selectedNotif.pesan}</p>
                 </div>
 
                 <button className="btn-close-modal-full" onClick={handleCloseModal}>

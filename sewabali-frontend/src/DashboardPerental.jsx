@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import './DashboardPerental.css';
 
 // --- DATA DUMMY (UNTUK PREVIEW DESAIN) ---
@@ -44,6 +45,13 @@ function DashboardPerental() {
   const [activeView, setActiveView] = useState('unit'); // Default view
   const [units, setUnits] = useState(DUMMY_UNITS); // Pakai data dummy
   const [loading, setLoading] = useState(false);
+  const [jadwal, setJadwal] = useState([
+    { id: 1, unit: 'Toyota Avanza Zenix', plat_nomor: 'DK 1234 AB', peminjam: 'Rudi Hartono', kontak: '081234567890', mulai: '2024-12-25', selesai: '2024-12-28', status: 'Dikonfirmasi', harga_harian: 350000, catatan: 'Sopir hati-hati di jalanan utama' },
+    { id: 2, unit: 'Honda Brio RS', plat_nomor: 'DK 5678 CD', peminjam: 'Siti Nurhaliza', kontak: '081987654321', mulai: '2024-12-26', selesai: '2024-12-29', status: 'Dikonfirmasi', harga_harian: 300000, catatan: 'Pengembalian tepat waktu' },
+    { id: 3, unit: 'Yamaha NMAX', plat_nomor: 'DK 9999 XX', peminjam: 'Ahmad Pratama', kontak: '082111222333', mulai: '2024-12-27', selesai: '2024-12-30', status: 'Pending', harga_harian: 120000, catatan: 'Menunggu konfirmasi pembayaran' }
+  ]);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedJadwal, setSelectedJadwal] = useState(null);
 
   // Ambil Token (Simulasi Login)
   const userName = localStorage.getItem('userName') || "Fikri";
@@ -71,37 +79,174 @@ function DashboardPerental() {
 
     if (!newUnitData.nama || !newUnitData.plat || !newUnitData.harga) {
         alert("Mohon lengkapi semua data!");
-        setLoading(false); return;
+        setLoading(false); 
+        return;
     }
 
-    // Simulasi Tambah Unit ke List
-    setTimeout(() => {
-        const newUnit = {
-            id: units.length + 1,
-            nama: newUnitData.nama,
-            tipe: newUnitData.tipe,
-            plat_nomor: newUnitData.plat,
-            harga_per_hari: parseInt(newUnitData.harga),
-            transmisi: newUnitData.transmisi,
-            kapasitas: newUnitData.kapasitas,
-            gambar_url: newUnitData.imgPreview || 'https://placehold.co/400x300?text=Unit+Baru',
-            status: 'Tersedia'
-        };
+    // Siapkan FormData untuk upload gambar
+    const formData = new FormData();
+    formData.append('nama', newUnitData.nama);
+    formData.append('tipe', newUnitData.tipe);
+    formData.append('plat_nomor', newUnitData.plat);
+    formData.append('harga_per_hari', parseInt(newUnitData.harga));
+    formData.append('transmisi', newUnitData.transmisi);
+    formData.append('kapasitas', newUnitData.kapasitas);
+    
+    // Tambahkan gambar jika ada
+    if (newUnitData.img) {
+        formData.append('gambar', newUnitData.img);
+    }
 
-        setUnits([newUnit, ...units]); // Tambah ke atas list
+    // Kirim ke backend API
+    const token = localStorage.getItem('token'); // Pastikan token disimpan saat login
+    
+    axios.post('http://localhost:8000/api/kendaraan', formData, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+    .then(response => {
         setLoading(false);
-        setActiveView('unit'); // Kembali ke list
-        setNewUnitData({ nama: '', tipe: 'Mobil', plat: '', harga: '', transmisi: 'Manual', kapasitas: '4', img: null, imgPreview: null });
-        alert("Sukses! Unit tersimpan (Mode Preview).");
-    }, 1000);
+        alert('✓ Unit berhasil ditambahkan dan tersimpan di database!');
+        
+        // Tambah ke list lokal juga
+        setUnits([response.data.data, ...units]);
+        
+        // Reset form
+        setActiveView('unit');
+        setNewUnitData({ 
+            nama: '', tipe: 'Mobil', plat: '', harga: '', 
+            transmisi: 'Manual', kapasitas: '4', img: null, imgPreview: null 
+        });
+    })
+    .catch(error => {
+        setLoading(false);
+        console.error('Error:', error);
+        alert('❌ Gagal menambahkan unit. Cek koneksi atau token Anda.');
+    });
   };
 
   const handleLogout = () => {
     if(window.confirm("Logout?")) { localStorage.clear(); navigate('/login'); }
   };
 
+  const handleLihatDetail = (id) => {
+    const jadwalDetail = jadwal.find(j => j.id === id);
+    if(jadwalDetail) {
+      setSelectedJadwal(jadwalDetail);
+      setShowDetailModal(true);
+    }
+  };
+
+  const handleBatalJadwal = (id) => {
+    if(window.confirm('Apakah Anda yakin ingin membatalkan jadwal ini?')) {
+      setJadwal(jadwal.filter(j => j.id !== id));
+      alert('✓ Jadwal berhasil dibatalkan. Pemberitahuan dikirim ke peminjam.');
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedJadwal(null);
+  };
+
+  const handleKonfirmasiJadwal = () => {
+    if(selectedJadwal) {
+      setJadwal(jadwal.map(j => 
+        j.id === selectedJadwal.id ? {...j, status: 'Dikonfirmasi'} : j
+      ));
+      alert('✓ Jadwal dikonfirmasi. Pemberitahuan dikirim ke peminjam.');
+      handleCloseModal();
+    }
+  };
+
   // --- RENDER CONTENT ---
   const renderContent = () => {
+    if (activeView === 'jadwal') {
+        return (
+            <div className="form-container">
+                <div style={{marginBottom:20}}>
+                    <h3 style={{margin:0}}>Jadwal Penyewaan</h3>
+                    <p style={{margin:0, fontSize:'0.8rem', color:'#64748b'}}>Kelola jadwal rental unitmu.</p>
+                </div>
+                
+                {jadwal.length === 0 ? (
+                    <div style={{textAlign:'center', padding:'40px 20px', color:'#94a3b8'}}>
+                        <p>📅 Belum ada jadwal penyewaan</p>
+                    </div>
+                ) : (
+                    <div style={{display:'flex', flexDirection:'column', gap:'12px'}}>
+                        {jadwal.map(j => (
+                            <div key={j.id} style={{
+                                border:'1px solid #e2e8f0',
+                                borderRadius:'8px',
+                                padding:'15px',
+                                display:'flex',
+                                justifyContent:'space-between',
+                                alignItems:'center',
+                                backgroundColor:'#f8fafc'
+                            }}>
+                                <div style={{flex:1}}>
+                                    <h4 style={{margin:'0 0 5px 0', fontSize:'0.95rem'}}>{j.unit}</h4>
+                                    <p style={{margin:'5px 0', fontSize:'0.85rem', color:'#64748b'}}>
+                                        👤 {j.peminjam}
+                                    </p>
+                                    <p style={{margin:'5px 0', fontSize:'0.85rem', color:'#64748b'}}>
+                                        📅 {j.mulai} s/d {j.selesai}
+                                    </p>
+                                    <span style={{
+                                        display:'inline-block',
+                                        padding:'4px 8px',
+                                        borderRadius:'4px',
+                                        fontSize:'0.75rem',
+                                        fontWeight:'600',
+                                        backgroundColor: j.status === 'Dikonfirmasi' ? '#d1fae5' : '#fef3c7',
+                                        color: j.status === 'Dikonfirmasi' ? '#065f46' : '#92400e'
+                                    }}>
+                                        {j.status}
+                                    </span>
+                                </div>
+                                <div style={{display:'flex', gap:'8px', marginLeft:'10px'}}>
+                                    <button 
+                                        onClick={() => handleLihatDetail(j.id)}
+                                        style={{
+                                            padding:'8px 12px',
+                                            backgroundColor:'#3b82f6',
+                                            color:'white',
+                                            border:'none',
+                                            borderRadius:'4px',
+                                            cursor:'pointer',
+                                            fontSize:'0.8rem',
+                                            fontWeight:'600'
+                                        }}
+                                    >
+                                        Lihat
+                                    </button>
+                                    <button 
+                                        onClick={() => handleBatalJadwal(j.id)}
+                                        style={{
+                                            padding:'8px 12px',
+                                            backgroundColor:'#ef4444',
+                                            color:'white',
+                                            border:'none',
+                                            borderRadius:'4px',
+                                            cursor:'pointer',
+                                            fontSize:'0.8rem',
+                                            fontWeight:'600'
+                                        }}
+                                    >
+                                        Batalkan
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    }
+    
     if (activeView === 'tambah-unit') {
         return (
             <div className="form-container">
@@ -202,6 +347,160 @@ function DashboardPerental() {
     );
   };
 
+  // --- MODAL DETAIL JADWAL ---
+  const ModalDetailJadwal = () => {
+    if(!showDetailModal || !selectedJadwal) return null;
+    
+    const hariPeminjaman = Math.ceil((new Date(selectedJadwal.selesai) - new Date(selectedJadwal.mulai)) / (1000 * 60 * 60 * 24));
+    const totalHarga = hariPeminjaman * selectedJadwal.harga_harian;
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '25px',
+          maxWidth: '500px',
+          width: '90%',
+          maxHeight: '80vh',
+          overflowY: 'auto',
+          boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)'
+        }}>
+          {/* Header Modal */}
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '15px', borderBottom: '2px solid #e2e8f0'}}>
+            <h2 style={{margin: 0, fontSize: '1.3rem'}}>Detail Jadwal</h2>
+            <button 
+              onClick={handleCloseModal}
+              style={{backgroundColor: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b'}}
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Info Unit */}
+          <div style={{marginBottom: '20px', padding: '15px', backgroundColor: '#f0f9ff', borderLeft: '4px solid #3b82f6', borderRadius: '4px'}}>
+            <h3 style={{margin: '0 0 10px 0', color: '#1e3a8a'}}>{selectedJadwal.unit}</h3>
+            <p style={{margin: '5px 0', fontSize: '0.9rem', color: '#475569'}}>
+              <strong>📍 Plat Nomor:</strong> {selectedJadwal.plat_nomor}
+            </p>
+            <p style={{margin: '5px 0', fontSize: '0.9rem', color: '#475569'}}>
+              <strong>💰 Harga/Hari:</strong> Rp {selectedJadwal.harga_harian.toLocaleString('id-ID')}
+            </p>
+          </div>
+
+          {/* Info Peminjam */}
+          <div style={{marginBottom: '20px', padding: '15px', backgroundColor: '#f5f3ff', borderLeft: '4px solid #8b5cf6', borderRadius: '4px'}}>
+            <h4 style={{margin: '0 0 10px 0', color: '#4c1d95'}}>Informasi Peminjam</h4>
+            <p style={{margin: '5px 0', fontSize: '0.9rem', color: '#475569'}}>
+              <strong>👤 Nama:</strong> {selectedJadwal.peminjam}
+            </p>
+            <p style={{margin: '5px 0', fontSize: '0.9rem', color: '#475569'}}>
+              <strong>📱 Kontak:</strong> {selectedJadwal.kontak}
+            </p>
+          </div>
+
+          {/* Info Tanggal & Durasi */}
+          <div style={{marginBottom: '20px', padding: '15px', backgroundColor: '#fef3c7', borderLeft: '4px solid #f59e0b', borderRadius: '4px'}}>
+            <h4 style={{margin: '0 0 10px 0', color: '#78350f'}}>Periode Penyewaan</h4>
+            <p style={{margin: '5px 0', fontSize: '0.9rem', color: '#475569'}}>
+              <strong>📅 Mulai:</strong> {selectedJadwal.mulai}
+            </p>
+            <p style={{margin: '5px 0', fontSize: '0.9rem', color: '#475569'}}>
+              <strong>📅 Selesai:</strong> {selectedJadwal.selesai}
+            </p>
+            <p style={{margin: '10px 0 5px 0', fontSize: '0.9rem', color: '#475569'}}>
+              <strong>⏰ Durasi:</strong> {hariPeminjaman} hari
+            </p>
+          </div>
+
+          {/* Perhitungan Harga */}
+          <div style={{marginBottom: '20px', padding: '15px', backgroundColor: '#e0f2fe', borderRadius: '8px'}}>
+            <h4 style={{margin: '0 0 10px 0', color: '#0c4a6e'}}>Ringkasan Harga</h4>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem'}}>
+              <span>Harga per hari × {hariPeminjaman} hari</span>
+              <span>Rp {selectedJadwal.harga_harian.toLocaleString('id-ID')} × {hariPeminjaman}</span>
+            </div>
+            <div style={{borderTop: '1px solid #0284c7', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '1rem', fontWeight: '600', color: '#0c4a6e'}}>
+              <span>Total</span>
+              <span>Rp {totalHarga.toLocaleString('id-ID')}</span>
+            </div>
+          </div>
+
+          {/* Catatan */}
+          {selectedJadwal.catatan && (
+            <div style={{marginBottom: '20px', padding: '15px', backgroundColor: '#fecaca', borderLeft: '4px solid #ef4444', borderRadius: '4px'}}>
+              <h4 style={{margin: '0 0 10px 0', color: '#7f1d1d'}}>Catatan</h4>
+              <p style={{margin: 0, fontSize: '0.9rem', color: '#475569'}}>{selectedJadwal.catatan}</p>
+            </div>
+          )}
+
+          {/* Status Badge */}
+          <div style={{marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px'}}>
+            <span style={{fontSize: '0.85rem', color: '#64748b'}}>Status:</span>
+            <span style={{
+              display: 'inline-block',
+              padding: '6px 12px',
+              borderRadius: '20px',
+              fontSize: '0.85rem',
+              fontWeight: '600',
+              backgroundColor: selectedJadwal.status === 'Dikonfirmasi' ? '#d1fae5' : '#fef3c7',
+              color: selectedJadwal.status === 'Dikonfirmasi' ? '#065f46' : '#92400e'
+            }}>
+              {selectedJadwal.status}
+            </span>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
+            <button
+              onClick={handleCloseModal}
+              style={{
+                padding: '10px 16px',
+                backgroundColor: '#e2e8f0',
+                color: '#334155',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '0.9rem'
+              }}
+            >
+              Tutup
+            </button>
+            {selectedJadwal.status === 'Pending' && (
+              <button
+                onClick={handleKonfirmasiJadwal}
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#22c55e',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '0.9rem'
+                }}
+              >
+                ✓ Konfirmasi
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="dashboard-wrapper">
       {/* HEADER */}
@@ -263,6 +562,9 @@ function DashboardPerental() {
              <span>Profil</span>
          </button>
       </nav>
+
+      {/* MODAL DETAIL JADWAL */}
+      <ModalDetailJadwal />
     </div>
   );
 }

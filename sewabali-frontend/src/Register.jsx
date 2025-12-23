@@ -139,20 +139,33 @@ function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("=== FORM SUBMIT DIMULAI ===");
+        
         setMessage('');
         setErrors({}); // Reset semua error
         setLoading(true);
 
         // Validasi Frontend Sederhana
         let tempErrors = {};
+        
+        console.log("Form Data:", formData);
+        console.log("Alamat:", { jalan, kabupaten, kecamatan });
+        
+        if (!formData.name || !formData.email || !formData.nomor_telepon) {
+            tempErrors.general = 'Mohon lengkapi nama, email, dan nomor telepon.';
+        }
         if (formData.password !== formData.password_confirmation) {
             tempErrors.password_confirmation = 'Konfirmasi password tidak cocok.';
         }
         if (!jalan || !kabupaten || !kecamatan) {
-            tempErrors.alamat = 'Mohon lengkapi detail alamat.';
+            tempErrors.alamat = 'Mohon lengkapi detail alamat (kabupaten, kecamatan, dan lokasi).';
+        }
+        if (!formData.password || formData.password.length < 8) {
+            tempErrors.password = 'Password minimal 8 karakter.';
         }
 
         if (Object.keys(tempErrors).length > 0) {
+            console.log("Validasi Frontend Error:", tempErrors);
             setErrors(tempErrors);
             setLoading(false);
             return;
@@ -161,37 +174,87 @@ function Register() {
         const googleMapsLink = `https://www.google.com/maps?q=${mapPosition.lat},${mapPosition.lng}`;
         const alamatLengkap = `${jalan}, Kec. ${kecamatan}, Kab. ${kabupaten}, Bali. (Titik: ${googleMapsLink})`;
 
-        const dataToSubmit = { ...formData, alamat: alamatLengkap };
+        // PENTING: Kirim semua data termasuk ROLE
+        const dataToSubmit = {
+            name: formData.name,
+            email: formData.email,
+            nomor_telepon: formData.nomor_telepon,
+            password: formData.password,
+            password_confirmation: formData.password_confirmation,
+            role: formData.role, // WAJIB DIKIRIM!
+            alamat: alamatLengkap
+        };
+
+        console.log("✓ Validasi Frontend Sukses");
+        console.log("Data dikirim ke backend:", dataToSubmit);
 
         try {
-            const config = { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } };
+            const config = { 
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Accept': 'application/json' 
+                } 
+            };
             
             // Kirim ke Laravel
-            await axios.post('http://127.0.0.1:8000/api/register', dataToSubmit, config);
+            console.log("📤 Mengirim request ke: http://127.0.0.1:8000/api/register");
+            const response = await axios.post('http://127.0.0.1:8000/api/register', dataToSubmit, config);
             
-            setMessage("Registrasi Berhasil! Silakan Login.");
-            setTimeout(() => { navigate('/login'); }, 1500);
+            console.log("✓ Response sukses:", response.data);
+            setMessage("✓ Registrasi Berhasil! Silakan Login.");
+            setLoading(false);
+            
+            setTimeout(() => { 
+                navigate('/login'); 
+            }, 1500);
 
         } catch (err) {
-            console.error("Register Error:", err.response);
+            console.error("❌ Register Error - Full Details:", err);
+            console.error("Error Response:", err.response);
             
-            if (err.response && err.response.data && err.response.data.errors) {
-                // Laravel mengembalikan error dalam bentuk object, misal: { email: ["Email sudah dipakai"], nomor_telepon: ["No HP dipakai"] }
-                // Kita set ke state errors agar muncul di bawah input masing-masing
-                setErrors(err.response.data.errors);
+            if (err.response && err.response.data) {
+                console.log("Backend error data:", err.response.data);
+                
+                // Handle Laravel error response
+                if (err.response.data.errors) {
+                    // Error dari validasi Laravel (bentuk object)
+                    const formattedErrors = {};
+                    Object.keys(err.response.data.errors).forEach(field => {
+                        // Ambil pesan error pertama dari array
+                        formattedErrors[field] = err.response.data.errors[field];
+                    });
+                    console.log("Formatted Errors:", formattedErrors);
+                    setErrors(formattedErrors);
+                } else if (err.response.data.message) {
+                    // Error umum dari backend
+                    console.log("Backend general error:", err.response.data.message);
+                    setErrors({ general: err.response.data.message });
+                } else {
+                    setErrors({ general: 'Registrasi gagal. Coba lagi nanti.' });
+                }
+            } else if (err.request) {
+                console.error("No response from server:", err.request);
+                setErrors({ general: 'Tidak ada respons dari server. Pastikan backend sudah jalan (php artisan serve).' });
             } else {
-                setErrors({ general: 'Registrasi gagal. Cek koneksi backend.' });
+                console.error("Error:", err.message);
+                setErrors({ general: err.message || 'Registrasi gagal.' });
             }
         } finally {
             setLoading(false);
+            console.log("=== FORM SUBMIT SELESAI ===");
         }
     };
 
     // Helper untuk menampilkan pesan error di bawah input
     const renderError = (field) => {
         if (errors[field]) {
-            return <span className="error-text" style={{color: 'red', fontSize: '0.75rem', marginTop: '5px', display: 'block'}}>
-                {errors[field][0] || errors[field]} {/* Ambil pesan pertama array error Laravel */}
+            let errorMsg = errors[field];
+            // Jika error adalah array (dari Laravel), ambil elemen pertama
+            if (Array.isArray(errorMsg)) {
+                errorMsg = errorMsg[0];
+            }
+            return <span className="error-text" style={{color: '#dc3545', fontSize: '0.75rem', marginTop: '5px', display: 'block', fontWeight: '500'}}>
+                ⚠️ {errorMsg}
             </span>;
         }
         return null;
@@ -307,7 +370,9 @@ function Register() {
                             {renderError('password_confirmation')}
                         </div>
 
-                        <button type="submit" className="btn-register-full" disabled={loading}>{loading ? 'Memproses...' : 'Daftar Sekarang'}</button>
+                        <button type="submit" className="btn-register-full" disabled={loading} style={{opacity: loading ? 0.7 : 1, cursor: loading ? 'wait' : 'pointer'}}>
+                            {loading ? '⏳ Memproses... Mohon tunggu' : '✓ Daftar Sekarang'}
+                        </button>
                     </form>
                     <p className="login-link">Sudah punya akun? <Link to="/login">Masuk</Link></p>
                 </div>

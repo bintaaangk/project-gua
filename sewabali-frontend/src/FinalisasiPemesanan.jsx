@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import './FinalisasiPemesanan.css';
-
-// Asumsi ID Penyewa yang sedang login
-const ID_PENYEWA = 1;
 
 function FinalisasiPemesanan() {
   const navigate = useNavigate();
@@ -29,9 +27,9 @@ function FinalisasiPemesanan() {
             id: details.id_pemesanan,
             total_bayar: details.total_harga,
             durasi: details.durasi_hari,
-            tanggal_pesan: details.tanggal_pesan, // Pastikan tanggal ada
+            tanggal_pesan: details.tanggal_pesan,
             kendaraan: details.kendaraan,
-            bank: { nama: "BCA", rekening: "8724123456", atas_nama: details.kendaraan.perental.nama }
+            bank: { nama: "BCA", rekening: "8724123456", atas_nama: "Pemilik Kendaraan" }
         });
     } else {
         setError("Data pemesanan hilang. Mohon kembali ke halaman detail.");
@@ -47,46 +45,52 @@ function FinalisasiPemesanan() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!files.ktp || !files.jaminan || !files.bukti_transfer) {
-      setError("Mohon lengkapi KTP, Dokumen Jaminan, dan Bukti Transfer.");
+    if (!files.ktp || !files.jaminan) {
+      setError("Mohon lengkapi KTP dan Dokumen Jaminan.");
       return;
     }
 
     setLoading(true);
     setError('');
-    setMessage("Mengunggah dokumen dan bukti pembayaran...");
+    setMessage("Mengunggah dokumen...");
 
     try {
-      // --- SIMULASI MENYIMPAN KE RIWAYAT (LOCAL STORAGE) ---
-      // Kita buat objek riwayat baru
-      const newHistoryItem = {
-        id: pemesanan.id,
-        kendaraan: pemesanan.kendaraan.nama,
-        img: pemesanan.kendaraan.gambar_url,
-        tanggal: pemesanan.tanggal_pesan || new Date().toLocaleDateString(),
-        durasi: `${pemesanan.durasi} Hari`,
-        total: pemesanan.total_bayar,
-        status: "Menunggu Verifikasi", // Status awal
-        timestamp: new Date().getTime() // Untuk sorting
-      };
-
-      // Ambil riwayat lama dari penyimpanan browser
-      const existingHistory = JSON.parse(localStorage.getItem('userTransactionHistory') || '[]');
+      // Buat FormData untuk upload
+      const formData = new FormData();
+      formData.append('pemesanan_id', pemesanan.id);
+      formData.append('ktp', files.ktp);
       
-      // Tambahkan yang baru ke paling atas
-      localStorage.setItem('userTransactionHistory', JSON.stringify([newHistoryItem, ...existingHistory]));
-      // -----------------------------------------------------
+      if (files.sim_c) {
+        formData.append('sim_c', files.sim_c);
+      }
+      
+      formData.append('jaminan', files.jaminan);
+      
+      if (files.bukti_transfer) {
+        formData.append('bukti_transfer', files.bukti_transfer);
+      }
 
-      setMessage("Upload berhasil! Verifikasi Perental sedang diproses...");
+      // Get token dari localStorage
+      const token = localStorage.getItem('authToken');
+      
+      // Upload ke backend
+      const response = await axios.post('http://127.0.0.1:8000/api/dokumen-verifikasi', formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+
+      setMessage("Upload berhasil! Dokumen sedang diverifikasi oleh perental...");
       
       setTimeout(() => {
         sessionStorage.removeItem('lastPemesananDetails'); 
         navigate('/pembayaran-sukses'); 
-      }, 2000); 
+      }, 2000);
 
     } catch (err) {
       console.error(err);
-      setError('Gagal memproses data.');
+      setError(err.response?.data?.message || 'Gagal upload dokumen. Coba lagi nanti.');
       setLoading(false);
     }
   };

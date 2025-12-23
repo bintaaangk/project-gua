@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Pembayaran.css'; 
 
 function Pembayaran() {
@@ -40,36 +41,56 @@ function Pembayaran() {
     setLoading(true);
 
     try {
-      // --- SIMULASI SIMPAN KE RIWAYAT (LocalStorage) ---
+      const token = localStorage.getItem('token');
       
-      const newHistoryItem = {
-        id: pemesanan.id_pemesanan, 
-        kendaraan: pemesanan.kendaraan.nama, 
-        img: pemesanan.kendaraan.gambar_url,
-        tanggal: pemesanan.tanggal_pesan,
-        durasi: `${pemesanan.durasi_hari} Hari`,
-        total: pemesanan.total_harga,
-        status: "Menunggu Verifikasi",
-        timestamp: new Date().getTime() 
-      };
+      // 1. Upload bukti bayar ke API
+      const formData = new FormData();
+      formData.append('id_pemesanan', pemesanan?.id_pemesanan);
+      formData.append('path_bukti', buktiFile);
 
-      // Ambil riwayat lama & gabungkan
-      const existingData = localStorage.getItem('userTransactionHistory');
-      let historyArray = existingData ? JSON.parse(existingData) : [];
-      historyArray.unshift(newHistoryItem);
-      localStorage.setItem('userTransactionHistory', JSON.stringify(historyArray));
-      
-      // Bersihkan session agar tidak double
-      sessionStorage.removeItem('lastPemesananDetails'); 
+      const buktiResponse = await axios.post(
+        'http://127.0.0.1:8000/api/bukti-bayar',
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
 
-      // Simulasi loading
-      setTimeout(() => {
-        navigate('/riwayat'); 
-      }, 1500);
+      if (buktiResponse.status === 201) {
+        // 2. Simpan ke riwayat lokal juga
+        const newHistoryItem = {
+          id: pemesanan?.id_pemesanan || 0, 
+          kendaraan: pemesanan?.kendaraan?.nama || 'Kendaraan', 
+          img: pemesanan?.kendaraan?.gambar_url || '',
+          tanggal: pemesanan?.tanggal_pesan || new Date().toISOString().split('T')[0],
+          durasi: `${pemesanan?.durasi_hari || 1} Hari`,
+          total: pemesanan?.total_harga || 0,
+          status: "Menunggu Verifikasi Pembayaran",
+          timestamp: new Date().getTime() 
+        };
+
+        const existingData = localStorage.getItem('userTransactionHistory');
+        let historyArray = existingData ? JSON.parse(existingData) : [];
+        historyArray.unshift(newHistoryItem);
+        localStorage.setItem('userTransactionHistory', JSON.stringify(historyArray));
+        
+        // 3. Bersihkan session
+        sessionStorage.removeItem('lastPemesananDetails'); 
+
+        alert('Bukti pembayaran berhasil diupload! Menunggu verifikasi dari pemilik kendaraan.');
+
+        // Simulasi loading
+        setTimeout(() => {
+          navigate('/riwayat'); 
+        }, 1500);
+      }
 
     } catch (err) {
       console.error("Error:", err);
-      alert('Gagal memproses pembayaran.');
+      alert('Gagal mengupload bukti pembayaran: ' + (err.response?.data?.error || err.message));
     } finally {
       setLoading(false);
     }
@@ -106,7 +127,9 @@ function Pembayaran() {
                 <div className="bank-logo-placeholder">BCA</div>
                 <div className="bank-info">
                     <span className="bank-name">BCA (Bank Central Asia)</span>
-                    <span className="account-name">{pemesanan.kendaraan.perental.nama}</span>
+                    <span className="account-name">
+                      {pemesanan?.kendaraan?.perental?.nama || 'Pemilik Kendaraan'}
+                    </span>
                 </div>
             </div>
             

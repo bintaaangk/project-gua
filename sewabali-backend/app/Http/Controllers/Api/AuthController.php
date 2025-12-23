@@ -97,30 +97,42 @@ class AuthController extends Controller
         // 1. Validasi
         $validator = Validator::make($request->all(), [
             'email'    => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
+            'role'     => 'required|in:penyewa,perental' // Terima role dari frontend
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        // 2. Cek Database (Hati-hati: Jika ada 2 email sama beda role, Auth::attempt mungkin bingung)
-        // Solusi: Kita cek manual user berdasarkan email DAN role (jika di form login ada pilihan role)
-        // TAPI: Untuk standar, kita pakai Auth::attempt biasa dulu. 
-        // Jika user punya 2 akun (Penyewa & Perental) dengan password sama, ini akan login ke salah satu.
-        // Jika ingin spesifik login sebagai 'Penyewa', di frontend login harus kirim 'role'.
+        // 2. Cek kredensial DENGAN role spesifik
+        // Jadi jika punya email sama tapi role berbeda, bisa login ke role yg benar
+        $credentials = $request->only('email', 'password');
+        $role = $request->role;
         
-        // Cek kredensial
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        // Cek email & password dulu
+        if (!Auth::attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email atau Password salah.'
             ], 401);
         }
 
-        // 3. Ambil User & Token
-        // Karena email bisa duplikat (beda role), kita ambil user yg auth berhasil
-        $user = Auth::user(); 
+        // 3. Ambil User yang berhasil login
+        $user = Auth::user();
+        
+        // 4. Cek apakah role user cocok dengan role yang diminta
+        // Asumsi user punya kolom 'role' atau 'tipe_user' di database
+        if ($user->role !== $role && $user->tipe_user !== $role) {
+            // Logout jika role tidak sesuai
+            Auth::logout();
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Anda tidak terdaftar sebagai ' . ucfirst($role) . '.'
+            ], 403);
+        }
+
+        // 5. Generate Token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

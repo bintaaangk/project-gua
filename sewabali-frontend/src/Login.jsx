@@ -4,7 +4,7 @@ import axios from 'axios';
 import './Login.css'; // Pastikan file CSS ada
 
 function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '', role: 'penyewa' }); // TAMBAH role
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); 
@@ -102,6 +102,20 @@ function Login() {
             {error && <div className="alert-message error">{error}</div>}
 
             <form onSubmit={handleSubmit}>
+                {/* PILIHAN ROLE */}
+                <div className="input-field">
+                    <label>Login Sebagai</label>
+                    <select 
+                        name="role" 
+                        value={formData.role} 
+                        onChange={handleChange}
+                        style={{padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem'}}
+                    >
+                        <option value="penyewa">Penyewa (Cari Kendaraan)</option>
+                        <option value="perental">Perental (Kelola Kendaraan)</option>
+                    </select>
+                </div>
+
                 <div className="input-field">
                     <label>Email</label>
                     <input 

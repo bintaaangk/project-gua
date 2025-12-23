@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Pemesanan.css'; 
-
-// --- DATA TIRUAN (MOCK DATA) ---
-// (Tetap sama seperti data sebelumnya)
-const MOCK_DATA = {
-  1: { id: 1, nama: "Toyota Innova Zenix 2024", harga_per_hari: 750000, gambar_url: "https://placehold.co/800x400/007bff/FFFFFF?text=Innova+Zenix", perental: { nama: "Bli Komang Jaya" } },
-  // ... (Gunakan data lengkap Anda di sini)
-};
 
 const MOCK_PEMESANAN_ID = 456; 
 
@@ -15,6 +9,7 @@ function Pemesanan() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [kendaraan, setKendaraan] = useState(null);
+  const [loading, setLoading] = useState(true);
   
   const today = new Date().toISOString().split('T')[0];
 
@@ -32,14 +27,23 @@ function Pemesanan() {
   }, []);
 
   useEffect(() => {
-    const numericId = parseInt(id);
-    const data = MOCK_DATA[numericId] || MOCK_DATA[1]; 
-    setKendaraan(data);
-
-    if (data) {
-      setTotalHarga(calculateTotal(formData.durasi_hari, data.harga_per_hari));
+    async function fetchKendaraan() {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/kendaraan/${id}`);
+        setKendaraan(response.data);
+        
+        if (response.data) {
+          setTotalHarga(calculateTotal(formData.durasi_hari, response.data.harga_per_hari));
+        }
+      } catch (error) {
+        console.error('Gagal fetch kendaraan:', error);
+      } finally {
+        setLoading(false);
+      }
     }
-  }, [id, formData.durasi_hari, calculateTotal]);
+    
+    fetchKendaraan();
+  }, [id, calculateTotal, formData.durasi_hari]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,12 +62,18 @@ function Pemesanan() {
     setIsSubmitting(true); // Tampilkan loading
 
     try {
+      // Fetch perental data untuk dilengkapi ke sessionStorage
+      const perentalResponse = await axios.get(`http://127.0.0.1:8000/api/users/${kendaraan.user_id}`);
+      
       sessionStorage.setItem('lastPemesananDetails', JSON.stringify({
         id_pemesanan: MOCK_PEMESANAN_ID,
         total_harga: totalHarga,
         durasi_hari: formData.durasi_hari,
         tanggal_pesan: formData.tanggal_pesan, 
-        kendaraan: kendaraan
+        kendaraan: {
+          ...kendaraan,
+          perental: perentalResponse.data
+        }
       }));
 
       // Simulasi delay sedikit agar terasa prosesnya
@@ -77,7 +87,10 @@ function Pemesanan() {
     }
   };
 
-  if (!kendaraan) return <div className="loading-state">Memuat...</div>;
+  if (loading) return <div className="loading-state">Memuat...</div>;
+  
+  if (!kendaraan) return <div className="loading-state">Kendaraan tidak ditemukan</div>;
+  
   const formattedTotal = `Rp ${totalHarga.toLocaleString('id-ID')}`;
 
   return (
@@ -104,7 +117,7 @@ function Pemesanan() {
                     <p className="price-label">Rp {kendaraan.harga_per_hari.toLocaleString('id-ID')}/hari</p>
                     <div className="renter-badge">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        {kendaraan.perental.nama}
+                        Pemilik Kendaraan
                     </div>
                 </div>
             </div>

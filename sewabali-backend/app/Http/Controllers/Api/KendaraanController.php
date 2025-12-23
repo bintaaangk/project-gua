@@ -9,19 +9,47 @@ use Illuminate\Support\Facades\Storage;
 
 class KendaraanController extends Controller
 {
-    // 1. GET ALL (Untuk Beranda Penyewa)
+    // 1. GET ALL (Untuk Beranda Penyewa) - Filter berdasarkan tipe
     public function index()
     {
-        $mobil = Kendaraan::where('jenis', 'Mobil')->where('status', 'Tersedia')->get();
-        $motor = Kendaraan::where('jenis', 'Motor')->where('status', 'Tersedia')->get();
+        try {
+            // Ambil semua kendaraan, pisahkan berdasarkan tipe (Mobil atau Motor)
+            $mobil = Kendaraan::where(function($query) {
+                                  $query->where('tipe', 'Mobil')
+                                        ->orWhere('tipe', 'mobil');
+                              })
+                              ->get();
+            
+            $motor = Kendaraan::where(function($query) {
+                                  $query->where('tipe', 'Motor')
+                                        ->orWhere('tipe', 'motor');
+                              })
+                              ->get();
 
-        return response()->json([
-            'mobil' => $mobil,
-            'motor' => $motor
-        ]);
+            return response()->json([
+                'mobil' => $mobil,
+                'motor' => $motor
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error di index kendaraan: ' . $e->getMessage());
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    // 2. GET PERENTAL (Untuk Dashboard Perental - Unit Saya)
+    // 2. GET DETAIL (Untuk Detail Page)
+    public function show($id)
+    {
+        try {
+            $kendaraan = Kendaraan::findOrFail($id);
+            return response()->json($kendaraan);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Kendaraan tidak ditemukan'], 404);
+        }
+    }
+
+    // 3. GET PERENTAL (Untuk Dashboard Perental - Unit Saya)
     public function indexPerental(Request $request)
     {
         // Ambil kendaraan milik user yang sedang login
@@ -60,18 +88,10 @@ class KendaraanController extends Controller
             'user_id'        => $request->user()->id,
             'nama'           => $request->nama,
             'tipe'           => $request->tipe,
-            
-            // HATI-HATI: Pastikan di database kamu ada kolom 'jenis'. 
-            // Kalau tidak ada, hapus baris ini biar gak error.
-            'jenis'          => $request->tipe, 
-            
             'plat_nomor'     => $request->plat_nomor,
             'harga_per_hari' => $request->harga_per_hari,
-            
-            // Sekarang kita ambil langsung dari request karena sudah divalidasi
             'kapasitas'      => $request->kapasitas, 
             'transmisi'      => $request->transmisi,
-            
             'status'         => 'Tersedia',
             'gambar_url'     => $imagePath ? url('storage/' . $imagePath) : null,
         ]);

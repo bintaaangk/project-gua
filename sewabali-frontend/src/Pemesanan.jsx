@@ -3,8 +3,6 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Pemesanan.css'; 
 
-const MOCK_PEMESANAN_ID = 456; 
-
 function Pemesanan() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -22,10 +20,12 @@ function Pemesanan() {
   // State UI
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Hitung total harga otomatis saat durasi berubah
   const calculateTotal = useCallback((durasi, hargaPerHari) => {
     return durasi * hargaPerHari;
   }, []);
 
+  // Ambil Data Kendaraan dari API
   useEffect(() => {
     async function fetchKendaraan() {
       try {
@@ -33,6 +33,7 @@ function Pemesanan() {
         setKendaraan(response.data);
         
         if (response.data) {
+          // Update total harga awal
           setTotalHarga(calculateTotal(formData.durasi_hari, response.data.harga_per_hari));
         }
       } catch (error) {
@@ -43,14 +44,22 @@ function Pemesanan() {
     }
     
     fetchKendaraan();
-  }, [id, calculateTotal, formData.durasi_hari]);
+  }, [id, calculateTotal, formData.durasi_hari]); // Dependensi: update jika ID atau Durasi berubah
 
+  // Update State saat User Mengetik
   const handleChange = (e) => {
     const { name, value } = e.target;
     const numericValue = name === 'durasi_hari' ? parseInt(value) || 0 : value;
+    
     setFormData(prev => ({ ...prev, [name]: numericValue }));
+    
+    // Update total harga real-time
+    if (kendaraan && name === 'durasi_hari') {
+       setTotalHarga(calculateTotal(numericValue, kendaraan.harga_per_hari));
+    }
   };
 
+  // --- FUNGSI SUBMIT (MEMBUAT PESANAN KE DATABASE) ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -59,30 +68,65 @@ function Pemesanan() {
       return;
     }
 
-    setIsSubmitting(true); // Tampilkan loading
+    setIsSubmitting(true); 
 
     try {
-      // Fetch perental data untuk dilengkapi ke sessionStorage
-      const perentalResponse = await axios.get(`http://127.0.0.1:8000/api/users/${kendaraan.user_id}`);
-      
-      sessionStorage.setItem('lastPemesananDetails', JSON.stringify({
-        id_pemesanan: MOCK_PEMESANAN_ID,
-        total_harga: totalHarga,
-        durasi_hari: formData.durasi_hari,
-        tanggal_pesan: formData.tanggal_pesan, 
-        kendaraan: {
-          ...kendaraan,
-          perental: perentalResponse.data
-        }
-      }));
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert("Silakan login terlebih dahulu.");
+        navigate('/login');
+        return;
+      }
 
-      // Simulasi delay sedikit agar terasa prosesnya
-      setTimeout(() => {
-        navigate(`/unggah-dokumen`); 
-      }, 1000);
+      // 1. SIAPKAN DATA UNTUK DIKIRIM KE BACKEND
+      const payload = {
+        id_kendaraan: kendaraan.id, // ID Mobil
+        tanggal_pesan: formData.tanggal_pesan,
+        durasi_hari: formData.durasi_hari,
+        total_harga: totalHarga // Kirim total harga hasil hitungan frontend
+      };
+
+      console.log("Mengirim Pesanan:", payload); // Debugging
+
+      // 2. KIRIM KE API (PemesananController@store)
+      const response = await axios.post(
+        'http://127.0.0.1:8000/api/pemesanan',
+        payload,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      // 3. JIKA SUKSES, TERIMA ID BARU DARI BACKEND
+      if (response.status === 201) {
+        const newOrder = response.data.pemesanan;
+        console.log("Pesanan Berhasil Dibuat! ID:", newOrder.id_pemesanan);
+
+        // 4. SIMPAN DATA ASLI KE SESSION (Untuk halaman Pembayaran)
+        // Kita butuh ID Pemesanan ASLI dari database, bukan mock/dummy
+        sessionStorage.setItem('lastPemesananDetails', JSON.stringify({
+          id_pemesanan: newOrder.id_pemesanan, // INI YANG PENTING!
+          total_harga: totalHarga,
+          durasi_hari: formData.durasi_hari,
+          tanggal_pesan: formData.tanggal_pesan, 
+          kendaraan: kendaraan // Data mobil untuk tampilan
+        }));
+
+        alert("Pesanan berhasil dibuat! Silakan upload bukti pembayaran.");
+
+        // 5. PINDAH KE HALAMAN PEMBAYARAN (Dengan membawa ID)
+        // Saya arahkan langsung ke /pembayaran/:id agar lebih aman
+        navigate(`/pembayaran/${newOrder.id_pemesanan}`); 
+      }
 
     } catch (err) {
-      console.error("Pemesanan gagal:", err);
+      console.error("Pemesanan gagal:", err.response || err);
+      const pesan = err.response?.data?.message || "Terjadi kesalahan server.";
+      alert(`Gagal membuat pesanan: ${pesan}`);
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -102,7 +146,7 @@ function Pemesanan() {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
         </Link>
         <span className="header-title">Konfirmasi Sewa</span>
-        <div style={{width: 40}}></div> {/* Spacer untuk balancing */}
+        <div style={{width: 40}}></div> 
       </header>
 
       {/* Konten Scrollable */}
@@ -111,10 +155,11 @@ function Pemesanan() {
         {/* Ringkasan Mobil */}
         <div className="summary-section">
             <div className="vehicle-thumb-row">
-                <img src={kendaraan.gambar_url} alt={kendaraan.nama} className="thumb-img" />
+                {/* Pastikan gambar ada fallback jika error */}
+                <img src={kendaraan.gambar_url || 'https://via.placeholder.com/150'} alt={kendaraan.nama} className="thumb-img" />
                 <div className="vehicle-info">
                     <h3>{kendaraan.nama}</h3>
-                    <p className="price-label">Rp {kendaraan.harga_per_hari.toLocaleString('id-ID')}/hari</p>
+                    <p className="price-label">Rp {parseInt(kendaraan.harga_per_hari).toLocaleString('id-ID')}/hari</p>
                     <div className="renter-badge">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                         Pemilik Kendaraan
@@ -146,7 +191,11 @@ function Pemesanan() {
             <div className="input-group">
                 <label>Durasi (Hari)</label>
                 <div className="input-wrapper">
-                    <button type="button" className="btn-counter" onClick={() => setFormData(prev => ({...prev, durasi_hari: Math.max(1, prev.durasi_hari - 1)}))}>-</button>
+                    <button type="button" className="btn-counter" onClick={() => {
+                        const newVal = Math.max(1, formData.durasi_hari - 1);
+                        setFormData(prev => ({...prev, durasi_hari: newVal}));
+                        setTotalHarga(calculateTotal(newVal, kendaraan.harga_per_hari));
+                    }}>-</button>
                     <input 
                         type="number" 
                         name="durasi_hari" 
@@ -155,7 +204,11 @@ function Pemesanan() {
                         onChange={handleChange} 
                         className="custom-input text-center"
                     />
-                    <button type="button" className="btn-counter" onClick={() => setFormData(prev => ({...prev, durasi_hari: prev.durasi_hari + 1}))}>+</button>
+                    <button type="button" className="btn-counter" onClick={() => {
+                        const newVal = formData.durasi_hari + 1;
+                        setFormData(prev => ({...prev, durasi_hari: newVal}));
+                        setTotalHarga(calculateTotal(newVal, kendaraan.harga_per_hari));
+                    }}>+</button>
                 </div>
             </div>
         </div>
@@ -179,7 +232,7 @@ function Pemesanan() {
             </div>
         </div>
 
-        <div style={{height: 100}}></div> {/* Spacer bawah */}
+        <div style={{height: 100}}></div> 
       </div>
 
       {/* Sticky Bottom Button */}

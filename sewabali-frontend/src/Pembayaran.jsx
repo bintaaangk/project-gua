@@ -4,7 +4,7 @@ import axios from 'axios';
 import './Pembayaran.css'; 
 
 function Pembayaran() {
-  const { id } = useParams(); // id_pemesanan (opsional, bisa ambil dari session)
+  const { id } = useParams(); // Ambil ID dari URL (Contoh: /pembayaran/123)
   const navigate = useNavigate();
   const [buktiFile, setBuktiFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -13,17 +13,28 @@ function Pembayaran() {
   const [pemesanan, setPemesanan] = useState(null);
 
   useEffect(() => {
-    // Ambil data dari Session Storage
+    // 1. Coba ambil dari Session Storage dulu
     const savedData = sessionStorage.getItem('lastPemesananDetails');
+    
     if (savedData) {
-      setPemesanan(JSON.parse(savedData));
+      const parsedData = JSON.parse(savedData);
+      console.log("Data Session:", parsedData); 
+      setPemesanan(parsedData);
+    } else if (id) {
+      // 2. Jika session kosong, tapi ada ID di URL, set minimal data
+      console.log("Data Session Kosong, pakai ID URL:", id);
+      setPemesanan({
+        id_pemesanan: id,
+        total_harga: 0, 
+        kendaraan: { perental: { nama: 'Pemilik Kendaraan' } }
+      });
     } else {
       alert("Data pemesanan tidak ditemukan.");
       navigate('/beranda');
     }
-  }, [navigate]); 
+  }, [id, navigate]); 
 
-  const formattedTotal = pemesanan ? `Rp ${pemesanan.total_harga.toLocaleString('id-ID')}` : 'Rp 0';
+  const formattedTotal = pemesanan ? `Rp ${(pemesanan.total_harga || 0).toLocaleString('id-ID')}` : 'Rp 0';
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -33,6 +44,14 @@ function Pembayaran() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    const idPemesananFinal = pemesanan?.id_pemesanan || id;
+
+    if (!idPemesananFinal) {
+      alert("Error: ID Pemesanan tidak ditemukan. Silakan ulangi pesanan.");
+      return;
+    }
+
     if (!buktiFile) {
       alert("Mohon upload bukti transfer Anda.");
       return;
@@ -43,13 +62,21 @@ function Pembayaran() {
     try {
       const token = localStorage.getItem('token');
       
-      // 1. Upload bukti bayar ke API
       const formData = new FormData();
-      formData.append('id_pemesanan', pemesanan?.id_pemesanan);
-      formData.append('path_bukti', buktiFile);
+      
+      // Sesuai Controller: id_pemesanan
+      formData.append('id_pemesanan', idPemesananFinal); 
+      
+      // Sesuai Controller: total_bayar & no_rekening (Opsional tapi baik dikirim)
+      formData.append('total_bayar', pemesanan?.total_harga || 0);
+      formData.append('no_rekening_perental', 'BCA 6023456872'); 
+      
+      // PENTING: Sesuai Controller, nama field harus 'bukti_pembayaran'
+      formData.append('bukti_pembayaran', buktiFile); 
 
+      // PENTING: URL harus '/api/bukti-bayar' sesuai routes/api.php
       const buktiResponse = await axios.post(
-        'http://127.0.0.1:8000/api/bukti-bayar',
+        'http://localhost:8000/api/bukti-bayar', 
         formData,
         {
           headers: {
@@ -59,38 +86,19 @@ function Pembayaran() {
         }
       );
 
-      if (buktiResponse.status === 201) {
-        // 2. Simpan ke riwayat lokal juga
-        const newHistoryItem = {
-          id: pemesanan?.id_pemesanan || 0, 
-          kendaraan: pemesanan?.kendaraan?.nama || 'Kendaraan', 
-          img: pemesanan?.kendaraan?.gambar_url || '',
-          tanggal: pemesanan?.tanggal_pesan || new Date().toISOString().split('T')[0],
-          durasi: `${pemesanan?.durasi_hari || 1} Hari`,
-          total: pemesanan?.total_harga || 0,
-          status: "Menunggu Verifikasi Pembayaran",
-          timestamp: new Date().getTime() 
-        };
-
-        const existingData = localStorage.getItem('userTransactionHistory');
-        let historyArray = existingData ? JSON.parse(existingData) : [];
-        historyArray.unshift(newHistoryItem);
-        localStorage.setItem('userTransactionHistory', JSON.stringify(historyArray));
+      if (buktiResponse.status === 201 || buktiResponse.status === 200) {
+        alert('Bukti pembayaran berhasil diupload! Menunggu verifikasi.');
         
-        // 3. Bersihkan session
         sessionStorage.removeItem('lastPemesananDetails'); 
-
-        alert('Bukti pembayaran berhasil diupload! Menunggu verifikasi dari pemilik kendaraan.');
-
-        // Simulasi loading
         setTimeout(() => {
           navigate('/riwayat'); 
-        }, 1500);
+        }, 1000);
       }
 
     } catch (err) {
-      console.error("Error:", err);
-      alert('Gagal mengupload bukti pembayaran: ' + (err.response?.data?.error || err.message));
+      console.error("Error Upload:", err.response || err);
+      const pesanError = err.response?.data?.message || JSON.stringify(err.response?.data?.errors) || "Gagal upload.";
+      alert(`Gagal: ${pesanError}`);
     } finally {
       setLoading(false);
     }
@@ -103,7 +111,7 @@ function Pembayaran() {
       
       {/* Header Sticky */}
       <header className="page-header">
-        <Link to="/unggah-dokumen" className="btn-back-circle">
+        <Link to="/beranda" className="btn-back-circle">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
         </Link>
         <span className="header-title">Pembayaran</span>
@@ -117,7 +125,7 @@ function Pembayaran() {
         <div className="payment-card total-card">
             <div className="card-header-label">Total Tagihan</div>
             <div className="total-amount">{formattedTotal}</div>
-            <div className="order-id-label">Order ID: #{pemesanan.id_pemesanan}</div>
+            <div className="order-id-label">Order ID: #{pemesanan.id_pemesanan || id}</div>
         </div>
 
         {/* Card Metode Transfer */}
@@ -135,7 +143,7 @@ function Pembayaran() {
             
             <div className="rek-box">
                 <span className="rek-number">6023456872</span>
-                <button className="btn-copy">Salin</button>
+                <button className="btn-copy" onClick={() => {navigator.clipboard.writeText('6023456872'); alert('Disalin!')}}>Salin</button>
             </div>
             
             <div className="instruction-text">
@@ -146,7 +154,7 @@ function Pembayaran() {
         <div className="divider-thick"></div>
 
         {/* Form Upload Bukti */}
-        <form onSubmit={handleSubmit} className="upload-section">
+        <form className="upload-section">
             <h3 className="section-label">Konfirmasi Pembayaran</h3>
             <p className="upload-instruction">Sudah transfer? Upload bukti pembayaran Anda di sini.</p>
             

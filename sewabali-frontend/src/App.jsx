@@ -10,7 +10,8 @@ import DetailKendaraan from './DetailKendaraan.jsx';
 import Pencarian from './Pencarian.jsx';
 import Pemesanan from './Pemesanan.jsx'; // Halaman Konfirmasi Pemesanan
 import Pembayaran from './Pembayaran.jsx'; // Halaman Upload Bukti Transfer
-import FinalisasiPemesanan from './FinalisasiPemesanan.jsx'; // Halaman Unggah Dokumen
+import FinalisasiPemesanan from './FinalisasiPemesanan.jsx'; // Halaman Unggah Dokumen (Lama/Opsional)
+import UnggahDokumen from './UnggahDokumen.jsx'; // <--- IMPORT BARU
 import Riwayat from './Riwayat.jsx';
 import DetailRiwayat from './DetailRiwayat.jsx';
 import Profil from './Profil.jsx';
@@ -19,10 +20,10 @@ import AboutApp from './AboutApp.jsx';
 import KebijakanPrivasi from './KebijakanPrivasi';
 import SyaratKetentuan from './SyaratKetentuan';
 import HubungiKami from './HubungiKami';
-import Notifikasi from './Notifikasi'; // Import komponen baru
-import DashboardPerental from './DashboardPerental'; // Import file baru
-import VerifikasiDokumen from './VerifikasiDokumen'; // Import verifikasi dokumen
-import VerifikasiBayar from './VerifikasiBayar'; // Import verifikasi pembayaran
+import Notifikasi from './Notifikasi'; 
+import DashboardPerental from './DashboardPerental'; 
+import VerifikasiDokumen from './VerifikasiDokumen'; 
+import VerifikasiBayar from './VerifikasiBayar'; 
 import PesananMasuk from './Pesananmasuk';
 import ProfilPerental from './ProfilPerental';
 import NotifikasiPerental from './NotifikasiPerental';
@@ -41,8 +42,11 @@ function App() {
         <Route path="/kendaraan/:id" element={<DetailKendaraan />} />
         <Route path="/pemesanan/:id" element={<Pemesanan />} /> 
 
-        {/* Rute Verifikasi Dokumen (Setelah Pemesanan) */}
+        {/* Rute Verifikasi Dokumen */}
         <Route path="/finalisasi-pemesanan" element={<FinalisasiPemesanan />} />
+        
+        {/* --- RUTE BARU: UNGGAH DOKUMEN --- */}
+        <Route path="/unggah-dokumen" element={<UnggahDokumen />} />
         
         {/* Rute Pembayaran (setelah Pemesanan/Verifikasi) */}
         <Route path="/pembayaran/:id" element={<Pembayaran />} />
@@ -50,8 +54,8 @@ function App() {
         <Route path="/pencarian" element={<Pencarian />} />
         
         {/* Rute Riwayat dan Profil */}
-       <Route path="/riwayat" element={<Riwayat />} />
-       <Route path="/riwayat/:id" element={<DetailRiwayat />} />
+        <Route path="/riwayat" element={<Riwayat />} />
+        <Route path="/riwayat/:id" element={<DetailRiwayat />} />
         <Route path="/profil" element={<Profil />} />
         <Route path="/akun-saya" element={<AkunSaya />} />
         <Route path="/about" element={<AboutApp />} />
@@ -59,12 +63,16 @@ function App() {
         <Route path="/syarat-ketentuan" element={<SyaratKetentuan />} />
         <Route path="/hubungi-kami" element={<HubungiKami />} />
         <Route path="/notifikasi" element={<Notifikasi />} />
-        <Route path="/dashboard-perental" element={<DashboardPerental />} />
+        
+        {/* Rute Perental */}
+        <Route path="/perental/dashboard" element={<DashboardPerental />} />
         <Route path="/perental/verifikasi-dokumen" element={<VerifikasiDokumen />} />
         <Route path="/perental/verifikasi-bayar" element={<VerifikasiBayar />} />
         <Route path="/pesanan-masuk" element={<PesananMasuk />} />
         <Route path="/perental/profil" element={<ProfilPerental />} />
         <Route path="/perental/notifikasi" element={<NotifikasiPerental />} />
+        
+        {/* Rute Admin */}
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
       </Routes>

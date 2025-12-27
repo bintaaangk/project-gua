@@ -3,13 +3,13 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// PENTING: Panggil AuthController yang baru
+// --- IMPORT CONTROLLER ---
 use App\Http\Controllers\Api\AuthController; 
 use App\Http\Controllers\Api\KendaraanController;
 use App\Http\Controllers\Api\PemesananController;
 use App\Http\Controllers\Api\DokumenVerifikasiController;
-use App\Http\Controllers\Api\PembayaranController;
-use App\Http\Controllers\BuktiBayarController;
+// HAPUS PembayaranController (Kita pakai BuktiBayarController saja)
+use App\Http\Controllers\Api\BuktiBayarController; 
 
 /*
 |--------------------------------------------------------------------------
@@ -17,16 +17,20 @@ use App\Http\Controllers\BuktiBayarController;
 |--------------------------------------------------------------------------
 */
 
-// --- PINTU MASUK (LOGIN & REGISTER) ---
-// Perhatikan: Kita pakai [AuthController::class, ...]
+// ==========================================
+// 1. PUBLIC ROUTES (Tanpa Login)
+// ==========================================
+
+// Auth
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']); 
 
-// 2. DATA UMUM
+// Data Kendaraan (Halaman Depan)
 Route::get('/kendaraan', [KendaraanController::class, 'index']);
-Route::get('/kendaraan/{id}', [KendaraanController::class, 'show']);
+// Detail Kendaraan (Validasi ID harus angka)
+Route::get('/kendaraan/{id}', [KendaraanController::class, 'show'])->where('id', '[0-9]+');
 
-// User profile
+// User Profile Public
 Route::get('/users/{id}', function ($id) {
     $user = \App\Models\User::find($id);
     if (!$user) {
@@ -35,32 +39,41 @@ Route::get('/users/{id}', function ($id) {
     return response()->json($user);
 });
 
-// 3. FITUR YANG PERLU LOGIN (Penyewa & Perental)
+// ==========================================
+// 2. PROTECTED ROUTES (Wajib Login / Token)
+// ==========================================
 Route::middleware('auth:sanctum')->group(function () {
     
     // --- FITUR PENYEWA ---
     Route::post('/pemesanan', [PemesananController::class, 'store']);
     Route::post('/dokumen-verifikasi', [DokumenVerifikasiController::class, 'store']);
-    Route::post('/pembayaran', [PembayaranController::class, 'store']);
     
-    // --- FITUR PERENTAL (Verifikasi Dokumen & Pesanan) ---
-    Route::get('/kendaraan/perental', [KendaraanController::class, 'indexPerental']); 
+    // HAPUS Route::post('/pembayaran'...) -> Ganti dengan ini:
+    Route::post('/bukti-bayar', [BuktiBayarController::class, 'store']); // Upload Bukti
+    
+    // --- FITUR PERENTAL (Dashboard & Manajemen) ---
+    
+    // Ambil Unit Sendiri
+    Route::get('/kendaraan/saya', [KendaraanController::class, 'myUnits']); 
+    
+    // Tambah Unit Baru
     Route::post('/kendaraan', [KendaraanController::class, 'store']); 
+    
+    // Kelola Pesanan Masuk (Lihat & Konfirmasi)
     Route::get('/transaksi/perental', [PemesananController::class, 'indexPesananMasuk']);
     Route::post('/transaksi/{id}/konfirmasi', [PemesananController::class, 'konfirmasiPesanan']);
     
-    // Dokumen Verifikasi (Perental & Admin)
+    // --- VERIFIKASI DOKUMEN (Perental) ---
     Route::get('/dokumen-verifikasi', [DokumenVerifikasiController::class, 'index']);
     Route::post('/dokumen-verifikasi/{id}/verify', [DokumenVerifikasiController::class, 'verify']);
     Route::post('/dokumen-verifikasi/{id}/reject', [DokumenVerifikasiController::class, 'reject']);
     
-    // Bukti Pembayaran Verifikasi (Perental & Penyewa)
-    Route::get('/bukti-bayar', [BuktiBayarController::class, 'index']); // Perental lihat bukti bayar pending
-    Route::post('/bukti-bayar', [BuktiBayarController::class, 'store']); // Penyewa upload bukti bayar
-    Route::post('/bukti-bayar/{id}/verify', [BuktiBayarController::class, 'verify']); // Perental approve
-    Route::post('/bukti-bayar/{id}/reject', [BuktiBayarController::class, 'reject']); // Perental tolak
+    // --- VERIFIKASI PEMBAYARAN (Perental) ---
+    Route::get('/bukti-bayar', [BuktiBayarController::class, 'index']); // Lihat daftar bukti
+    Route::post('/bukti-bayar/{id}/verify', [BuktiBayarController::class, 'verify']); // Terima
+    Route::post('/bukti-bayar/{id}/reject', [BuktiBayarController::class, 'reject']); // Tolak
     
-    // Notifikasi
+    // --- NOTIFIKASI ---
     Route::get('/notifikasi', function (Request $request) {
         return $request->user()->notifikasi()->latest()->get();
     });
@@ -72,6 +85,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['message' => 'Notifikasi dibaca']);
     });
 
+    // Cek User Login
     Route::get('/user', function (Request $request) {
         return $request->user();
     });

@@ -12,6 +12,7 @@ function Notifikasi() {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
+    let intervalId;
     async function fetchNotifikasi() {
       try {
         const token = localStorage.getItem('authToken');
@@ -27,27 +28,25 @@ function Notifikasi() {
         setLoading(false);
       }
     }
-    
     fetchNotifikasi();
+    intervalId = setInterval(fetchNotifikasi, 10000); // polling setiap 10 detik
+    return () => clearInterval(intervalId);
   }, []);
 
   // Fungsi Buka Notifikasi
   const handleOpenNotif = (item) => {
     setSelectedNotif(item);
     setShowModal(true);
-    
     // Mark as read
     if (!item.is_read) {
       markAsRead(item.id);
     }
-  };
-
     // Otomatis tandai sebagai sudah dibaca saat dibuka
     if (!item.isRead) {
-        const updatedList = notifList.map(n => 
-            n.id === item.id ? { ...n, isRead: true } : n
-        );
-        setNotifList(updatedList);
+      const updatedList = notifList.map(n =>
+        n.id === item.id ? { ...n, isRead: true } : n
+      );
+      setNotifList(updatedList);
     }
   };
 

@@ -1,60 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // <-- Tambah useRef
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './DashboardPerental.css';
 
-// --- DATA DUMMY (UNTUK PREVIEW DESAIN) ---
-const DUMMY_UNITS = [
-    {
-        id: 1,
-        nama: 'Toyota Avanza Zenix',
-        tipe: 'Mobil',
-        plat_nomor: 'DK 1234 AB',
-        harga_per_hari: 350000,
-        transmisi: 'Matic',
-        kapasitas: 7,
-        gambar_url: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=500&q=80',
-        status: 'Tersedia'
-    },
-    {
-        id: 2,
-        nama: 'Honda Brio RS',
-        tipe: 'Mobil',
-        plat_nomor: 'DK 5678 CD',
-        harga_per_hari: 300000,
-        transmisi: 'Manual',
-        kapasitas: 5,
-        gambar_url: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=500&q=80',
-        status: 'Disewa'
-    },
-    {
-        id: 3,
-        nama: 'Yamaha NMAX',
-        tipe: 'Motor',
-        plat_nomor: 'DK 9999 XX',
-        harga_per_hari: 120000,
-        transmisi: 'Matic',
-        kapasitas: 2,
-        gambar_url: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=500&q=80',
-        status: 'Tersedia'
-    }
-];
-
 function DashboardPerental() {
+  const [hasError, setHasError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState('unit'); // Default view
-  const [units, setUnits] = useState(DUMMY_UNITS); // Pakai data dummy
+  const [units, setUnits] = useState([]); // Data real dari backend
   const [loading, setLoading] = useState(false);
-  const [jadwal, setJadwal] = useState([
-    { id: 1, unit: 'Toyota Avanza Zenix', plat_nomor: 'DK 1234 AB', peminjam: 'Rudi Hartono', kontak: '081234567890', mulai: '2024-12-25', selesai: '2024-12-28', status: 'Dikonfirmasi', harga_harian: 350000, catatan: 'Sopir hati-hati di jalanan utama' },
-    { id: 2, unit: 'Honda Brio RS', plat_nomor: 'DK 5678 CD', peminjam: 'Siti Nurhaliza', kontak: '081987654321', mulai: '2024-12-26', selesai: '2024-12-29', status: 'Dikonfirmasi', harga_harian: 300000, catatan: 'Pengembalian tepat waktu' },
-    { id: 3, unit: 'Yamaha NMAX', plat_nomor: 'DK 9999 XX', peminjam: 'Ahmad Pratama', kontak: '082111222333', mulai: '2024-12-27', selesai: '2024-12-30', status: 'Pending', harga_harian: 120000, catatan: 'Menunggu konfirmasi pembayaran' }
-  ]);
+  const [jadwal, setJadwal] = useState([]); // Data real dari backend
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedJadwal, setSelectedJadwal] = useState(null);
 
+  // --- 1. REFS UNTUK SCROLL HORIZONTAL ---
+  const mobilScrollRef = useRef(null);
+  const motorScrollRef = useRef(null);
+
+  // Fungsi untuk menggeser slider
+  const scroll = (ref, direction) => {
+    if (ref.current) {
+        const { current } = ref;
+        // Geser sejauh 160px (lebar kartu + gap)
+        const scrollAmount = 160; 
+        if (direction === 'left') {
+            current.scrollLeft -= scrollAmount;
+        } else {
+            current.scrollLeft += scrollAmount;
+        }
+    }
+  };
+
   // Ambil Token (Simulasi Login)
   const userName = localStorage.getItem('userName') || "Fikri";
+
+  // --- 2. USE EFFECT (FETCH DATA SAAT LOAD) ---
+  useEffect(() => {
+    const fetchUnits = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        // Panggil Endpoint KHUSUS "Unit Saya"
+        const response = await axios.get('http://localhost:8000/api/kendaraan/saya', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        console.log("Respon API:", response.data); 
+
+        // Proses Data: Gabungkan Mobil dan Motor jadi satu Array
+        const dataMentah = response.data;
+        const listMobil = dataMentah.mobil || []; 
+        const listMotor = dataMentah.motor || [];
+        const semuaUnit = [...listMobil, ...listMotor];
+        
+        setUnits(semuaUnit);
+        
+      } catch (error) {
+        console.error("Gagal mengambil data unit:", error);
+      }
+    };
+
+    fetchUnits();
+  }, []);
 
   // --- STATE FORM ---
   const [newUnitData, setNewUnitData] = useState({
@@ -73,6 +81,7 @@ function DashboardPerental() {
     }
   };
 
+  // --- 3. HANDLE SUBMIT (SIMPAN DATA BARU) ---
   const handleSubmitUnit = (e) => {
     e.preventDefault();
     setLoading(true);
@@ -83,7 +92,6 @@ function DashboardPerental() {
         return;
     }
 
-    // Siapkan FormData untuk upload gambar
     const formData = new FormData();
     formData.append('nama', newUnitData.nama);
     formData.append('tipe', newUnitData.tipe);
@@ -92,13 +100,11 @@ function DashboardPerental() {
     formData.append('transmisi', newUnitData.transmisi);
     formData.append('kapasitas', newUnitData.kapasitas);
     
-    // Tambahkan gambar jika ada
     if (newUnitData.img) {
         formData.append('gambar', newUnitData.img);
     }
 
-    // Kirim ke backend API
-    const token = localStorage.getItem('token'); // Pastikan token disimpan saat login
+    const token = localStorage.getItem('token');
     
     axios.post('http://localhost:8000/api/kendaraan', formData, {
         headers: {
@@ -108,10 +114,7 @@ function DashboardPerental() {
     })
     .then(response => {
         setLoading(false);
-        alert('✓ Unit berhasil ditambahkan dan tersimpan di database!');
-        
-        // Tambah ke list lokal juga
-        setUnits([response.data.data, ...units]);
+        alert('✓ Unit berhasil ditambahkan!');
         
         // Reset form
         setActiveView('unit');
@@ -119,6 +122,17 @@ function DashboardPerental() {
             nama: '', tipe: 'Mobil', plat: '', harga: '', 
             transmisi: 'Manual', kapasitas: '4', img: null, imgPreview: null 
         });
+
+        // Update data real-time
+        axios.get('http://localhost:8000/api/kendaraan/saya', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }).then(res => {
+          const dataMentah = res.data;
+          const listMobil = dataMentah.mobil || [];
+          const listMotor = dataMentah.motor || [];
+          setUnits([...listMobil, ...listMotor]); 
+        });
+        
     })
     .catch(error => {
         setLoading(false);
@@ -161,7 +175,7 @@ function DashboardPerental() {
     }
   };
 
-  // --- RENDER CONTENT ---
+  // --- RENDER CONTENT (JADWAL & FORM) ---
   const renderContent = () => {
     if (activeView === 'jadwal') {
         return (
@@ -287,21 +301,30 @@ function DashboardPerental() {
                     </div>
 
                     <div className="form-row" style={{display:'flex', gap:'10px'}}>
-                         <div className="form-col" style={{flex:1}}>
-                            <div className="form-group">
-                                <label>Transmisi</label>
-                                <select className="input-modern" name="transmisi" value={newUnitData.transmisi} onChange={handleInputChange}>
-                                    <option value="Manual">Manual</option>
-                                    <option value="Matic">Matic</option>
-                                </select>
-                            </div>
+                      <div className="form-col" style={{flex:1}}>
+                        <div className="form-group">
+                          <label>Tipe Kendaraan</label>
+                          <select className="input-modern" name="tipe" value={newUnitData.tipe} onChange={handleInputChange}>
+                            <option value="Mobil">Mobil</option>
+                            <option value="Motor">Motor</option>
+                          </select>
                         </div>
-                        <div className="form-col" style={{flex:1}}>
-                            <div className="form-group">
-                                <label>Kapasitas</label>
-                                <input className="input-modern" type="number" name="kapasitas" value={newUnitData.kapasitas} onChange={handleInputChange} />
-                            </div>
+                      </div>
+                      <div className="form-col" style={{flex:1}}>
+                        <div className="form-group">
+                          <label>Transmisi</label>
+                          <select className="input-modern" name="transmisi" value={newUnitData.transmisi} onChange={handleInputChange}>
+                            <option value="Manual">Manual</option>
+                            <option value="Matic">Matic</option>
+                          </select>
                         </div>
+                      </div>
+                      <div className="form-col" style={{flex:1}}>
+                        <div className="form-group">
+                          <label>Kapasitas</label>
+                          <input className="input-modern" type="number" name="kapasitas" value={newUnitData.kapasitas} onChange={handleInputChange} />
+                        </div>
+                      </div>
                     </div>
 
                     <button type="button" className="btn-secondary" onClick={() => setActiveView('unit')}>Batal</button>
@@ -311,38 +334,114 @@ function DashboardPerental() {
         );
     }
 
-    // Default View: List Unit
+    // ==========================================
+    // 4. DEFAULT VIEW: HORIZONTAL SCROLL / SLIDER
+    // ==========================================
+    
+    // Filter Data Mobil dan Motor
+    const listMobil = units.filter(u => u.tipe.toLowerCase() === 'mobil');
+    const listMotor = units.filter(u => u.tipe.toLowerCase() === 'motor');
+
     return (
-        <div>
+        <div style={{paddingBottom: '80px'}}>
             <div className="section-title-row">
                 <h3>Unit Tersedia ({units.length})</h3>
                 <button className="btn-text-action" onClick={() => setActiveView('tambah-unit')}>+ Tambah</button>
             </div>
             
-            <div className="unit-list">
-                {units.map(unit => (
-                    <Link key={unit.id} to={`/kendaraan/${unit.id}`} className="unit-card-new">
-                        <div className="unit-img-top">
-                            <img src={unit.gambar_url} alt={unit.nama} style={{width:'100%', height:'100%', objectFit:'cover'}} />
-                            <span className="badge-avail" style={{
-                                backgroundColor: unit.status === 'Tersedia' ? 'rgba(255,255,255,0.9)' : 'rgba(254, 226, 226, 0.9)',
-                                color: unit.status === 'Tersedia' ? '#059669' : '#DC2626'
-                            }}>
-                                {unit.status}
-                            </span>
+            {/* --- SLIDER MOBIL --- */}
+            {listMobil.length > 0 && (
+                <>
+                    <div className="unit-section-title">
+                        <span>🚙 Mobil ({listMobil.length})</span>
+                    </div>
+                    <div className="slider-container">
+                        {/* Tombol Kiri */}
+                        <button className="scroll-btn left" onClick={() => scroll(mobilScrollRef, 'left')}>‹</button>
+                        
+                        {/* Area Scroll */}
+                        <div className="unit-scroll-row" ref={mobilScrollRef}>
+                            {listMobil.map(unit => (
+                                <Link key={unit.id} to={`/kendaraan/${unit.id}`} className="unit-card-new">
+                                    <div className="unit-img-top">
+                                        <img 
+                                            src={unit.gambar_url} 
+                                            alt={unit.nama} 
+                                            onError={(e) => {e.target.src = 'https://via.placeholder.com/150?text=No+Image'}}
+                                        />
+                                        <span className="badge-avail" style={{
+                                            backgroundColor: unit.status === 'Tersedia' ? 'rgba(255,255,255,0.95)' : 'rgba(254, 226, 226, 0.95)',
+                                            color: unit.status === 'Tersedia' ? '#059669' : '#DC2626'
+                                        }}>{unit.status}</span>
+                                    </div>
+                                    <div className="unit-info-body">
+                                        <div className="unit-name-row">
+                                            <h4>{unit.nama}</h4>
+                                            <span className="plat-badge">{unit.plat_nomor}</span>
+                                        </div>
+                                        <div className="price-row">
+                                            Rp {unit.harga_per_hari.toLocaleString('id-ID')}<span>/hr</span>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
                         </div>
-                        <div className="unit-info-body">
-                            <div className="unit-name-row">
-                                <h4>{unit.nama}</h4>
-                                <span className="plat-badge">{unit.plat_nomor}</span>
-                            </div>
-                            <div className="price-row">
-                                Rp {unit.harga_per_hari.toLocaleString('id-ID')}<span>/hari</span>
-                            </div>
+
+                        {/* Tombol Kanan */}
+                        <button className="scroll-btn right" onClick={() => scroll(mobilScrollRef, 'right')}>›</button>
+                    </div>
+                </>
+            )}
+
+            {/* --- SLIDER MOTOR --- */}
+            {listMotor.length > 0 && (
+                <>
+                    <div className="unit-section-title">
+                        <span>🏍️ Motor ({listMotor.length})</span>
+                    </div>
+                    <div className="slider-container">
+                        {/* Tombol Kiri */}
+                        <button className="scroll-btn left" onClick={() => scroll(motorScrollRef, 'left')}>‹</button>
+                        
+                        {/* Area Scroll */}
+                        <div className="unit-scroll-row" ref={motorScrollRef}>
+                            {listMotor.map(unit => (
+                                <Link key={unit.id} to={`/kendaraan/${unit.id}`} className="unit-card-new">
+                                    <div className="unit-img-top">
+                                        <img 
+                                            src={unit.gambar_url} 
+                                            alt={unit.nama}
+                                            onError={(e) => {e.target.src = 'https://via.placeholder.com/150?text=No+Image'}}
+                                        />
+                                        <span className="badge-avail" style={{
+                                            backgroundColor: unit.status === 'Tersedia' ? 'rgba(255,255,255,0.95)' : 'rgba(254, 226, 226, 0.95)',
+                                            color: unit.status === 'Tersedia' ? '#059669' : '#DC2626'
+                                        }}>{unit.status}</span>
+                                    </div>
+                                    <div className="unit-info-body">
+                                        <div className="unit-name-row">
+                                            <h4>{unit.nama}</h4>
+                                            <span className="plat-badge">{unit.plat_nomor}</span>
+                                        </div>
+                                        <div className="price-row">
+                                            Rp {unit.harga_per_hari.toLocaleString('id-ID')}<span>/hr</span>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
                         </div>
-                    </Link>
-                ))}
-            </div>
+
+                        {/* Tombol Kanan */}
+                        <button className="scroll-btn right" onClick={() => scroll(motorScrollRef, 'right')}>›</button>
+                    </div>
+                </>
+            )}
+
+            {units.length === 0 && (
+                <div style={{textAlign:'center', marginTop:50, color:'#94a3b8'}}>
+                    <p>Belum ada unit kendaraan.</p>
+                </div>
+            )}
         </div>
     );
   };
@@ -350,7 +449,6 @@ function DashboardPerental() {
   // --- MODAL DETAIL JADWAL ---
   const ModalDetailJadwal = () => {
     if(!showDetailModal || !selectedJadwal) return null;
-    
     const hariPeminjaman = Math.ceil((new Date(selectedJadwal.selesai) - new Date(selectedJadwal.mulai)) / (1000 * 60 * 60 * 24));
     const totalHarga = hariPeminjaman * selectedJadwal.harga_harian;
 
@@ -500,6 +598,16 @@ function DashboardPerental() {
       </div>
     );
   };
+
+  if (hasError) {
+    return (
+      <div style={{padding:40, color:'red', background:'#fff0f0'}}>
+        <h2>Terjadi Error</h2>
+        <p>{errorMsg}</p>
+        <button onClick={()=>window.location.reload()}>Muat Ulang Halaman</button>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-wrapper">

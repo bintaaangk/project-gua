@@ -1,91 +1,110 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-use Illuminate\Support\Facades\Log;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Kendaraan; // Pastikan Model Kendaraan sudah ada
+use App\Models\Kendaraan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class KendaraanController extends Controller
 {
-    // 1. GET ALL (Untuk Beranda Penyewa) - Filter berdasarkan tipe
+    // =================================================================
+    // 1. PUBLIC: GET ALL (Untuk Beranda Penyewa - Semua orang bisa lihat)
+    // =================================================================
     public function index()
     {
         try {
-            // Ambil semua kendaraan, pisahkan berdasarkan tipe (Mobil atau Motor)
+            // Ambil SEMUA kendaraan dari SEMUA user (tanpa filter user_id)
             $mobil = Kendaraan::where(function($query) {
-                                  $query->where('tipe', 'Mobil')
-                                        ->orWhere('tipe', 'mobil');
-                              })
-                              ->get();
+                $query->where('tipe', 'Mobil')->orWhere('tipe', 'mobil');
+            })->get();
             
             $motor = Kendaraan::where(function($query) {
-                                  $query->where('tipe', 'Motor')
-                                        ->orWhere('tipe', 'motor');
-                              })
-                              ->get();
+                $query->where('tipe', 'Motor')->orWhere('tipe', 'motor');
+            })->get();
 
             return response()->json([
                 'mobil' => $mobil,
                 'motor' => $motor
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error di index kendaraan: ' . $e->getMessage());
-            return response()->json([
-                'error' => $e->getMessage()
-            ], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    // 2. GET DETAIL (Untuk Detail Page)
-    public function show($id)
+    // =================================================================
+    // 2. PRIVATE: GET MY UNITS (KHUSUS Dashboard Perental - Unit Saya)
+    // =================================================================
+    public function myUnits(Request $request)
     {
         try {
-            $kendaraan = Kendaraan::findOrFail($id);
-            return response()->json($kendaraan);
+            // Ambil ID User yang sedang login (dari Token)
+            $userId = $request->user()->id; 
+
+            // Ambil Mobil HANYA milik user tersebut
+            $mobil = Kendaraan::where('user_id', $userId)
+                        ->where(function($q){ 
+                            $q->where('tipe', 'Mobil')->orWhere('tipe', 'mobil'); 
+                        })
+                        ->get();
+
+            // Ambil Motor HANYA milik user tersebut
+            $motor = Kendaraan::where('user_id', $userId)
+                        ->where(function($q){ 
+                            $q->where('tipe', 'Motor')->orWhere('tipe', 'motor'); 
+                        })
+                        ->get();
+
+            // Format JSON disamakan dengan fungsi index agar Frontend tidak error
+            return response()->json([
+                'mobil' => $mobil,
+                'motor' => $motor
+            ]);
+
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Kendaraan tidak ditemukan'], 404);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    // 3. GET PERENTAL (Untuk Dashboard Perental - Unit Saya)
-    public function indexPerental(Request $request)
+    // =================================================================
+    // 3. GET DETAIL (Untuk Halaman Detail Kendaraan)
+    // =================================================================
+    public function show($id)
     {
-        // Ambil kendaraan milik user yang sedang login
-        $userId = $request->user()->id;
-        $kendaraan = Kendaraan::where('user_id', $userId)->get();
-
+        $kendaraan = Kendaraan::find($id);
+        if (!$kendaraan) {
+            return response()->json(['message' => 'Kendaraan tidak ditemukan'], 404);
+        }
         return response()->json($kendaraan);
     }
 
-    // 3. STORE (Tambah Unit Baru oleh Perental)
+    // =================================================================
+    // 4. STORE (Tambah Unit Baru oleh Perental)
+    // =================================================================
     public function store(Request $request)
     {
-        Log::info('Mencoba menyimpan kendaraan dari user: ' . $request->user()->id);
-        Log::info('Data yang diterima:', $request->all());
-        Log::info('Ada file gambar?: ' . ($request->hasFile('gambar') ? 'Ya' : 'Tidak'));
-        // -------------------------// 1. TAMBAHKAN VALIDASI UNTUK TRANSMISI & KAPASITAS
-        // Biar user gak bisa kirim data kosong/asal-asalan
+        // Validasi Input
         $request->validate([
             'nama'           => 'required',
             'tipe'           => 'required', 
             'plat_nomor'     => 'required',
             'harga_per_hari' => 'required|numeric',
-            'transmisi'      => 'required', // <-- TAMBAHAN PENTING
-            'kapasitas'      => 'required|numeric', // <-- TAMBAHAN PENTING
+            'transmisi'      => 'required',
+            'kapasitas'      => 'required|numeric',
             'gambar'         => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        // 2. Upload Gambar (Ini sudah benar)
+        // Proses Upload Gambar
         $imagePath = null;
         if ($request->hasFile('gambar')) {
             $imagePath = $request->file('gambar')->store('kendaraan', 'public');
         }
 
-        // 3. Simpan ke Database
+        // Simpan ke Database
         $kendaraan = Kendaraan::create([
-            'user_id'        => $request->user()->id,
+            'user_id'        => $request->user()->id, // PENTING: Menandai pemilik kendaraan
             'nama'           => $request->nama,
             'tipe'           => $request->tipe,
             'plat_nomor'     => $request->plat_nomor,
@@ -97,7 +116,7 @@ class KendaraanController extends Controller
         ]);
 
         return response()->json([
-            'success' => true, // Tambah ini biar enak dicek di frontend
+            'success' => true,
             'message' => 'Kendaraan berhasil ditambahkan',
             'data'    => $kendaraan
         ], 201);

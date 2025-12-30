@@ -9,29 +9,36 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+   public function up(): void
     {
         Schema::create('pemesanans', function (Blueprint $table) {
-            $table->id('id_pemesanan'); // id_pemesanan (AUTO_INCREMENT)
+            $table->id('id_pemesanan'); 
             
-            // Kolom Foreign Keys (diasumsikan)
-            $table->unsignedBigInteger('id_penyewa'); // id_penyewa
-            $table->unsignedBigInteger('id_kendaraan'); // id_kendaraan
+            $table->unsignedBigInteger('id_penyewa'); 
+            $table->unsignedBigInteger('id_kendaraan'); 
             
-            $table->date('tanggal_pesan'); // tanggal_pesan
-            $table->integer('durasi_hari'); // durasi_hari
-            $table->decimal('total_harga', 10, 2); // total_harga
+            $table->date('tanggal_pesan'); 
+            $table->integer('durasi_hari'); 
+            $table->decimal('total_harga', 12, 2); // Dinaikkan menjadi 12 agar aman untuk nominal jutaan
             
-            // Status (enum: menunggu_verifikasi, dalam_sewa, selesai)
-            $table->enum('status', ['menunggu_verifikasi', 'dalam_sewa', 'selesai'])->default('menunggu_verifikasi'); 
+            // PERBAIKAN: Tambahkan 'menunggu_dokumen', 'menunggu_pembayaran', dan 'batal'
+            $table->enum('status', [
+                'menunggu_dokumen', 
+                'menunggu_pembayaran', 
+                'menunggu_verifikasi', 
+                'dalam_sewa', 
+                'selesai', 
+                'batal'
+            ])->default('menunggu_dokumen'); 
             
-            $table->timestamps(); // tanggal_dibuat (created_at)
+            $table->timestamps(); 
 
-            // Menambahkan foreign key constraints (jika tabel users dan kendaraans sudah ada)
             $table->foreign('id_penyewa')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('id_kendaraan')->references('id')->on('kendaraans')->onDelete('cascade');
         });
     }
+
+
 
     /**
      * Reverse the migrations.

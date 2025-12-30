@@ -17,6 +17,7 @@ return new class extends Migration
         $table->enum('tipe', ['Mobil', 'Motor']); // Tipe kendaraan
         $table->integer('harga_per_hari'); // Misal: 700000
         $table->string('gambar_url'); // URL ke gambar
+        $table->string('no_rekening')->nullable();
         $table->timestamps();
     });
 }

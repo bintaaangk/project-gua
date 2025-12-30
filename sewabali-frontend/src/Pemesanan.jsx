@@ -9,6 +9,7 @@ function Pemesanan() {
   const [kendaraan, setKendaraan] = useState(null);
   const [loading, setLoading] = useState(true);
   
+  // Tanggal hari ini YYYY-MM-DD
   const today = new Date().toISOString().split('T')[0];
 
   const [formData, setFormData] = useState({ 
@@ -19,6 +20,15 @@ function Pemesanan() {
   
   // State UI
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Helper Format Rupiah
+  const formatRupiah = (angka) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(angka);
+  };
 
   // Hitung total harga otomatis saat durasi berubah
   const calculateTotal = useCallback((durasi, hargaPerHari) => {
@@ -44,7 +54,7 @@ function Pemesanan() {
     }
     
     fetchKendaraan();
-  }, [id, calculateTotal, formData.durasi_hari]); // Dependensi: update jika ID atau Durasi berubah
+  }, [id, calculateTotal, formData.durasi_hari]);
 
   // Update State saat User Mengetik
   const handleChange = (e) => {
@@ -80,15 +90,15 @@ function Pemesanan() {
 
       // 1. SIAPKAN DATA UNTUK DIKIRIM KE BACKEND
       const payload = {
-        id_kendaraan: kendaraan.id, // ID Mobil
+        id_kendaraan: kendaraan.id, 
         tanggal_pesan: formData.tanggal_pesan,
         durasi_hari: formData.durasi_hari,
-        total_harga: totalHarga // Kirim total harga hasil hitungan frontend
+        total_harga: totalHarga 
       };
 
-      console.log("Mengirim Pesanan:", payload); // Debugging
+      console.log("Mengirim Pesanan:", payload); 
 
-      // 2. KIRIM KE API (PemesananController@store)
+      // 2. KIRIM KE API 
       const response = await axios.post(
         'http://127.0.0.1:8000/api/pemesanan',
         payload,
@@ -100,32 +110,38 @@ function Pemesanan() {
         }
       );
 
-      // 3. JIKA SUKSES, TERIMA ID BARU DARI BACKEND
+      // 3. JIKA SUKSES
       if (response.status === 201) {
         const newOrder = response.data.pemesanan;
         console.log("Pesanan Berhasil Dibuat! ID:", newOrder.id_pemesanan);
 
-        // 4. SIMPAN DATA ASLI KE SESSION (Untuk halaman Pembayaran)
-        // Kita butuh ID Pemesanan ASLI dari database, bukan mock/dummy
+        // 4. SIMPAN DATA KE SESSION (Opsional, untuk jaga-jaga)
         sessionStorage.setItem('lastPemesananDetails', JSON.stringify({
-          id_pemesanan: newOrder.id_pemesanan, // INI YANG PENTING!
+          id_pemesanan: newOrder.id_pemesanan, 
           total_harga: totalHarga,
           durasi_hari: formData.durasi_hari,
           tanggal_pesan: formData.tanggal_pesan, 
-          kendaraan: kendaraan // Data mobil untuk tampilan
+          kendaraan: kendaraan 
         }));
 
-        alert("Pesanan berhasil dibuat! Silakan upload bukti pembayaran.");
+        alert("Pesanan berhasil dibuat! Silakan upload dokumen verifikasi.");
 
-        // 5. PINDAH KE HALAMAN PEMBAYARAN (Dengan membawa ID)
-        // Saya arahkan langsung ke /pembayaran/:id agar lebih aman
-        navigate(`/pembayaran/${newOrder.id_pemesanan}`); 
+        // --- PERUBAHAN DISINI: Arahkan ke Halaman Unggah Dokumen ---
+        // Menggunakan ID Pemesanan yang baru dibuat
+        navigate(`/unggah-dokumen/${newOrder.id_pemesanan}`); 
       }
 
     } catch (err) {
       console.error("Pemesanan gagal:", err.response || err);
       const pesan = err.response?.data?.message || "Terjadi kesalahan server.";
-      alert(`Gagal membuat pesanan: ${pesan}`);
+      
+      // Handle jika token expired / 401
+      if (err.response?.status === 401) {
+          alert("Sesi login berakhir. Silakan login ulang.");
+          navigate('/login');
+      } else {
+          alert(`Gagal membuat pesanan: ${pesan}`);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -135,16 +151,16 @@ function Pemesanan() {
   
   if (!kendaraan) return <div className="loading-state">Kendaraan tidak ditemukan</div>;
   
-  const formattedTotal = `Rp ${totalHarga.toLocaleString('id-ID')}`;
+  const formattedTotal = formatRupiah(totalHarga);
 
   return (
     <div className="mobile-page-container">
       
       {/* Header Sticky */}
       <header className="page-header">
-        <Link to={`/kendaraan/${kendaraan.id}`} className="btn-back-circle">
+        <button onClick={() => navigate(-1)} className="btn-back-circle" style={{border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-        </Link>
+        </button>
         <span className="header-title">Konfirmasi Sewa</span>
         <div style={{width: 40}}></div> 
       </header>
@@ -155,11 +171,10 @@ function Pemesanan() {
         {/* Ringkasan Mobil */}
         <div className="summary-section">
             <div className="vehicle-thumb-row">
-                {/* Pastikan gambar ada fallback jika error */}
-                <img src={kendaraan.gambar_url || 'https://via.placeholder.com/150'} alt={kendaraan.nama} className="thumb-img" />
+                <img src={kendaraan.gambar_url} alt={kendaraan.nama} className="thumb-img" onError={(e)=>{e.target.src='https://via.placeholder.com/150'}} />
                 <div className="vehicle-info">
                     <h3>{kendaraan.nama}</h3>
-                    <p className="price-label">Rp {parseInt(kendaraan.harga_per_hari).toLocaleString('id-ID')}/hari</p>
+                    <p className="price-label">{formatRupiah(kendaraan.harga_per_hari)}/hari</p>
                     <div className="renter-badge">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                         Pemilik Kendaraan
@@ -246,7 +261,7 @@ function Pemesanan() {
             className={`btn-primary-action ${isSubmitting ? 'disabled' : ''}`}
             disabled={isSubmitting}
         >
-            {isSubmitting ? 'Memproses...' : 'Lanjut Bayar'}
+            {isSubmitting ? 'Memproses...' : 'Lanjut Dokumen'}
         </button>
       </footer>
 

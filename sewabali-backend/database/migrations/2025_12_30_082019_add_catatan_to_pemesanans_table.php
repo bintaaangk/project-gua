@@ -9,19 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('bukti_bukti_pembayarans', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+    public function up() {
+    Schema::table('pemesanans', function (Schema $table) {
+        $table->text('catatan')->nullable()->after('status');
+    });
+}
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('bukti_bukti_pembayarans');
+        Schema::table('pemesanans', function (Blueprint $table) {
+            //
+        });
     }
 };

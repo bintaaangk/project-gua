@@ -10,7 +10,7 @@ import DetailKendaraan from './DetailKendaraan.jsx';
 import Pencarian from './Pencarian.jsx';
 import Pemesanan from './Pemesanan.jsx'; // Halaman Konfirmasi Pemesanan
 import Pembayaran from './Pembayaran.jsx'; // Halaman Upload Bukti Transfer
-import FinalisasiPemesanan from './FinalisasiPemesanan.jsx'; // Halaman Unggah Dokumen (Lama/Opsional)
+import FinalisasiPemesanan from './FinalisasiPemesanan.jsx'; 
 import UnggahDokumen from './UnggahDokumen.jsx'; // <--- IMPORT BARU
 import Riwayat from './Riwayat.jsx';
 import DetailRiwayat from './DetailRiwayat.jsx';
@@ -28,6 +28,7 @@ import PesananMasuk from './Pesananmasuk';
 import ProfilPerental from './ProfilPerental';
 import NotifikasiPerental from './NotifikasiPerental';
 import AdminDashboard from './AdminDashboard';
+import UploadPembayaran from './UploadPembayaran';
 
 function App() {
   return (
@@ -42,12 +43,12 @@ function App() {
         <Route path="/kendaraan/:id" element={<DetailKendaraan />} />
         <Route path="/pemesanan/:id" element={<Pemesanan />} /> 
 
-        {/* Rute Verifikasi Dokumen */}
+        {/* Rute Verifikasi Dokumen Lama (Opsional) */}
         <Route path="/finalisasi-pemesanan" element={<FinalisasiPemesanan />} />
         
-        {/* --- RUTE BARU: UNGGAH DOKUMEN --- */}
-        <Route path="/unggah-dokumen" element={<UnggahDokumen />} />
-        
+        {/* --- PERBAIKAN DISINI --- */}
+        {/* Tambahkan /:id agar bisa menerima ID Pemesanan dari URL */}
+       <Route path="/unggah-dokumen/:id_pemesanan" element={<UnggahDokumen />} />
         {/* Rute Pembayaran (setelah Pemesanan/Verifikasi) */}
         <Route path="/pembayaran/:id" element={<Pembayaran />} />
 
@@ -71,6 +72,7 @@ function App() {
         <Route path="/pesanan-masuk" element={<PesananMasuk />} />
         <Route path="/perental/profil" element={<ProfilPerental />} />
         <Route path="/perental/notifikasi" element={<NotifikasiPerental />} />
+        <Route path="/upload-pembayaran/:id" element={<UploadPembayaran />} />
         
         {/* Rute Admin */}
         <Route path="/admin-dashboard" element={<AdminDashboard />} />

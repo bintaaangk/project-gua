@@ -102,17 +102,54 @@ body {
 
 .date-text { color: #888; }
 
+/* --- Perbaikan Status Badge --- */
 .status-badge {
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 6px 12px; /* Sedikit lebih lebar agar elegan */
+  border-radius: 8px; /* Lebih kotak sedikit tapi tetap rounded */
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700; /* Lebih tebal agar terbaca */
   text-transform: uppercase;
+  display: inline-block;
 }
-.badge-success { background: #d1fae5; color: #047857; }
-.badge-warning { background: #fef3c7; color: #b45309; }
-.badge-danger { background: #fee2e2; color: #b91c1c; }
-.badge-default { background: #f3f4f6; color: #4b5563; }
+
+/* Status: Menunggu Verifikasi / Menunggu Pembayaran / Menunggu Dokumen */
+.riwayat-page .badge-warning { 
+  background-color: #fff7ed !important; /* Warna krem kuning */
+  color: #d97706 !important;            /* Warna teks coklat orange */
+  border: 1px solid #fde68a !important; /* Border tipis agar tegas */
+}
+
+/* Status: Selesai / Dalam Sewa */
+.riwayat-page .badge-success { 
+  background-color: #f0fdf4 !important; /* Hijau sangat muda */
+  color: #16a34a !important;            /* Hijau tua */
+  border: 1px solid #bbf7d0 !important;
+}
+
+/* Status: Batal / Ditolak / Dibatalkan */
+.riwayat-page .badge-danger { 
+  background-color: #fef2f2 !important; /* Merah sangat muda */
+  color: #dc2626 !important;            /* Merah tegas */
+  border: 1px solid #fecaca !important;
+}
+
+/* Status: Default / Lainnya */
+.riwayat-page .badge-default { 
+  background-color: #f9fafb !important;
+  color: #6b7280 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* --- Tambahan Desain Tombol Aksi --- */
+.btn-action.warning {
+  background-color: #f59e0b;
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 6px rgba(245, 158, 11, 0.2);
+}
+.btn-action.warning:hover {
+  background-color: #d97706;
+}
 
 /* Card Body */
 .card-body {

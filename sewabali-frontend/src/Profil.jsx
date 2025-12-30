@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'; 
 import './Profil.css'; 
 
 const NavIcon = ({ d, label, active, to }) => ( 
@@ -10,34 +11,68 @@ const NavIcon = ({ d, label, active, to }) => (
         </svg>
     </div>
     <span>{label}</span>
-  </Link>
+ </Link>
 );
 
 function Profil() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
+  // State awal kosong, akan diisi dari API
   const [user, setUser] = useState({
-    nama: "Fikri Aditia",
-    username: "@fikriaditia",
-    avatar: "https://placehold.co/120x120/ffffff/007bff?text=FA"
+    nama: "",
+    username: "",
+    email: "", 
+    avatar: "https://placehold.co/120x120/e2e8f0/cbd5e1?text=..." 
   });
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('userProfileData');
-    if (savedUser) {
-        const parsedUser = JSON.parse(savedUser);
-        setUser(prev => ({
-            ...prev,
-            nama: parsedUser.nama || prev.nama,
-            avatar: parsedUser.avatar || prev.avatar 
-        }));
-    }
-  }, []);
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token'); 
+        
+        if (!token) {
+            navigate('/login');
+            return;
+        }
 
-  const handleLogout = () => {
+        const response = await axios.get('http://127.0.0.1:8000/api/user', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        const userData = response.data;
+
+        setUser({
+            nama: userData.name || userData.nama, 
+            username: userData.email, 
+            avatar: userData.avatar_url || "https://placehold.co/120x120/ffffff/007bff?text=" + (userData.name ? userData.name.charAt(0).toUpperCase() : 'U')
+        });
+
+      } catch (error) {
+        console.error("Gagal mengambil data user:", error);
+        if (error.response && error.response.status === 401) {
+            localStorage.clear();
+            navigate('/login');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [navigate]);
+
+  const handleLogout = async () => {
     if(window.confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) {
-        sessionStorage.clear();
-        navigate('/'); 
+        try {
+            localStorage.clear(); 
+            sessionStorage.clear();
+            navigate('/login'); 
+        } catch (error) {
+            console.error("Logout error", error);
+        }
     }
   };
 
@@ -49,12 +84,37 @@ function Profil() {
     const file = e.target.files[0];
     if (file) {
         const newAvatarUrl = URL.createObjectURL(file);
-        const newUserState = { ...user, avatar: newAvatarUrl };
-        setUser(newUserState);
-        const oldData = JSON.parse(localStorage.getItem('userProfileData')) || {};
-        localStorage.setItem('userProfileData', JSON.stringify({ ...oldData, avatar: newAvatarUrl }));
+        setUser(prev => ({ ...prev, avatar: newAvatarUrl }));
     }
   };
+
+  // --- BAGIAN INI YANG DIPERBAIKI AGAR POSISI DI TENGAH ---
+  if (loading) {
+      return (
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh', // Tinggi sepenuh layar
+            width: '100%',
+            backgroundColor: '#f8f9fa'
+        }}>
+            {/* Spinner Animasi Sederhana (Optional) */}
+            <div style={{
+                width: '40px',
+                height: '40px',
+                border: '4px solid #e2e8f0',
+                borderTop: '4px solid #3b82f6',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+            }}></div>
+            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+            
+            <p style={{ marginTop: '15px', color: '#64748B', fontWeight: 500 }}>Memuat Profil...</p>
+        </div>
+      );
+  }
 
   return (
     <div className="mobile-page-container">

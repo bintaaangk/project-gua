@@ -5,23 +5,22 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\DokumenVerifikasi;
-use App\Models\Notifikasi;
 use App\Models\Pemesanan;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
 class DokumenVerifikasiController extends Controller
 {
-    // GET dokumen yang perlu diverifikasi (untuk perental & admin)
+    // GET dokumen yang perlu diverifikasi
     public function index(Request $request)
     {
         try {
             $userId = $request->user()->id;
             
-            // Perental melihat dokumen dari pemesanan kendaraannya
+            // Mengambil dokumen berdasarkan kendaraan milik perental yang sedang login
             $dokumen = DokumenVerifikasi::whereHas('pemesanan', function($query) use ($userId) {
-                $query->where('kendaraan_id', function($subquery) use ($userId) {
-                    $subquery->select('id')->from('kendaraans')->where('user_id', $userId);
+                $query->whereHas('kendaraan', function($subquery) use ($userId) {
+                    $subquery->where('user_id', $userId);
                 });
             })->with(['penyewa', 'pemesanan'])->get();
             
@@ -31,16 +30,17 @@ class DokumenVerifikasiController extends Controller
         }
     }
 
-    // Fungsi untuk menyimpan dan mengupload semua dokumen
+    // Fungsi Upload Dokumen (STORE)
     public function store(Request $request)
     {
         try {
-            // 1. Validasi Input
+            // 1. Validasi Input (SUDAH DIPERBAIKI)
             $validator = Validator::make($request->all(), [
-                'pemesanan_id' => 'required|integer|exists:pemesanans,id',
-                'ktp' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-                'sim_c' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-                'jaminan' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+                // PERBAIKAN: 'exists:pemesanans,id_pemesanan' (Bukan 'id')
+                'pemesanan_id'   => 'required|integer|exists:pemesanans,id_pemesanan',
+                'ktp'            => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+                'sim_c'          => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+                'jaminan'        => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
                 'bukti_transfer' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             ]);
 
@@ -48,52 +48,42 @@ class DokumenVerifikasiController extends Controller
                 return response()->json(['errors' => $validator->errors()], 422);
             }
 
-            $paths = [];
-            
             // 2. Upload Files
+            $paths = [];
             $paths['path_ktp'] = $request->file('ktp')->store('dokumen_verifikasi', 'public');
+            $paths['path_jaminan'] = $request->file('jaminan')->store('dokumen_verifikasi', 'public');
             
             if ($request->hasFile('sim_c')) {
                 $paths['path_sim_c'] = $request->file('sim_c')->store('dokumen_verifikasi', 'public');
             }
 
-            $paths['path_jaminan'] = $request->file('jaminan')->store('dokumen_verifikasi', 'public');
-            
             if ($request->hasFile('bukti_transfer')) {
                 $paths['path_bukti_transfer'] = $request->file('bukti_transfer')->store('dokumen_verifikasi', 'public');
             }
 
-            // Get pemesanan untuk mendapat perental_id
-            $pemesanan = Pemesanan::find($request->pemesanan_id);
+            // Ambil data pemesanan untuk mendapatkan ID pemilik kendaraan (Perental)
+            $pemesanan = Pemesanan::with('kendaraan')->find($request->pemesanan_id);
             $perental_id = $pemesanan->kendaraan->user_id ?? null;
 
-            // 3. Simpan data ke database
+            // 3. Simpan ke Database
             $dokumen = DokumenVerifikasi::create([
-                'pemesanan_id' => $request->pemesanan_id,
-                'id_penyewa' => $request->user()->id,
-                'perental_id' => $perental_id,
-                'path_ktp' => $paths['path_ktp'],
-                'path_sim_c' => $paths['path_sim_c'] ?? null,
-                'path_jaminan' => $paths['path_jaminan'],
+                'pemesanan_id'        => $request->pemesanan_id,
+                'id_penyewa'          => $request->user()->id,
+                'perental_id'         => $perental_id,
+                'path_ktp'            => $paths['path_ktp'],
+                'path_sim_c'          => $paths['path_sim_c'] ?? null,
+                'path_jaminan'        => $paths['path_jaminan'],
                 'path_bukti_transfer' => $paths['path_bukti_transfer'] ?? null,
-                'status' => 'pending',
+                'status'              => 'pending',
             ]);
 
-            // Kirim notifikasi ke perental
-            if ($perental_id) {
-                Notifikasi::create([
-                    'user_id' => $perental_id,
-                    'tipe' => 'dokumen_upload',
-                    'pesan' => 'Ada dokumen verifikasi baru dari penyewa yang perlu diverifikasi',
-                    'pemesanan_id' => $request->pemesanan_id,
-                    'is_read' => false,
-                ]);
-            }
+            // (Notifikasi dihapus sementara sesuai permintaan)
 
             return response()->json([
                 'message' => 'Dokumen berhasil diupload. Menunggu verifikasi.',
                 'dokumen' => $dokumen
             ], 201);
+
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -108,15 +98,6 @@ class DokumenVerifikasiController extends Controller
             $dokumen->update([
                 'status' => 'verified',
                 'tanggal_verifikasi' => now(),
-            ]);
-
-            // Notifikasi ke penyewa
-            Notifikasi::create([
-                'user_id' => $dokumen->id_penyewa,
-                'tipe' => 'dokumen_verified',
-                'pesan' => 'Dokumen Anda telah diverifikasi dan disetujui',
-                'pemesanan_id' => $dokumen->pemesanan_id,
-                'is_read' => false,
             ]);
 
             return response()->json([
@@ -146,15 +127,6 @@ class DokumenVerifikasiController extends Controller
                 'status' => 'rejected',
                 'catatan_verifikasi' => $request->catatan,
                 'tanggal_verifikasi' => now(),
-            ]);
-
-            // Notifikasi ke penyewa
-            Notifikasi::create([
-                'user_id' => $dokumen->id_penyewa,
-                'tipe' => 'dokumen_rejected',
-                'pesan' => 'Dokumen Anda ditolak. Alasan: ' . $request->catatan,
-                'pemesanan_id' => $dokumen->pemesanan_id,
-                'is_read' => false,
             ]);
 
             return response()->json([

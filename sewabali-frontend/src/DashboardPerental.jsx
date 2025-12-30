@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'; // <-- Tambah useRef
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './DashboardPerental.css';
@@ -67,7 +67,7 @@ function DashboardPerental() {
   // --- STATE FORM ---
   const [newUnitData, setNewUnitData] = useState({
     nama: '', tipe: 'Mobil', plat: '', harga: '', 
-    transmisi: 'Manual', kapasitas: '4', img: null, imgPreview: null
+    transmisi: 'Manual', kapasitas: '4', no_rekening: '', img: null, imgPreview: null
   });
 
   const handleInputChange = (e) => {
@@ -99,6 +99,7 @@ function DashboardPerental() {
     formData.append('harga_per_hari', parseInt(newUnitData.harga));
     formData.append('transmisi', newUnitData.transmisi);
     formData.append('kapasitas', newUnitData.kapasitas);
+    formData.append('no_rekening', newUnitData.no_rekening);
     
     if (newUnitData.img) {
         formData.append('gambar', newUnitData.img);
@@ -120,7 +121,7 @@ function DashboardPerental() {
         setActiveView('unit');
         setNewUnitData({ 
             nama: '', tipe: 'Mobil', plat: '', harga: '', 
-            transmisi: 'Manual', kapasitas: '4', img: null, imgPreview: null 
+            transmisi: 'Manual', kapasitas: '4', no_rekening: '', img: null, imgPreview: null 
         });
 
         // Update data real-time
@@ -172,6 +173,37 @@ function DashboardPerental() {
       ));
       alert('✓ Jadwal dikonfirmasi. Pemberitahuan dikirim ke peminjam.');
       handleCloseModal();
+    }
+  };
+
+  // --- HANDLE DELETE UNIT ---
+  const handleDeleteUnit = async (id, namaUnit) => {
+    // 1. Konfirmasi agar tidak kepencet
+    if (!window.confirm(`Yakin ingin menghapus "${namaUnit}"? Data akan hilang permanen.`)) {
+        return;
+    }
+
+    setLoading(true); 
+
+    try {
+        const token = localStorage.getItem('token');
+        
+        // 2. Panggil API Delete ke Laravel
+        // Pastikan URL-nya benar (pakai localhost:8000 atau 127.0.0.1:8000 sesuai terminal backendmu)
+        await axios.delete(`http://localhost:8000/api/kendaraan/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        // 3. Update Tampilan Realtime (Hapus unit dari layar tanpa refresh)
+        const updatedUnits = units.filter(unit => unit.id !== id);
+        setUnits(updatedUnits);
+
+        alert('✓ Unit berhasil dihapus!');
+    } catch (error) {
+        console.error("Gagal menghapus unit:", error);
+        alert('❌ Gagal menghapus unit.');
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -300,6 +332,23 @@ function DashboardPerental() {
                         </div>
                     </div>
 
+                    <div className="form-col" style={{flex:1}}>
+                        <div className="form-group">
+                            <label>Nomor Rekening (Bank & No)</label>
+                            <input 
+                                className="input-modern" 
+                                type="text" 
+                                name="no_rekening" 
+                                value={newUnitData.no_rekening} 
+                                onChange={handleInputChange} 
+                                placeholder="Cth: BCA 1234567890 a.n Budi" 
+                            />
+                            <small style={{color:'#64748b', fontSize:'0.75rem'}}>
+                                *Akan muncul saat penyewa melakukan pembayaran.
+                            </small>
+                        </div>
+                    </div>
+
                     <div className="form-row" style={{display:'flex', gap:'10px'}}>
                       <div className="form-col" style={{flex:1}}>
                         <div className="form-group">
@@ -362,28 +411,60 @@ function DashboardPerental() {
                         {/* Area Scroll */}
                         <div className="unit-scroll-row" ref={mobilScrollRef}>
                             {listMobil.map(unit => (
-                                <Link key={unit.id} to={`/kendaraan/${unit.id}`} className="unit-card-new">
-                                    <div className="unit-img-top">
-                                        <img 
-                                            src={unit.gambar_url} 
-                                            alt={unit.nama} 
-                                            onError={(e) => {e.target.src = 'https://via.placeholder.com/150?text=No+Image'}}
-                                        />
-                                        <span className="badge-avail" style={{
-                                            backgroundColor: unit.status === 'Tersedia' ? 'rgba(255,255,255,0.95)' : 'rgba(254, 226, 226, 0.95)',
-                                            color: unit.status === 'Tersedia' ? '#059669' : '#DC2626'
-                                        }}>{unit.status}</span>
-                                    </div>
-                                    <div className="unit-info-body">
-                                        <div className="unit-name-row">
-                                            <h4>{unit.nama}</h4>
-                                            <span className="plat-badge">{unit.plat_nomor}</span>
+                                <div key={unit.id} className="unit-card-new" style={{position:'relative'}}>
+                                    
+                                    {/* Link ke Detail (Area Klik Utama) */}
+                                    <Link to={`/kendaraan/${unit.id}`} style={{textDecoration:'none', color:'inherit', display:'block'}}>
+                                        <div className="unit-img-top">
+                                            <img 
+                                                src={unit.gambar_url} 
+                                                alt={unit.nama} 
+                                                onError={(e) => {e.target.src = 'https://via.placeholder.com/150?text=No+Image'}}
+                                            />
+                                            <span className="badge-avail" style={{
+                                                backgroundColor: unit.status === 'Tersedia' ? 'rgba(255,255,255,0.95)' : 'rgba(254, 226, 226, 0.95)',
+                                                color: unit.status === 'Tersedia' ? '#059669' : '#DC2626'
+                                            }}>{unit.status}</span>
                                         </div>
-                                        <div className="price-row">
-                                            Rp {unit.harga_per_hari.toLocaleString('id-ID')}<span>/hr</span>
+                                        <div className="unit-info-body">
+                                            <div className="unit-name-row">
+                                                <h4>{unit.nama}</h4>
+                                                <span className="plat-badge">{unit.plat_nomor}</span>
+                                            </div>
+                                            <div className="price-row">
+                                                Rp {unit.harga_per_hari.toLocaleString('id-ID')}<span>/hr</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </Link>
+                                    </Link>
+
+                                    {/* TOMBOL HAPUS (Overlay) */}
+                                    <button 
+                                        onClick={(e) => {
+                                            e.preventDefault(); // Biar gak pindah halaman saat klik sampah
+                                            handleDeleteUnit(unit.id, unit.nama);
+                                        }}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '8px',
+                                            right: '8px',
+                                            background: 'rgba(220, 38, 38, 0.9)', // Warna Merah
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '50%',
+                                            width: '32px',
+                                            height: '32px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            zIndex: 10,
+                                            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                                        }}
+                                        title="Hapus Unit"
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
                             ))}
                         </div>
 
@@ -406,28 +487,60 @@ function DashboardPerental() {
                         {/* Area Scroll */}
                         <div className="unit-scroll-row" ref={motorScrollRef}>
                             {listMotor.map(unit => (
-                                <Link key={unit.id} to={`/kendaraan/${unit.id}`} className="unit-card-new">
-                                    <div className="unit-img-top">
-                                        <img 
-                                            src={unit.gambar_url} 
-                                            alt={unit.nama}
-                                            onError={(e) => {e.target.src = 'https://via.placeholder.com/150?text=No+Image'}}
-                                        />
-                                        <span className="badge-avail" style={{
-                                            backgroundColor: unit.status === 'Tersedia' ? 'rgba(255,255,255,0.95)' : 'rgba(254, 226, 226, 0.95)',
-                                            color: unit.status === 'Tersedia' ? '#059669' : '#DC2626'
-                                        }}>{unit.status}</span>
-                                    </div>
-                                    <div className="unit-info-body">
-                                        <div className="unit-name-row">
-                                            <h4>{unit.nama}</h4>
-                                            <span className="plat-badge">{unit.plat_nomor}</span>
+                                <div key={unit.id} className="unit-card-new" style={{position:'relative'}}>
+                                    
+                                    {/* Link ke Detail (Area Klik Utama) */}
+                                    <Link to={`/kendaraan/${unit.id}`} style={{textDecoration:'none', color:'inherit', display:'block'}}>
+                                        <div className="unit-img-top">
+                                            <img 
+                                                src={unit.gambar_url} 
+                                                alt={unit.nama} 
+                                                onError={(e) => {e.target.src = 'https://via.placeholder.com/150?text=No+Image'}}
+                                            />
+                                            <span className="badge-avail" style={{
+                                                backgroundColor: unit.status === 'Tersedia' ? 'rgba(255,255,255,0.95)' : 'rgba(254, 226, 226, 0.95)',
+                                                color: unit.status === 'Tersedia' ? '#059669' : '#DC2626'
+                                            }}>{unit.status}</span>
                                         </div>
-                                        <div className="price-row">
-                                            Rp {unit.harga_per_hari.toLocaleString('id-ID')}<span>/hr</span>
+                                        <div className="unit-info-body">
+                                            <div className="unit-name-row">
+                                                <h4>{unit.nama}</h4>
+                                                <span className="plat-badge">{unit.plat_nomor}</span>
+                                            </div>
+                                            <div className="price-row">
+                                                Rp {unit.harga_per_hari.toLocaleString('id-ID')}<span>/hr</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </Link>
+                                    </Link>
+
+                                    {/* TOMBOL HAPUS (Overlay) */}
+                                    <button 
+                                        onClick={(e) => {
+                                            e.preventDefault(); // Biar gak pindah halaman saat klik sampah
+                                            handleDeleteUnit(unit.id, unit.nama);
+                                        }}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '8px',
+                                            right: '8px',
+                                            background: 'rgba(220, 38, 38, 0.9)', // Warna Merah
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '50%',
+                                            width: '32px',
+                                            height: '32px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            zIndex: 10,
+                                            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                                        }}
+                                        title="Hapus Unit"
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
                             ))}
                         </div>
 
@@ -656,20 +769,25 @@ function DashboardPerental() {
       </div>
 
       {/* BOTTOM NAV */}
-      <nav className="bottom-nav-float">
-         <button className="nav-btn active">
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-             <span>Home</span>
-         </button>
-         <button className="nav-btn" onClick={() => navigate('/pesanan-masuk')}>
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-             <span>Pesanan</span>
-         </button>
-         <button className="nav-btn" onClick={() => navigate('/perental/profil')}>
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-             <span>Profil</span>
-         </button>
-      </nav>
+      {/* BOTTOM NAV - SUDAH DIRAPIKAN */}
+      <div className="nav-container-fixed">
+          <nav className="bottom-nav-perental">
+              <button className={`nav-btn ${activeView === 'unit' ? 'active' : ''}`} onClick={() => setActiveView('unit')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  <span>Home</span>
+              </button>
+              
+              <button className="nav-btn" onClick={() => navigate('/pesanan-masuk')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                  <span>Pesanan</span>
+              </button>
+
+              <button className="nav-btn" onClick={() => navigate('/perental/profil')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  <span>Profil</span>
+              </button>
+          </nav>
+      </div>
 
       {/* MODAL DETAIL JADWAL */}
       <ModalDetailJadwal />

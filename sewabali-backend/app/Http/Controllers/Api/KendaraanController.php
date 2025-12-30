@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Kendaraan;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use Exception;
 
 class KendaraanController extends Controller
 {
@@ -16,20 +15,16 @@ class KendaraanController extends Controller
     public function index()
     {
         try {
-            // Ambil SEMUA kendaraan dari SEMUA user (tanpa filter user_id)
-            $mobil = Kendaraan::where(function($query) {
-                $query->where('tipe', 'Mobil')->orWhere('tipe', 'mobil');
-            })->get();
-            
-            $motor = Kendaraan::where(function($query) {
-                $query->where('tipe', 'Motor')->orWhere('tipe', 'motor');
-            })->get();
+            // Ambil SEMUA kendaraan dari SEMUA user
+            // Menggunakan strtolower agar pencarian case-insensitive
+            $mobil = Kendaraan::whereRaw('LOWER(tipe) = ?', ['mobil'])->get();
+            $motor = Kendaraan::whereRaw('LOWER(tipe) = ?', ['motor'])->get();
 
             return response()->json([
                 'mobil' => $mobil,
                 'motor' => $motor
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -40,30 +35,23 @@ class KendaraanController extends Controller
     public function myUnits(Request $request)
     {
         try {
-            // Ambil ID User yang sedang login (dari Token)
             $userId = $request->user()->id; 
 
-            // Ambil Mobil HANYA milik user tersebut
+            // Filter berdasarkan user_id yang sedang login
             $mobil = Kendaraan::where('user_id', $userId)
-                        ->where(function($q){ 
-                            $q->where('tipe', 'Mobil')->orWhere('tipe', 'mobil'); 
-                        })
-                        ->get();
+                              ->whereRaw('LOWER(tipe) = ?', ['mobil'])
+                              ->get();
 
-            // Ambil Motor HANYA milik user tersebut
             $motor = Kendaraan::where('user_id', $userId)
-                        ->where(function($q){ 
-                            $q->where('tipe', 'Motor')->orWhere('tipe', 'motor'); 
-                        })
-                        ->get();
+                              ->whereRaw('LOWER(tipe) = ?', ['motor'])
+                              ->get();
 
-            // Format JSON disamakan dengan fungsi index agar Frontend tidak error
             return response()->json([
                 'mobil' => $mobil,
                 'motor' => $motor
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -73,52 +61,106 @@ class KendaraanController extends Controller
     // =================================================================
     public function show($id)
     {
-        $kendaraan = Kendaraan::find($id);
-        if (!$kendaraan) {
-            return response()->json(['message' => 'Kendaraan tidak ditemukan'], 404);
+        try {
+            // Eager loading 'user' agar data pemilik langsung terbawa
+            $kendaraan = Kendaraan::with('user')->find($id);
+
+            if (!$kendaraan) {
+                return response()->json(['message' => 'Kendaraan tidak ditemukan'], 404);
+            }
+
+            return response()->json($kendaraan);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-        return response()->json($kendaraan);
     }
 
     // =================================================================
     // 4. STORE (Tambah Unit Baru oleh Perental)
     // =================================================================
+    // =================================================================
+    // 4. STORE (Tambah Unit Baru oleh Perental)
+    // =================================================================
     public function store(Request $request)
     {
-        // Validasi Input
-        $request->validate([
-            'nama'           => 'required',
-            'tipe'           => 'required', 
-            'plat_nomor'     => 'required',
-            'harga_per_hari' => 'required|numeric',
-            'transmisi'      => 'required',
-            'kapasitas'      => 'required|numeric',
-            'gambar'         => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        try {
+            // Validasi Input
+            $request->validate([
+                'nama'           => 'required|string|max:255',
+                'tipe'           => 'required', 
+                'plat_nomor'     => 'required|string|max:20',
+                'harga_per_hari' => 'required|numeric',
+                'transmisi'      => 'required|string',
+                'kapasitas'      => 'required|numeric',
+                'gambar'         => 'required|image|mimes:jpeg,png,jpg|max:2048',
+                'no_rekening'    => 'nullable|string', 
+            ]);
 
-        // Proses Upload Gambar
-        $imagePath = null;
-        if ($request->hasFile('gambar')) {
-            $imagePath = $request->file('gambar')->store('kendaraan', 'public');
+            // Proses Upload Gambar
+            $imagePath = null;
+            if ($request->hasFile('gambar')) {
+                $imagePath = $request->file('gambar')->store('kendaraan', 'public');
+            }
+
+            // Simpan ke Database
+            // REVISI: Saya hapus 'lokasi' dan 'deskripsi' agar tidak error
+            $kendaraan = Kendaraan::create([
+                'user_id'        => $request->user()->id, 
+                'nama'           => $request->nama,
+                'tipe'           => ucfirst(strtolower($request->tipe)), 
+                'plat_nomor'     => strtoupper($request->plat_nomor),
+                'harga_per_hari' => $request->harga_per_hari,
+                'kapasitas'      => $request->kapasitas, 
+                'transmisi'      => $request->transmisi,
+                'status'         => 'Tersedia',
+                'gambar_url'     => $imagePath ? url('storage/' . $imagePath) : null,
+                
+                // HANYA INI TAMBAHAN YANG KITA BUTUHKAN
+                'no_rekening'    => $request->no_rekening, 
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Kendaraan berhasil ditambahkan',
+                'data'    => $kendaraan
+            ], 201);
+
+        } catch (Exception $e) {
+            // Ini akan memunculkan pesan error asli jika masih gagal
+            return response()->json(['error' => 'Gagal: ' . $e->getMessage()], 500);
         }
+    }
 
-        // Simpan ke Database
-        $kendaraan = Kendaraan::create([
-            'user_id'        => $request->user()->id, // PENTING: Menandai pemilik kendaraan
-            'nama'           => $request->nama,
-            'tipe'           => $request->tipe,
-            'plat_nomor'     => $request->plat_nomor,
-            'harga_per_hari' => $request->harga_per_hari,
-            'kapasitas'      => $request->kapasitas, 
-            'transmisi'      => $request->transmisi,
-            'status'         => 'Tersedia',
-            'gambar_url'     => $imagePath ? url('storage/' . $imagePath) : null,
-        ]);
+    public function destroy(Request $request, $id)
+    {
+        try {
+            // Cari kendaraan berdasarkan ID
+            $kendaraan = Kendaraan::find($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Kendaraan berhasil ditambahkan',
-            'data'    => $kendaraan
-        ], 201);
+            if (!$kendaraan) {
+                return response()->json(['message' => 'Unit tidak ditemukan'], 404);
+            }
+
+            // Pastikan yang menghapus adalah PEMILIK unit itu sendiri (Keamanan)
+            if ($kendaraan->user_id !== $request->user()->id) {
+                return response()->json(['message' => 'Anda tidak berhak menghapus unit ini'], 403);
+            }
+
+            // Hapus gambar dari storage jika ada (biar server gak penuh sampah)
+            if ($kendaraan->gambar_url) {
+                // Ambil path relatif dari URL (misal: kendaraan/foto.jpg)
+                $path = str_replace(url('storage/'), '', $kendaraan->gambar_url);
+                // Hapus file fisik
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+            }
+
+            // Hapus data dari database
+            $kendaraan->delete();
+
+            return response()->json(['message' => 'Unit berhasil dihapus'], 200);
+
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Gagal menghapus unit: ' . $e->getMessage()], 500);
+        }
     }
 }

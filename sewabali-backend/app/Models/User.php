@@ -17,12 +17,15 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+       'name',
         'email',
         'password',
-        'nomor_telepon', 
-        'alamat',        
-        'role', // <-- TAMBAHKAN INI
+        // --- TAMBAHKAN KOLOM INI AGAR BISA DI-UPDATE ---
+        'nomor_telepon', // Pastikan ini sesuai nama kolom di DB (misal: no_hp)
+        'alamat',
+        'avatar_url',
+        'role',
+        'status',// <-- TAMBAHKAN INI
     ];
 
     /**
@@ -52,4 +55,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Notifikasi::class);
     }
+
+    // app/Models/User.php
+
+public function kendaraans()
+{
+    return $this->hasMany(Kendaraan::class, 'user_id');
+}
 }

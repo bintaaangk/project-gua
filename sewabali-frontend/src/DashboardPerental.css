@@ -456,3 +456,54 @@
     cursor: pointer;
 }
 .nav-btn.active { color: #2563eb; }
+/* Container pembungkus agar tidak terpengaruh padding dashboard */
+.nav-container-fixed {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center; /* Mengetengahkan secara horizontal */
+    z-index: 999;
+    pointer-events: none; /* Biar tidak menghalangi klik di luar tombol */
+}
+
+.bottom-nav-perental {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #ffffff;
+    width: 90%; /* Lebar navbar 90% dari layar */
+    max-width: 400px; /* Maksimal lebar agar tidak terlalu besar di tablet */
+    padding: 12px 10px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border: 1px solid #f1f5f9;
+    pointer-events: auto; /* Mengembalikan fungsi klik pada navbar */
+}
+
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1; /* Memberikan ruang yang sama antar tombol */
+}
+
+.nav-btn span {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.nav-btn.active {
+    color: #3b82f6; /* Warna biru aktif */
+}
+
+.nav-btn:active {
+    transform: scale(0.9);
+}

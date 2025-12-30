@@ -3,7 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './DetailKendaraan.css'; // File CSS
 
-// Komponen Ikon Spesifikasi
+// Komponen Ikon Spesifikasi (TETAP SAMA)
 const SpecIcon = ({ d, title, value }) => (
   <div className="spec-box">
     <div className="spec-icon-circle">
@@ -23,23 +23,21 @@ function DetailKendaraan() {
   const navigate = useNavigate();
   const [kendaraan, setKendaraan] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // State rentalOwner
   const [rentalOwner, setRentalOwner] = useState(null);
 
+  // --- 1. PERBAIKAN FETCH DATA (Single Request) ---
   useEffect(() => {
     async function fetchKendaraan() {
       try {
-        // Fetch data kendaraan dari API
+        // Fetch data kendaraan (Pastikan Controller Laravel pakai 'with user')
         const response = await axios.get(`http://127.0.0.1:8000/api/kendaraan/${id}`);
         setKendaraan(response.data);
         
-        // Fetch data pemilik kendaraan jika ada user_id
-        if (response.data.user_id) {
-          try {
-            const userResponse = await axios.get(`http://127.0.0.1:8000/api/users/${response.data.user_id}`);
-            setRentalOwner(userResponse.data);
-          } catch (err) {
-            console.log('Tidak bisa fetch user data:', err);
-          }
+        // Ambil data user langsung dari respon relasi
+        if (response.data.user) {
+            setRentalOwner(response.data.user);
         }
       } catch (error) {
         console.error('Gagal fetch detail kendaraan:', error);
@@ -51,22 +49,30 @@ function DetailKendaraan() {
     fetchKendaraan();
   }, [id]);
 
-  if (loading) {
-    return <div className="loading-screen">Memuat...</div>;
-  }
+  if (loading) return <div className="loading-screen">Memuat...</div>;
+  if (!kendaraan) return <div className="loading-screen">Kendaraan tidak ditemukan</div>;
 
-  if (!kendaraan) {
-    return <div className="loading-screen">Kendaraan tidak ditemukan</div>;
-  }
+  const formattedPrice = `Rp ${parseInt(kendaraan.harga_per_hari).toLocaleString('id-ID')}`;
 
-  const formattedPrice = `Rp ${kendaraan.harga_per_hari.toLocaleString('id-ID')}`;
+  // --- 2. FUNGSI PEMBERSIH ALAMAT (Supaya bersih dari link Google Maps) ---
+  const cleanAddress = (rawAddress) => {
+    if (!rawAddress) return 'Bali, Indonesia';
+    // Hapus teks mulai dari "(Titik:" sampai akhir
+    return rawAddress.split('(Titik:')[0].trim();
+  };
 
+  // Gunakan alamat bersih ini untuk Tampilan & Peta
+  const finalAddress = cleanAddress(rentalOwner?.alamat || rentalOwner?.address);
+
+  // --- 3. LOGIKA WHATSAPP ---
   const handleWhatsApp = () => {
-    // Gunakan nomor dari rentalOwner atau fallback ke default
     const phoneNumber = rentalOwner?.nomor_telepon || rentalOwner?.no_hp || '6281234567890';
     const message = `Halo, saya tertarik untuk menyewa ${kendaraan.nama}. Apakah tersedia?`;
     window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
+
+  // --- 4. URL MAP YANG SUDAH BERSIH ---
+  const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(finalAddress)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
 
   const handleBack = () => {
     navigate(-1);
@@ -75,7 +81,7 @@ function DetailKendaraan() {
   return (
     <div className="mobile-detail-page">
       
-      {/* Header Sticky (Transparan saat scroll di atas, putih saat turun - simplenya kita buat putih) */}
+      {/* Header Sticky */}
       <header className="detail-navbar">
         <button className="btn-back-circle" onClick={handleBack} style={{background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center'}}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
@@ -91,7 +97,12 @@ function DetailKendaraan() {
         
         {/* Gambar Utama */}
         <div className="hero-image-wrapper">
-          <img src={kendaraan.gambar_url} alt={kendaraan.nama} className="hero-img" />
+          <img 
+            src={kendaraan.gambar_url} 
+            alt={kendaraan.nama} 
+            className="hero-img" 
+            onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/e0e0e0/777?text=Gambar+Tidak+Ada"; }}
+          />
         </div>
 
         {/* Info Utama */}
@@ -131,7 +142,7 @@ function DetailKendaraan() {
         {/* Deskripsi */}
         <div className="desc-section">
             <h3 className="section-heading">Informasi Kendaraan</h3>
-            <p className="desc-text">{kendaraan.nama} - Tipe: {kendaraan.tipe}</p>
+            <p className="desc-text">{kendaraan.deskripsi || `${kendaraan.nama} adalah kendaraan tipe ${kendaraan.tipe} yang nyaman digunakan untuk keliling Bali.`}</p>
         </div>
 
         <div className="divider"></div>
@@ -144,7 +155,8 @@ function DetailKendaraan() {
                   <img src={rentalOwner.avatar_url || "https://placehold.co/100x100/007bff/FFFFFF?text=User"} alt="Avatar" className="renter-avatar" />
                   <div className="renter-info">
                       <h4 className="renter-name">{rentalOwner.name || rentalOwner.nama}</h4>
-                      <p className="renter-loc">{rentalOwner.alamat || rentalOwner.address || 'Alamat tidak tersedia'}</p>
+                      {/* --- ALAMAT BERSIH DI SINI --- */}
+                      <p className="renter-loc">{finalAddress}</p>
                   </div>
                   <button onClick={handleWhatsApp} className="btn-wa">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382C17.111 14.196 15.344 13.314 15.015 13.195C14.685 13.076 14.444 13.016 14.204 13.376C13.964 13.736 13.284 14.536 13.074 14.776C12.864 15.016 12.654 15.046 12.294 14.866C11.934 14.686 10.774 14.306 9.394 13.076C8.304 12.106 7.564 10.906 7.354 10.546C7.144 10.186 7.334 9.996 7.514 9.816C7.674 9.656 7.874 9.396 8.054 9.186C8.234 8.976 8.294 8.826 8.414 8.586C8.534 8.346 8.474 8.136 8.384 7.956C8.294 7.776 7.564 5.986 7.264 5.266C6.974 4.566 6.674 4.666 6.454 4.666C6.254 4.666 6.024 4.656 5.794 4.656C5.564 4.656 5.184 4.746 4.864 5.096C4.544 5.446 3.644 6.296 3.644 8.016C3.644 9.736 4.894 11.406 5.074 11.646C5.254 11.886 7.544 15.426 11.174 16.996C13.884 18.166 14.654 17.886 15.584 17.766C16.514 17.646 18.444 16.616 18.844 15.486C19.244 14.356 19.244 13.386 19.124 13.196C19.004 13.006 18.764 12.896 18.404 12.716L17.472 14.382ZM12.004 2C6.484 2 2 6.484 2 12C2 13.764 2.464 15.424 3.284 16.884L2 22L7.244 20.624C8.664 21.394 10.304 21.824 12.004 21.824C17.524 21.824 22.004 17.344 22.004 11.824C22.004 6.304 17.524 1.824 12.004 1.824V2Z"/></svg>
@@ -152,7 +164,12 @@ function DetailKendaraan() {
                   </button>
               </div>
             ) : (
-              <p style={{color: '#666', padding: '10px'}}>Data pemilik tidak tersedia</p>
+              <div className="renter-card" style={{opacity: 0.7}}>
+                  <div className="renter-info">
+                      <h4 className="renter-name">Rental SewaBali</h4>
+                      <p className="renter-loc">Admin</p>
+                  </div>
+              </div>
             )}
         </div>
 
@@ -170,7 +187,7 @@ function DetailKendaraan() {
                     scrolling="no" 
                     marginHeight="0" 
                     marginWidth="0" 
-                    src={`https://maps.google.com/maps?q=${encodeURIComponent(rentalOwner?.alamat || rentalOwner?.address || 'Bali, Indonesia')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                    src={mapSrc} // URL Map Bersih
                 >
                 </iframe>
             </div>

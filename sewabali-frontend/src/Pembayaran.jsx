@@ -129,21 +129,39 @@ function Pembayaran() {
         </div>
 
         {/* Card Metode Transfer */}
+        {/* Card Metode Transfer */}
         <div className="payment-card bank-card">
             <h3 className="card-title">Transfer Bank</h3>
             <div className="bank-details">
-                <div className="bank-logo-placeholder">BCA</div>
+                {/* Logo Bank Text */}
+                <div className="bank-logo-placeholder">BANK</div> 
                 <div className="bank-info">
-                    <span className="bank-name">BCA (Bank Central Asia)</span>
+                    <span className="bank-name">
+                        Transfer ke Pemilik Unit
+                    </span>
                     <span className="account-name">
-                      {pemesanan?.kendaraan?.perental?.nama || 'Pemilik Kendaraan'}
+                        a.n {pemesanan?.kendaraan?.perental?.nama || 'Pemilik Kendaraan'}
                     </span>
                 </div>
             </div>
             
             <div className="rek-box">
-                <span className="rek-number">6023456872</span>
-                <button className="btn-copy" onClick={() => {navigator.clipboard.writeText('6023456872'); alert('Disalin!')}}>Salin</button>
+                {/* --- BAGIAN PENTING: MENAMPILKAN REKENING DARI DATABASE --- */}
+                {/* Jika ada no_rekening, tampilkan. Jika tidak, tampilkan pesan hubungi admin */}
+                <span className="rek-number">
+                    {pemesanan?.kendaraan?.no_rekening ? pemesanan.kendaraan.no_rekening : 'Hubungi Admin'}
+                </span>
+                {/* ---------------------------------------------------------- */}
+
+                <button className="btn-copy" onClick={() => {
+                    const textToCopy = pemesanan?.kendaraan?.no_rekening || '';
+                    if(textToCopy) {
+                        navigator.clipboard.writeText(textToCopy); 
+                        alert('Nomor rekening disalin!');
+                    } else {
+                        alert('Belum ada nomor rekening.');
+                    }
+                }}>Salin</button>
             </div>
             
             <div className="instruction-text">

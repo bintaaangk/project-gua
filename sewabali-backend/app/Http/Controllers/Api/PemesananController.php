@@ -6,14 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pemesanan;
 use App\Models\Kendaraan;
+use App\Models\Pembayaran; 
+use App\Models\DokumenVerifikasi;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class PemesananController extends Controller
 {
-    // ============================================================================
+    // =================================================================
     // 1. STORE (PENYEWA): Membuat Pesanan Baru
-    // ============================================================================
+    // =================================================================
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -28,125 +31,273 @@ class PemesananController extends Controller
         }
 
         try {
-            $userId = $request->user()->id;
-
             $pemesanan = new Pemesanan();
-            $pemesanan->id_penyewa    = $userId; 
+            $pemesanan->id_penyewa    = $request->user()->id; 
             $pemesanan->id_kendaraan  = $request->id_kendaraan; 
             $pemesanan->tanggal_pesan = $request->tanggal_pesan;
             $pemesanan->durasi_hari   = $request->durasi_hari;  
             $pemesanan->total_harga   = $request->total_harga;  
-            
-            // --- PERBAIKAN DI SINI ---
-            // Kita pakai 'menunggu_verifikasi' sesuai ENUM di database kamu
-            $pemesanan->status        = 'menunggu_verifikasi'; 
-            
+            $pemesanan->status        = 'menunggu_dokumen'; 
+            $pemesanan->tanggal_kembali = \Carbon\Carbon::parse($request->tanggal_pesan)
+                                      ->addDays($request->durasi_hari)
+                                      ->toDateString();
             $pemesanan->save();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Pemesanan berhasil dibuat.',
                 'pemesanan' => [
                     'id_pemesanan' => $pemesanan->id_pemesanan, 
                     'kode_transaksi' => 'TRX-' . str_pad($pemesanan->id_pemesanan, 6, '0', STR_PAD_LEFT)
                 ]
             ], 201);
-
         } catch (\Exception $e) {
             Log::error('Gagal membuat pesanan: ' . $e->getMessage());
-            return response()->json(['error' => 'Gagal menyimpan pesanan', 'detail' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Gagal menyimpan pesanan'], 500);
         }
     }
 
-    // ============================================================================
-    // 2. INDEX (PERENTAL)
-    // ============================================================================
+    // =================================================================
+    // 2. INDEX RIWAYAT (PENYEWA): List riwayat pesanan saya
+    // =================================================================
+    public function indexRiwayat(Request $request)
+    {
+        try {
+            $riwayat = Pemesanan::with(['kendaraan'])
+                ->where('id_penyewa', $request->user()->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $formattedData = $riwayat->map(function ($r) {
+                return [
+                    'id_pemesanan' => $r->id_pemesanan,
+                    'status' => $r->status,
+                    'total_harga' => $r->total_harga,
+                    'durasi_hari' => $r->durasi_hari,
+                    'tanggal_pesan' => $r->tanggal_pesan,
+                    'created_at' => $r->created_at,
+                    'kendaraan' => [
+                        'nama' => $r->kendaraan ? $r->kendaraan->nama : 'Unit Dihapus',
+                        'gambar_url' => $r->kendaraan ? $r->kendaraan->gambar_url : null,
+                    ]
+                ];
+            });
+
+            return response()->json($formattedData, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memuat riwayat'], 500);
+        }
+    }
+
+    // =================================================================
+    // 3. SHOW DETAIL (PENYEWA): Detail satu pesanan
+    // =================================================================
+    public function show($id)
+    {
+        $pemesanan = Pemesanan::with([
+            'kendaraan.user', 
+            'buktiBayar', 
+            'dokumenVerifikasi'
+        ])
+        ->where('id_pemesanan', $id)
+        ->first();
+
+        if (!$pemesanan) {
+            return response()->json(['message' => 'Pesanan tidak ditemukan'], 404);
+        }
+
+        return response()->json($pemesanan);
+    }
+
+    // =================================================================
+    // 4. INDEX PESANAN MASUK (KHUSUS PERENTAL)
+    // =================================================================
     public function indexPesananMasuk(Request $request)
     {
         try {
-            $user = $request->user(); 
+            $userId = $request->user()->id;
 
-            $pesanan = Pemesanan::with(['kendaraan', 'user', 'pembayaran']) 
-                ->whereHas('kendaraan', function ($query) use ($user) {
-                    $query->where('user_id', $user->id); 
-                })
-                ->orderBy('created_at', 'desc') 
-                ->get();
+            $pesanan = Pemesanan::whereHas('kendaraan', function($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->with(['kendaraan', 'user', 'buktiBayar', 'dokumenVerifikasi']) 
+            ->orderBy('created_at', 'desc')
+            ->get();
 
             $formattedData = $pesanan->map(function ($p) {
-                $tglMulai = new \DateTime($p->tanggal_pesan);
-                $tglSelesai = clone $tglMulai;
-                $tglSelesai->modify('+' . $p->durasi_hari . ' days');
-
                 return [
-                    'id' => $p->id_pemesanan, 
+                    'id' => $p->id_pemesanan,
                     'kode' => 'TRX-' . str_pad($p->id_pemesanan, 6, '0', STR_PAD_LEFT),
-                    'penyewa' => $p->user ? $p->user->name : 'User Tidak Dikenal',
-                    'unit' => $p->kendaraan ? $p->kendaraan->nama : 'Kendaraan Dihapus',
-                    'tgl_sewa' => $tglMulai->format('d M'),
-                    'tgl_kembali' => $tglSelesai->format('d M'), 
-                    'total' => $p->total_harga,
-                    
-                    // Kita ubah tampilan status biar rapi (misal: "menunggu_verifikasi" jadi "Menunggu Verifikasi")
-                    'status' => ucwords(str_replace('_', ' ', $p->status)),
-                    
-                    'bukti_bayar_url' => $p->pembayaran ? url('storage/' . $p->pembayaran->bukti_pembayaran) : null, 
+                    'status' => $p->status,
+                    'status_label' => ucwords(str_replace('_', ' ', $p->status)),
+                    'tanggal_sewa' => $p->tanggal_pesan,
+                    'tanggal_kembali' => date('Y-m-d', strtotime($p->tanggal_pesan . ' + ' . $p->durasi_hari . ' days')),
+                    'total_harga' => $p->total_harga,
+                    'catatan' => $p->catatan,
+                    'user' => [
+                        'name' => $p->user ? $p->user->name : 'User Dihapus',
+                        'email' => $p->user ? $p->user->email : '-',
+                        'telepon' => $p->user ? $p->user->nomor_telepon : '-'
+                    ],
+                    'kendaraan' => [
+                        'nama' => $p->kendaraan ? $p->kendaraan->nama : 'Unit Dihapus',
+                        'plat_nomor' => $p->kendaraan ? $p->kendaraan->plat_nomor : '-',
+                        'gambar_url' => $p->kendaraan ? $p->kendaraan->gambar_url : null, 
+                    ],
+                    'bukti_bayar' => $p->buktiBayar ? [
+                        'file_path' => $p->buktiBayar->bukti_pembayaran,
+                    ] : null,
+                    'dokumen_verifikasi' => $p->dokumenVerifikasi ? [
+                        'path_ktp'   => $p->dokumenVerifikasi->path_ktp,
+                        'path_sim_c' => $p->dokumenVerifikasi->path_sim_c,
+                        'path_jaminan' => $p->dokumenVerifikasi->path_jaminan,
+                    ] : null,
                 ];
             });
 
             return response()->json($formattedData);
 
         } catch (\Exception $e) {
-            Log::error('Error fetch pesanan masuk: ' . $e->getMessage());
-            return response()->json(['error' => 'Gagal memuat pesanan', 'msg' => $e->getMessage()], 500);
+            Log::error('Error Pesanan Masuk: ' . $e->getMessage());
+            return response()->json(['error' => 'Gagal memuat pesanan masuk'], 500);
         }
     }
 
-    // ============================================================================
-    // 3. KONFIRMASI (PERENTAL)
-    // ============================================================================
+    // =================================================================
+    // 5. UPLOAD ULANG (PENYEWA): Memperbaiki Dokumen yang Ditolak
+    // =================================================================
+    public function uploadUlang(Request $request, $id)
+    {
+        try {
+            $pesanan = Pemesanan::findOrFail($id);
+
+            // Set status kembali ke verifikasi agar muncul lagi di perental
+            $pesanan->status = 'menunggu_verifikasi';
+            $pesanan->catatan = 'Penyewa telah mengunggah ulang data perbaikan.';
+            $pesanan->save();
+
+            // 1. Update Dokumen
+            if ($request->hasFile('ktp') || $request->hasFile('sim_c') || $request->hasFile('jaminan')) {
+                $pathKtp = $request->file('ktp') ? $request->file('ktp')->store('dokumen', 'public') : null;
+                $pathSim = $request->file('sim_c') ? $request->file('sim_c')->store('dokumen', 'public') : null;
+                $pathJaminan = $request->file('jaminan') ? $request->file('jaminan')->store('dokumen', 'public') : null;
+
+                DokumenVerifikasi::updateOrCreate(
+                    ['pemesanan_id' => $id],
+                    [
+                        'path_ktp' => $pathKtp ?? DB::raw('path_ktp'),
+                        'path_sim_c' => $pathSim ?? DB::raw('path_sim_c'),
+                        'path_jaminan' => $pathJaminan ?? DB::raw('path_jaminan'),
+                    ]
+                );
+            }
+
+            // 2. Update Pembayaran
+            if ($request->hasFile('bukti_pembayaran')) {
+                $pathBayar = $request->file('bukti_pembayaran')->store('bukti_transfer', 'public');
+                
+                Pembayaran::updateOrCreate(
+                    ['id_pemesanan' => $id],
+                    ['bukti_pembayaran' => $pathBayar]
+                );
+            }
+
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // =================================================================
+    // 6. KONFIRMASI PESANAN (PERENTAL): Menangani Status & Alasan
+    // =================================================================
     public function konfirmasiPesanan(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'action' => 'required|in:terima,tolak'
+        $request->validate([
+            'status' => 'required', 
+            'catatan' => 'nullable|string'
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => 'Aksi tidak valid'], 400);
-        }
-
         try {
-            $pesanan = Pemesanan::where('id_pemesanan', $id)->firstOrFail();
-            
-            $kendaraan = Kendaraan::find($pesanan->id_kendaraan);
-            if (!$kendaraan || $kendaraan->user_id !== $request->user()->id) {
-                return response()->json(['error' => 'Anda tidak berhak mengelola pesanan ini'], 403);
-            }
+            $pesanan = Pemesanan::findOrFail($id);
 
-            // --- PERBAIKAN LOGIKA STATUS ---
-            // Database kamu cuma punya: 'menunggu_verifikasi', 'dalam_sewa', 'selesai'
-            // Jadi kalau DITERIMA, kita anggap masuk ke 'dalam_sewa'
-            // Kalau DITOLAK, database kamu TIDAK PUNYA status 'ditolak'.
-            // Saran: Untuk sekarang biarkan tetap 'menunggu_verifikasi' atau kamu harus tambah ENUM di database.
-            
-            if ($request->action === 'terima') {
-                $statusBaru = 'dalam_sewa'; 
-                $pesanan->status = $statusBaru;
-                $pesanan->save();
-                
-                if ($pesanan->pembayaran) {
-                    $pesanan->pembayaran->status_pembayaran = 'lunas';
-                    $pesanan->pembayaran->save();
-                }
-                return response()->json(['message' => 'Pesanan diterima (Status: Dalam Sewa)']);
+            if ($request->status === 'Dikonfirmasi') {
+                $pesanan->status = 'dalam_sewa'; 
+            } elseif ($request->status === 'sedang_disewa') {
+                $pesanan->status = 'sedang_disewa';
+            } elseif ($request->status === 'selesai') {
+                $pesanan->status = 'selesai';
+            } elseif ($request->status === 'Ditolak') {
+                $pesanan->status = 'batal';
             } else {
-                // KARENA DATABASE TIDAK ADA STATUS 'DITOLAK', kita hapus saja pesanannya atau biarkan.
-                // Disini saya pilih kembalikan error dulu biar kamu sadar
-                return response()->json(['error' => 'Database kamu belum punya status "Ditolak". Hanya ada: menunggu_verifikasi, dalam_sewa, selesai'], 400);
+                $pesanan->status = $request->status;
             }
 
+            $pesanan->catatan = $request->catatan;
+            $pesanan->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status pesanan berhasil diperbarui.',
+                'status_sekarang' => $pesanan->status
+            ]);
         } catch (\Exception $e) {
-            Log::error('Gagal konfirmasi pesanan: ' . $e->getMessage());
-            return response()->json(['error' => 'Gagal memproses pesanan'], 500);
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
+
+    // Tambahkan di dalam class PemesananController
+
+public function cekPengingat(Request $request)
+{
+    $user = $request->user();
+    $hariIni = \Carbon\Carbon::today()->toDateString();
+    $besok = \Carbon\Carbon::tomorrow()->toDateString();
+
+    // 1. PENGINGAT AMBIL (Status: dalam_sewa & Tanggal: Hari ini)
+    $ambil = Pemesanan::with('kendaraan')
+        ->where('id_penyewa', $user->id)
+        ->whereDate('tanggal_pesan', $hariIni)
+        ->where('status', 'dalam_sewa')
+        ->first();
+
+    if ($ambil) {
+        return response()->json([
+            'ada_tenggat' => true,
+            'tipe' => 'ambil',
+            'pesan' => "Hari ini jadwal pengambilan unit " . $ambil->kendaraan->nama,
+            'detail' => ['unit' => $ambil->kendaraan->nama, 'plat' => $ambil->kendaraan->plat_nomor]
+        ]);
+    }
+
+    // 2. PENGINGAT KEMBALI (Status: sedang_disewa & Tanggal Kembali: Hari ini/Besok)
+    // Jika kolom tanggal_kembali belum ada, kita hitung on-the-fly
+    $kembali = Pemesanan::with('kendaraan')
+        ->where('id_penyewa', $user->id)
+        ->where('status', 'sedang_disewa')
+        ->get()
+        ->filter(function($p) use ($hariIni, $besok) {
+            // Hitung tanggal kembali: tgl_pesan + durasi
+            $tglSelesai = \Carbon\Carbon::parse($p->tanggal_pesan)->addDays($p->durasi_hari)->toDateString();
+            return $tglSelesai == $hariIni || $tglSelesai == $besok;
+        })->first();
+
+    if ($kembali) {
+        $tglSelesai = \Carbon\Carbon::parse($kembali->tanggal_pesan)->addDays($kembali->durasi_hari);
+        $waktu = $tglSelesai->toDateString() == $hariIni ? "HARI INI" : "BESOK";
+
+        return response()->json([
+            'ada_tenggat' => true,
+            'tipe' => 'kembali',
+            'pesan' => "Waktu sewa Anda berakhir $waktu! Mohon segera kembalikan unit.",
+            'detail' => [
+                'unit' => $kembali->kendaraan->nama,
+                'plat' => $kembali->kendaraan->plat_nomor,
+                'batas' => $tglSelesai->format('d M Y')
+            ]
+        ]);
+    }
+
+    return response()->json(['ada_tenggat' => false]);
+}
 }

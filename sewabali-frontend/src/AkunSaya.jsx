@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './AkunSaya.css'; 
 
 function AkunSaya() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   // --- STATE UTAMA ---
   const [user, setUser] = useState({
-    nama: "Fikri Aditia",
-    email: "fikriaditia@gmail.com",
-    telepon: "081234567890",
-    alamat: "Jl. Raya Canggu No. 10, Bali",
-    avatar: "https://placehold.co/120x120/ffffff/007bff?text=FA"
+    nama: "",
+    email: "",
+    telepon: "",
+    alamat: "",
+    avatar: "https://placehold.co/120x120/ffffff/007bff?text=User"
   });
 
   const [editMode, setEditMode] = useState({ telepon: false, alamat: false });
@@ -24,13 +28,39 @@ function AkunSaya() {
   const [passError, setPassError] = useState('');
   const [passSuccess, setPassSuccess] = useState('');
 
-  // --- EFFECT ---
+  // --- 1. FETCH DATA REALTIME DARI DATABASE ---
   useEffect(() => {
-    const savedUser = localStorage.getItem('userProfileData');
-    if (savedUser) {
-        setUser(JSON.parse(savedUser));
-    }
-  }, []);
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+
+        const response = await axios.get('http://127.0.0.1:8000/api/user', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const data = response.data;
+        setUser({
+            id: data.id, // Simpan ID untuk update
+            nama: data.name || data.nama,
+            email: data.email,
+            telepon: data.nomor_telepon || data.telepon || "",
+            alamat: data.alamat || "",
+            avatar: data.avatar_url || "https://placehold.co/120x120/ffffff/007bff?text=" + (data.name ? data.name.charAt(0).toUpperCase() : 'U')
+        });
+
+      } catch (error) {
+        console.error("Gagal ambil data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [navigate]);
 
   // --- HANDLERS PROFIL ---
   const handleChange = (e) => {
@@ -42,64 +72,118 @@ function AkunSaya() {
     setEditMode(prev => ({ ...prev, [field]: !prev[field] }));
   };
 
-  const handleSave = () => {
+  // --- 2. UPDATE DATA KE DATABASE ---
+  const handleSave = async () => {
     setEditMode({ telepon: false, alamat: false });
-    localStorage.setItem('userProfileData', JSON.stringify(user));
-    alert("Profil berhasil diperbarui!");
+    
+    try {
+        const token = localStorage.getItem('token');
+        // Kirim data yang diubah ke API (Sesuaikan endpoint update di Laravel)
+        // Biasanya endpoint update profile itu PUT /api/user atau POST /api/user/update
+        await axios.put('http://127.0.0.1:8000/api/user/update', {
+            name: user.nama,
+            nomor_telepon: user.telepon,
+            alamat: user.alamat
+        }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        alert("Profil berhasil diperbarui di database!");
+    } catch (error) {
+        console.error("Gagal update profil:", error);
+        alert("Gagal memperbarui profil. Cek koneksi internet.");
+    }
   };
 
-  const handlePhotoChange = (e) => {
+  // --- UPLOAD FOTO KE DATABASE ---
+  const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
+        // Preview lokal
         const imageUrl = URL.createObjectURL(file);
         setUser(prev => ({ ...prev, avatar: imageUrl }));
+
+        try {
+            const token = localStorage.getItem('token');
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            // Endpoint khusus upload avatar
+            await axios.post('http://127.0.0.1:8000/api/user/avatar', formData, {
+                headers: { 
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            alert("Foto profil berhasil diupload!");
+        } catch (error) {
+            console.error("Gagal upload foto:", error);
+            alert("Gagal mengupload foto ke server.");
+        }
     }
   };
 
   // --- HANDLERS KEAMANAN ---
   const handlePassChange = (e) => {
     setPassData({ ...passData, [e.target.name]: e.target.value });
-    setPassError(''); // Reset error saat mengetik
+    setPassError('');
   };
 
-  const savePassword = (e) => {
+  const savePassword = async (e) => {
     e.preventDefault();
     
-    // 1. Validasi Sederhana
     if (!passData.currentPass || !passData.newPass || !passData.confirmPass) {
         setPassError("Semua kolom harus diisi.");
         return;
     }
 
-    // 2. Simulasi Cek Password Lama (Anggap password lama '123456')
-    if (passData.currentPass !== '123456') {
-        setPassError("Kata sandi saat ini salah (Default: 123456).");
-        return;
-    }
-
-    // 3. Cek Konfirmasi Password
     if (passData.newPass !== passData.confirmPass) {
         setPassError("Konfirmasi kata sandi tidak cocok.");
         return;
     }
 
-    // 4. Cek Panjang Password
     if (passData.newPass.length < 6) {
         setPassError("Kata sandi minimal 6 karakter.");
         return;
     }
 
-    // SUKSES
-    setPassSuccess("Kata sandi berhasil diubah!");
-    setPassError('');
-    setPassData({ currentPass: '', newPass: '', confirmPass: '' });
-    
-    // Tutup modal setelah 1.5 detik
-    setTimeout(() => {
-        setShowSecurityModal(false);
-        setPassSuccess('');
-    }, 1500);
+    try {
+        const token = localStorage.getItem('token');
+        // Panggil API Ganti Password Laravel
+        await axios.post('http://127.0.0.1:8000/api/user/password', {
+            current_password: passData.currentPass,
+            new_password: passData.newPass,
+            new_password_confirmation: passData.confirmPass
+        }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        setPassSuccess("Kata sandi berhasil diubah!");
+        setPassError('');
+        setPassData({ currentPass: '', newPass: '', confirmPass: '' });
+        
+        setTimeout(() => {
+            setShowSecurityModal(false);
+            setPassSuccess('');
+        }, 1500);
+
+    } catch (error) {
+        console.error("Gagal ganti password:", error);
+        if (error.response && error.response.data.message) {
+            setPassError(error.response.data.message); // Tampilkan pesan dari Laravel (misal: Password lama salah)
+        } else {
+            setPassError("Gagal mengganti kata sandi.");
+        }
+    }
   };
+
+  if (loading) {
+      return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <p>Memuat Data...</p>
+        </div>
+      );
+  }
 
   return (
     <div className="mobile-page-container">
@@ -134,18 +218,25 @@ function AkunSaya() {
             <div className="info-item">
                 <label>Nama Lengkap</label>
                 <div className="info-value">
-                    <span className="text-dark">{user.nama}</span>
-                    <span className="icon-lock">🔒</span>
+                    <input 
+                        type="text" 
+                        name="nama" 
+                        value={user.nama} 
+                        onChange={handleChange} 
+                        className="input-inline" 
+                        style={{borderBottom: '1px solid #ddd'}}
+                    />
+                    <span className="icon-lock">✏️</span>
                 </div>
             </div>
             <div className="divider-thin"></div>
 
-            {/* Email */}
+            {/* Email (READ ONLY & TANPA BADGE) */}
             <div className="info-item">
                 <label>Email</label>
                 <div className="info-value">
-                    <span className="text-dark">{user.email}</span>
-                    <span className="verified-badge">Terverifikasi</span>
+                    <span className="text-dark" style={{color: '#64748b'}}>{user.email}</span>
+                    <span className="icon-lock">🔒</span>
                 </div>
             </div>
             <div className="divider-thin"></div>
@@ -157,7 +248,7 @@ function AkunSaya() {
                     {editMode.telepon ? (
                         <input type="tel" name="telepon" value={user.telepon} onChange={handleChange} className="input-inline" autoFocus />
                     ) : (
-                        <span className="text-dark">{user.telepon}</span>
+                        <span className="text-dark">{user.telepon || "-"}</span>
                     )}
                     <button className="btn-text-edit" onClick={() => toggleEdit('telepon')}>
                         {editMode.telepon ? 'Batal' : 'Ubah'}
@@ -173,7 +264,7 @@ function AkunSaya() {
                     {editMode.alamat ? (
                         <textarea name="alamat" value={user.alamat} onChange={handleChange} className="textarea-inline" rows="2" />
                     ) : (
-                        <span className="text-dark">{user.alamat}</span>
+                        <span className="text-dark">{user.alamat || "-"}</span>
                     )}
                     <button className="btn-text-edit" onClick={() => toggleEdit('alamat')}>
                         {editMode.alamat ? 'Batal' : 'Ubah'}
@@ -182,7 +273,7 @@ function AkunSaya() {
             </div>
         </div>
 
-        {/* Info Tambahan (KEAMANAN) - SEKARANG BISA DIKLIK */}
+        {/* Info Tambahan (KEAMANAN) */}
         <div className="info-card-secondary">
             <div className="secondary-item clickable" onClick={() => setShowSecurityModal(true)}>
                 <div className="sec-icon">🛡️</div>
@@ -219,35 +310,17 @@ function AkunSaya() {
 
                     <div className="form-group-modal">
                         <label>Kata Sandi Saat Ini</label>
-                        <input 
-                            type="password" 
-                            name="currentPass" 
-                            value={passData.currentPass} 
-                            onChange={handlePassChange} 
-                            placeholder="Masukkan sandi lama"
-                        />
+                        <input type="password" name="currentPass" value={passData.currentPass} onChange={handlePassChange} placeholder="Masukkan sandi lama" />
                     </div>
 
                     <div className="form-group-modal">
                         <label>Kata Sandi Baru</label>
-                        <input 
-                            type="password" 
-                            name="newPass" 
-                            value={passData.newPass} 
-                            onChange={handlePassChange} 
-                            placeholder="Minimal 6 karakter"
-                        />
+                        <input type="password" name="newPass" value={passData.newPass} onChange={handlePassChange} placeholder="Minimal 6 karakter" />
                     </div>
 
                     <div className="form-group-modal">
                         <label>Konfirmasi Sandi Baru</label>
-                        <input 
-                            type="password" 
-                            name="confirmPass" 
-                            value={passData.confirmPass} 
-                            onChange={handlePassChange} 
-                            placeholder="Ulangi sandi baru"
-                        />
+                        <input type="password" name="confirmPass" value={passData.confirmPass} onChange={handlePassChange} placeholder="Ulangi sandi baru" />
                     </div>
 
                     <button type="submit" className="btn-save-modal">Simpan Kata Sandi</button>

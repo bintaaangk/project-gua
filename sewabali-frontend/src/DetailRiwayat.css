@@ -1,160 +1,364 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background-color: #f5f7fa;
-}
-
-/* --- Container Mobile --- */
+/* --- LAYOUT UTAMA --- */
 .mobile-page-container {
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  background-color: #ffffff;
-  min-height: 100vh;
-  position: relative;
-  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    background-color: #fff;
+    min-height: 100vh;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
 }
 
-/* --- Header --- */
+/* --- HEADER --- */
 .page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  background-color: #fff;
-  border-bottom: 1px solid #f0f0f0;
-  position: sticky;
-  top: 0;
-  z-index: 50;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .btn-back-circle {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  border: 1px solid #eee;
-  display: flex; align-items: center; justify-content: center;
-  color: #333;
-  text-decoration: none;
+    color: #333;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
 }
 
-.header-title { font-size: 15px; font-weight: 600; color: #333; }
+.header-title {
+    font-size: 18px;
+    font-weight: 700;
+}
 
-/* --- Scroll Content --- */
-.scroll-content { padding-top: 20px; }
+/* --- CONTENT AREA --- */
+.scroll-content {
+    padding-bottom: 40px;
+}
 
-/* Status Card */
+/* --- STATUS BANNER --- */
 .status-card {
-  margin: 0 20px 20px;
-  padding: 16px;
-  border-radius: 12px;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
 }
 
-.status-card.warning {
-  background-color: #fffbeb;
-  border: 1px solid #fef3c7;
+.status-card.warning { background-color: #fff7ed; border: 1px solid #fde68a; }
+.status-card.success { background-color: #f0fdf4; border: 1px solid #bbf7d0; }
+.status-card.info { background-color: #eff6ff; border: 1px solid #bfdbfe; } /* Tambahan untuk Siap Diambil */
+.status-card.danger { background-color: #fef2f2; border: 1px solid #fecaca; }
+
+.status-icon-large { font-size: 28px; }
+.status-info h3 { margin: 0; font-size: 16px; font-weight: 700; color: #333; }
+.status-info p { margin: 4px 0 0 0; font-size: 12px; color: #666; line-height: 1.4; }
+
+/* --- GAYA KHUSUS KARTU INSTRUKSI PENGAMBILAN (TAHAP 2) --- */
+.instruction-card-modern {
+    margin: 0 20px 20px 20px;
+    background: #ffffff;
+    border: 1.5px solid #3b82f6;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
 }
 
-.status-icon-large { font-size: 24px; }
-.status-info h3 { margin: 0 0 4px 0; font-size: 14px; color: #92400e; font-weight: 700; }
-.status-info p { margin: 0; font-size: 12px; color: #b45309; line-height: 1.4; }
+.instruction-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
 
-/* Sections */
-.detail-section { padding: 20px; }
-.section-label { font-size: 14px; font-weight: 600; color: #333; margin: 0 0 16px 0; }
+.instruction-header h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e40af;
+}
+
+.instruction-text {
+    font-size: 12px;
+    color: #475569;
+    margin-bottom: 12px;
+}
+
+.location-detail-box {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.loc-icon { font-size: 20px; }
+.loc-text strong { font-size: 13px; display: block; margin-bottom: 2px; }
+.loc-text p { font-size: 12px; color: #64748b; margin: 0; line-height: 1.5; }
+
+.note-from-perental {
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 10px;
+    margin-bottom: 15px;
+}
+
+.note-from-perental strong { font-size: 12px; color: #334155; }
+.note-from-perental p { font-size: 12px; color: #64748b; font-style: italic; margin: 4px 0 0 0; }
+
+.btn-whatsapp-full {
+    width: 100%;
+    background-color: #25d366;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+/* --- SECTION DETAIL --- */
+.detail-section {
+    padding: 0 20px;
+    margin-bottom: 20px;
+}
+
+.section-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: block;
+}
 
 .vehicle-card-mini {
-  display: flex;
-  gap: 12px;
-  background-color: #f9fafb;
-  padding: 12px;
-  border-radius: 12px;
-  align-items: center;
+    display: flex;
+    gap: 15px;
+    background: #f9f9f9;
+    padding: 12px;
+    border-radius: 12px;
 }
+
 .vehicle-img {
-  width: 70px; height: 50px;
-  border-radius: 8px;
-  object-fit: cover;
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
 }
-.vehicle-details h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #333; }
-.vehicle-details p { margin: 0; font-size: 11px; color: #666; }
+
+.vehicle-details h4 { margin: 0; font-size: 15px; font-weight: 700; }
+.vehicle-details p { margin: 4px 0; font-size: 12px; color: #777; }
+.plate-badge {
+    background: #333;
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+/* --- INFO ROW --- */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 14px;
+}
+
+.info-row span:first-child { color: #777; }
+.info-row strong { color: #007bff; font-weight: 700; }
+
+.text-success { color: #16a34a; font-weight: 600; }
+.text-warning { color: #d97706; font-weight: 600; }
+
+/* --- PERENTAL BOX --- */
+.renter-box {
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-whatsapp {
+    background-color: #25d366;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* --- SPECS GRID --- */
+.specs-grid-detail {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 0 20px;
+    margin-bottom: 20px;
+}
+
+.spec-box {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    padding: 12px 8px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.spec-label-text { font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+.spec-value { font-size: 12px; font-weight: 700; color: #1e293b; }
 
 .divider-thick {
-  height: 8px;
-  background-color: #f5f7fa;
-  width: 100%;
+    height: 8px;
+    background-color: #f5f7fa;
+    margin: 20px 0;
 }
-
-/* Info Rows */
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 13px;
-  color: #555;
-}
-.info-row:last-child { margin-bottom: 0; }
-.status-text-success { color: #16a34a; font-weight: 600; }
-
-/* Document List */
-.doc-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px dashed #eee;
-  font-size: 13px;
-}
-.doc-row:last-child { border-bottom: none; }
-.doc-status.uploaded { color: #007bff; font-weight: 500; }
-
-/* Renter Info */
+/* Fix Renter Box agar rapi */
 .renter-box {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #fff;
-  border: 1px solid #eee;
-  padding: 12px;
-  border-radius: 12px;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Pastikan ambil lebar penuh */
+    box-sizing: border-box;
 }
 
 .renter-profile {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex: 1; /* Biarkan info teks mengambil ruang sisa */
 }
 
-.renter-avatar-placeholder {
-  width: 40px; height: 40px;
-  background-color: #e0f2fe;
-  color: #007bff;
-  font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 50%;
-  font-size: 16px;
+.renter-info-text {
+    display: flex;
+    flex-direction: column;
 }
 
-.renter-name-text { margin: 0; font-size: 13px; font-weight: 600; color: #333; }
-.renter-sub { margin: 0; font-size: 11px; color: #888; }
-
-.btn-whatsapp {
-  background-color: #25D366;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 50px;
-  font-size: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
+.renter-name-text {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
-.loading-screen {
-  display: flex; align-items: center; justify-content: center; height: 100vh; color: #888;
+.renter-sub {
+    margin: 2px 0 0 0;
+    font-size: 11px;
+    color: #999;
+}
+
+/* Checklist Styling */
+.checklist-item-modern {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #e2e8f0;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+
+.status-dot.filled {
+    background-color: #16a34a;
+    box-shadow: 0 0 8px rgba(22, 163, 74, 0.4);
+}
+
+.checklist-content h5 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.checklist-content p {
+    margin: 2px 0 0 0;
+    font-size: 12px;
+}
+.rejection-card {
+    margin: 20px;
+    background: #fff1f2;
+    border: 1px solid #fda4af;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.rejection-header {
+    background: #f43f5e;
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rejection-header h4 { margin: 0; font-size: 14px; font-weight: 700; }
+
+.rejection-body { padding: 16px; }
+
+.rejection-label { font-size: 12px; font-weight: 700; color: #9f1239; margin-bottom: 4px; }
+
+.rejection-note {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid #f43f5e;
+    font-size: 13px;
+    font-style: italic;
+    color: #444;
+    margin-bottom: 12px;
+}
+
+.rejection-instruction { font-size: 12px; color: #666; margin-bottom: 15px; line-height: 1.5; }
+
+.rejection-actions { display: flex; flex-direction: column; gap: 10px; }
+
+.btn-reupload {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.btn-contact-support {
+    background: transparent;
+    color: #f43f5e;
+    border: 1px solid #f43f5e;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
 }

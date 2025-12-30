@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios'; // Pastikan axios diimport
 import './UnggahDokumen.css'; 
-
-const ID_PENYEWA = 1; 
 
 function UnggahDokumen() { 
   const navigate = useNavigate();
+  const { id_pemesanan } = useParams(); // Ambil ID dari URL (Contoh: /unggah-dokumen/12)
   
   const [files, setFiles] = useState({
     ktp: null,
@@ -13,16 +13,6 @@ function UnggahDokumen() {
     jaminan: null,
   });
   const [loading, setLoading] = useState(false);
-  
-  // Cek apakah ada data pemesanan sebelumnya (opsional, untuk validasi)
-  useEffect(() => {
-    const savedDetails = sessionStorage.getItem('lastPemesananDetails');
-    if (!savedDetails) {
-        // Jika user langsung tembak URL tanpa pesan dulu
-        // alert("Tidak ada data pemesanan aktif.");
-        // navigate('/beranda');
-    }
-  }, [navigate]);
 
   const handleFileChange = (e) => {
     const { name, files: selectedFiles } = e.target;
@@ -42,22 +32,33 @@ function UnggahDokumen() {
     setLoading(true);
 
     try {
-      // Simulasi Proses Upload
-      // const formData = new FormData(); ... (Logika backend)
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      
+      // Sesuaikan key dengan validator di DokumenVerifikasiController Laravel Anda
+      formData.append('pemesanan_id', id_pemesanan); 
+      formData.append('ktp', files.ktp);
+      formData.append('jaminan', files.jaminan);
+      if (files.sim_c) {
+          formData.append('sim_c', files.sim_c);
+      }
 
-      // Ambil ID pemesanan dari session untuk redirect
-      const savedDetails = JSON.parse(sessionStorage.getItem('lastPemesananDetails'));
-      const newPemesananId = savedDetails ? savedDetails.id_pemesanan : 456; 
+      // Kirim ke backend
+      const response = await axios.post('http://127.0.0.1:8000/api/dokumen-verifikasi', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-      // Simulasi delay network
-      setTimeout(() => {
-        // Redirect ke halaman Pembayaran sesuai request kode asli Anda
-        navigate(`/pembayaran/${newPemesananId}`); 
-      }, 1500);
+      alert("Dokumen berhasil diunggah! Silakan lanjut ke pembayaran.");
+      
+      // Redirect ke halaman pembayaran
+      navigate(`/pembayaran/${id_pemesanan}`);
 
     } catch (err) {
-      console.error("Upload gagal:", err);
-      alert('Terjadi kesalahan saat mengunggah dokumen.');
+      console.error("Upload gagal:", err.response?.data || err.message);
+      alert('Gagal mengunggah: ' + JSON.stringify(err.response?.data?.errors || "Terjadi kesalahan network"));
     } finally {
       setLoading(false);
     }
@@ -65,20 +66,15 @@ function UnggahDokumen() {
 
   return (
     <div className="mobile-page-container">
-      
-      {/* Header Sticky */}
       <header className="page-header">
-        <Link to="/beranda" className="btn-back-circle">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-        </Link>
+        <button onClick={() => navigate(-1)} className="btn-back-circle" style={{border:'none', background:'none'}}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        </button>
         <span className="header-title">Verifikasi Dokumen</span>
         <div style={{width: 40}}></div>
       </header>
 
-      {/* Konten Scrollable */}
       <div className="scroll-content">
-        
-        {/* Info Card */}
         <div className="info-card-warning">
             <div className="info-icon">⚠️</div>
             <div className="info-text">
@@ -89,21 +85,14 @@ function UnggahDokumen() {
 
         <div className="divider-thick"></div>
 
-        <form className="upload-form-section">
+        <form className="upload-form-section" onSubmit={handleSubmit}>
             <h3 className="section-label">Upload Dokumen</h3>
 
             {/* Input 1: KTP */}
             <div className="input-group">
                 <label>1. Foto KTP (Wajib)</label>
                 <div className="custom-file-wrapper">
-                    <input 
-                        type="file" 
-                        id="ktp" 
-                        name="ktp" 
-                        accept="image/*,.pdf" 
-                        onChange={handleFileChange} 
-                        className="hidden-input"
-                    />
+                    <input type="file" id="ktp" name="ktp" accept="image/*" onChange={handleFileChange} className="hidden-input" />
                     <label htmlFor="ktp" className={`file-box ${files.ktp ? 'uploaded' : ''}`}>
                         {files.ktp ? (
                             <div className="file-success">
@@ -125,14 +114,7 @@ function UnggahDokumen() {
             <div className="input-group">
                 <label>2. Foto SIM C (Opsional)</label>
                 <div className="custom-file-wrapper">
-                    <input 
-                        type="file" 
-                        id="sim_c" 
-                        name="sim_c" 
-                        accept="image/*,.pdf" 
-                        onChange={handleFileChange} 
-                        className="hidden-input"
-                    />
+                    <input type="file" id="sim_c" name="sim_c" accept="image/*" onChange={handleFileChange} className="hidden-input" />
                     <label htmlFor="sim_c" className={`file-box ${files.sim_c ? 'uploaded' : ''}`}>
                         {files.sim_c ? (
                             <div className="file-success">
@@ -155,14 +137,7 @@ function UnggahDokumen() {
                 <label>3. Dokumen Jaminan (Wajib)</label>
                 <p className="sub-label">Contoh: KK Asli, Ijazah, atau STNK Pribadi</p>
                 <div className="custom-file-wrapper">
-                    <input 
-                        type="file" 
-                        id="jaminan" 
-                        name="jaminan" 
-                        accept="image/*,.pdf" 
-                        onChange={handleFileChange} 
-                        className="hidden-input"
-                    />
+                    <input type="file" id="jaminan" name="jaminan" accept="image/*" onChange={handleFileChange} className="hidden-input" />
                     <label htmlFor="jaminan" className={`file-box ${files.jaminan ? 'uploaded' : ''}`}>
                         {files.jaminan ? (
                             <div className="file-success">
@@ -179,13 +154,11 @@ function UnggahDokumen() {
                     </label>
                 </div>
             </div>
-
         </form>
 
         <div style={{height: 100}}></div>
       </div>
 
-      {/* Sticky Footer */}
       <footer className="sticky-footer-action-single">
         <button 
             onClick={handleSubmit} 
@@ -195,7 +168,6 @@ function UnggahDokumen() {
             {loading ? 'Mengunggah...' : 'Lanjut ke Pembayaran'}
         </button>
       </footer>
-
     </div>
   );
 }

@@ -11,6 +11,7 @@ use App\Models\DokumenVerifikasi;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Models\Notifikasi; // <--- TAMBAHKAN BARIS INI!
 
 class PemesananController extends Controller
 {
@@ -19,9 +20,10 @@ class PemesananController extends Controller
     // =================================================================
     public function store(Request $request)
     {
+        // 1. Validasi Input
         $validator = Validator::make($request->all(), [
-            'id_kendaraan'  => 'required|exists:kendaraans,id', 
-            'tanggal_pesan' => 'required|date|after_or_equal:today',
+            'id_kendaraan'  => 'required|exists:kendaraans,id', // Pastikan ID ada di tabel
+            'tanggal_pesan' => 'required|date', // Hapus after_or_equal sementara untuk testing
             'durasi_hari'   => 'required|integer|min:1',
             'total_harga'   => 'required|numeric', 
         ]);
@@ -31,29 +33,57 @@ class PemesananController extends Controller
         }
 
         try {
-            $pemesanan = new Pemesanan();
-            $pemesanan->id_penyewa    = $request->user()->id; 
-            $pemesanan->id_kendaraan  = $request->id_kendaraan; 
-            $pemesanan->tanggal_pesan = $request->tanggal_pesan;
-            $pemesanan->durasi_hari   = $request->durasi_hari;  
-            $pemesanan->total_harga   = $request->total_harga;  
-            $pemesanan->status        = 'menunggu_dokumen'; 
-            $pemesanan->tanggal_kembali = \Carbon\Carbon::parse($request->tanggal_pesan)
-                                      ->addDays($request->durasi_hari)
-                                      ->toDateString();
-            $pemesanan->save();
+            // Gunakan Transaction agar data konsisten (Kalau satu gagal, semua batal)
+            $result = DB::transaction(function () use ($request) {
+                
+                // 2. Simpan Pemesanan
+                $pemesanan = new Pemesanan();
+                $pemesanan->id_penyewa    = $request->user()->id; 
+                $pemesanan->id_kendaraan  = $request->id_kendaraan; 
+                $pemesanan->tanggal_pesan = $request->tanggal_pesan;
+                $pemesanan->durasi_hari   = $request->durasi_hari;  
+                $pemesanan->total_harga   = $request->total_harga;  
+                $pemesanan->status        = 'menunggu_pembayaran'; // Status awal standar
+                $pemesanan->tanggal_kembali = \Carbon\Carbon::parse($request->tanggal_pesan)
+                                              ->addDays($request->durasi_hari)
+                                              ->toDateString();
+                $pemesanan->save();
+
+                // 3. Update Status Kendaraan & Kirim Notif
+                $kendaraan = Kendaraan::find($request->id_kendaraan);
+        
+                if ($kendaraan) {
+                    // Update Status Kendaraan
+                    $kendaraan->status = 'Disewa'; 
+                    $kendaraan->save();
+
+                    // Buat Notifikasi (Pastikan model Notifikasi sudah di-import di atas)
+                    Notifikasi::create([
+                        'user_id'      => $kendaraan->user_id, // Ke Pemilik
+                        'tipe'         => 'order',
+                        'pesan'        => 'Pesanan Baru: Unit ' . $kendaraan->nama . ' telah dipesan.',
+                        'pemesanan_id' => $pemesanan->id_pemesanan,
+                        'is_read'      => false
+                    ]);
+                }
+
+                return $pemesanan;
+            });
 
             return response()->json([
                 'success' => true,
                 'message' => 'Pemesanan berhasil dibuat.',
-                'pemesanan' => [
-                    'id_pemesanan' => $pemesanan->id_pemesanan, 
-                    'kode_transaksi' => 'TRX-' . str_pad($pemesanan->id_pemesanan, 6, '0', STR_PAD_LEFT)
-                ]
+                'pemesanan' => $result
             ], 201);
+
         } catch (\Exception $e) {
-            Log::error('Gagal membuat pesanan: ' . $e->getMessage());
-            return response()->json(['error' => 'Gagal menyimpan pesanan'], 500);
+            // === DISINI KUNCI DEBUGGINGNYA ===
+            // Kita kirim pesan error aslinya ke frontend biar kelihatan salahnya apa
+            return response()->json([
+                'error' => 'Terjadi Kesalahan Server',
+                'message' => $e->getMessage(), // <--- Ini akan memberitahu error sebenarnya
+                'line' => $e->getLine()
+            ], 500);
         }
     }
 
@@ -221,7 +251,7 @@ class PemesananController extends Controller
         try {
             $pesanan = Pemesanan::findOrFail($id);
 
-            if ($request->status === 'Dikonfirmasi') {
+           if ($request->status === 'Dikonfirmasi' || $request->status === 'disetujui') {
                 $pesanan->status = 'dalam_sewa'; 
             } elseif ($request->status === 'sedang_disewa') {
                 $pesanan->status = 'sedang_disewa';

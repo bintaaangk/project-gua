@@ -49,7 +49,43 @@
     color: #64748b;
 }
 
-/* --- KARTU PESANAN (PREMIUM) --- */
+/* --- SISTEM TABS (ALUR KERJA) --- */
+.order-tabs {
+    display: flex;
+    gap: 8px;
+    background: white;
+    padding: 10px 20px;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-bottom: 1px solid #f1f5f9;
+    scrollbar-width: none; /* Firefox */
+}
+
+.order-tabs::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.order-tabs button {
+    padding: 8px 16px;
+    border-radius: 50px;
+    border: 1px solid #f1f5f9;
+    background: #f8fafc;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.order-tabs button.active {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* --- KARTU PESANAN --- */
 .order-card-premium {
     background: white;
     border-radius: 18px;
@@ -85,12 +121,12 @@
     text-transform: uppercase;
 }
 
-/* Warna Status */
-.status-badge.menunggu_dokumen, .status-badge.menunggu_konfirmasi { background: #fff7ed; color: #c2410c; }
-.status-badge.dikonfirmasi, .status-badge.dalam_sewa { background: #ecfdf5; color: #059669; }
+/* Warna Status Sesuai Status API */
+.status-badge.menunggu_verifikasi, .status-badge.menunggu_dokumen { background: #fff7ed; color: #c2410c; }
+.status-badge.dalam_sewa, .status-badge.sedang_disewa { background: #eff6ff; color: #1d4ed8; }
+.status-badge.selesai { background: #ecfdf5; color: #059669; }
 .status-badge.ditolak, .status-badge.batal { background: #fef2f2; color: #dc2626; }
 
-/* FLEX ROW: Gambar Mobil Kiri - Info Kanan */
 .card-middle {
     display: flex;
     gap: 15px;
@@ -99,8 +135,8 @@
 }
 
 .car-image-box {
-    width: 90px;
-    height: 90px;
+    width: 80px;
+    height: 80px;
     border-radius: 14px;
     overflow: hidden;
     flex-shrink: 0;
@@ -113,34 +149,27 @@
     object-fit: cover;
 }
 
-.order-details {
-    flex: 1;
-}
-
 .order-details h4 {
     margin: 0 0 4px 0;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #1e293b;
 }
 
-.order-details .renter, .order-details .date {
+.order-details p {
     margin: 0;
     font-size: 0.8rem;
     color: #64748b;
-    display: flex;
-    align-items: center;
-    gap: 5px;
 }
 
 .price-total {
-    margin-top: 6px;
-    font-size: 1rem;
+    margin-top: 5px;
+    font-size: 0.95rem;
     font-weight: 800;
     color: #2563eb;
 }
 
-/* Tombol */
+/* Tombol Aksi */
 .btn-verify-now {
     width: 100%;
     padding: 12px;
@@ -149,12 +178,26 @@
     border: none;
     border-radius: 12px;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s;
 }
 
-.btn-verify-now:active { transform: scale(0.98); opacity: 0.9; }
+.btn-verify-now.disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.reject-info {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #ef4444;
+    font-weight: 600;
+    padding: 10px;
+    background: #fef2f2;
+    border-radius: 10px;
+}
 
 /* --- MODAL VERIFIKASI --- */
 .modal-overlay {
@@ -176,7 +219,6 @@
     display: flex;
     flex-direction: column;
     max-height: 85vh;
-    box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
 }
 
 .modal-header {
@@ -187,9 +229,6 @@
     align-items: center;
 }
 
-.header-info h3 { margin: 0; font-size: 1.1rem; color: #0f172a; }
-.header-info span { font-size: 0.8rem; color: #94a3b8; }
-
 .close-btn {
     background: #f1f5f9;
     border: none;
@@ -197,7 +236,6 @@
     height: 32px;
     border-radius: 50%;
     cursor: pointer;
-    color: #64748b;
 }
 
 .modal-body {
@@ -206,54 +244,27 @@
     background: #f8fafc;
 }
 
-.info-summary {
-    background: #eff6ff;
-    padding: 12px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    color: #1e40af;
-    font-size: 0.85rem;
-    text-align: center;
-    border: 1px solid #dbeafe;
-}
-
-/* LIST VERIFIKASI */
-.verification-container {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
 .verify-card-item {
     background: white;
     border: 1px solid #e2e8f0;
     border-radius: 16px;
     padding: 16px;
+    margin-bottom: 15px;
 }
-
-.doc-preview {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.doc-label { font-size: 0.85rem; font-weight: 800; color: #0f172a; }
 
 .img-thumbnail {
     width: 100%;
-    height: 160px;
+    height: 180px;
     object-fit: cover;
     border-radius: 12px;
-    border: 1px solid #edf2f7;
+    margin-top: 8px;
     cursor: pointer;
 }
-
-.zoom-text { text-align: center; font-size: 0.7rem; color: #2563eb; font-weight: 600; }
 
 .verify-btn-group {
     display: flex;
     gap: 10px;
+    margin-top: 12px;
 }
 
 .v-btn {
@@ -263,20 +274,17 @@
     border: 1px solid #e2e8f0;
     background: white;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
-    color: #64748b;
-    transition: all 0.2s;
 }
 
-.v-btn.v-valid.active { background: #22c55e; color: white; border-color: #22c55e; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2); }
-.v-btn.v-invalid.active { background: #ef4444; color: white; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+.v-btn.v-valid.active { background: #22c55e; color: white; border-color: #22c55e; }
+.v-btn.v-invalid.active { background: #ef4444; color: white; border-color: #ef4444; }
 
-/* FOOTER MODAL */
 .modal-footer {
     padding: 20px;
-    border-top: 1px solid #f1f5f9;
     background: white;
+    border-top: 1px solid #f1f5f9;
 }
 
 .btn-submit-action {
@@ -285,57 +293,18 @@
     border: none;
     border-radius: 12px;
     font-weight: 800;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.3s;
     background: #2563eb;
     color: white;
+    cursor: pointer;
 }
 
-.btn-submit-action.disabled {
-    background: #cbd5e1;
-    color: #94a3b8;
-    cursor: not-allowed;
-}
-
-.no-data-alert {
-    padding: 30px;
-    text-align: center;
-    color: #94a3b8;
-    font-size: 0.85rem;
-}
-
-/* NAVBAR */
-.bottom-nav-float {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 12px 25px;
-    border-radius: 24px;
-    display: flex;
-    justify-content: space-between;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    z-index: 99;
-}
-
-.nav-btn {
-    background: none; border: none;
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    color: #94a3b8; font-size: 0.65rem; font-weight: 700; cursor: pointer;
-}
-
-.nav-btn svg { width: 22px; height: 22px; }
-.nav-btn.active { color: #2563eb; }
+.btn-submit-action.disabled { background: #cbd5e1; cursor: not-allowed; }
 
 /* Empty State */
 .empty-state {
     text-align: center;
-    padding: 100px 40px;
+    padding: 60px 20px;
     color: #94a3b8;
     font-size: 0.9rem;
+    font-weight: 500;
 }

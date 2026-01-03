@@ -298,3 +298,6 @@
     font-size: 1rem;
     cursor: pointer;
 }
+.notif-icon-box.system { background-color: #e3f2fd; color: #1976d2; }
+.detail-icon-large.system { background-color: #e3f2fd; }
+/* Tambahkan atau sesuaikan warna lainnya */

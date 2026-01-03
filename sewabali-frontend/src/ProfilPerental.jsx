@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './ProfilPerental.css';
 
 function ProfilPerental() {
   const navigate = useNavigate();
-  
-  // --- 1. STATE DATA USER (Ditambah No HP & Alamat) ---
+  const fileInputRef = useRef(null); // Ref untuk input file tersembunyi
+  const [loading, setLoading] = useState(true);
+
+  // --- 1. STATE DATA USER (Real Time dari DB) ---
   const [userData, setUserData] = useState({
-      name: "Fikri",
-      email: "fikri@rental.com",
-      phone: "0812-3456-7890",
-      address: "Jl. Raya Kuta No. 88, Bali"
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+      avatar: null // URL foto profil
   });
 
   // --- STATE MODAL ---
@@ -21,20 +25,34 @@ function ProfilPerental() {
   const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', address: '' });
   const [passForm, setPassForm] = useState({ oldPass: '', newPass: '', confirmPass: '' });
 
-  // --- 2. LOAD DATA DARI LOCAL STORAGE ---
-  useEffect(() => {
-      const storedName = localStorage.getItem('userName');
-      const storedEmail = localStorage.getItem('userEmail');
-      const storedPhone = localStorage.getItem('userPhone');
-      const storedAddress = localStorage.getItem('userAddress');
+  // --- 2. FETCH DATA DARI API ---
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:8000/api/user', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
-      setUserData(prev => ({
-          ...prev,
-          name: storedName || prev.name,
-          email: storedEmail || prev.email,
-          phone: storedPhone || prev.phone,
-          address: storedAddress || prev.address
-      }));
+      const user = response.data;
+      setUserData({
+        name: user.name,
+        email: user.email,
+        phone: user.nomor_telepon || "", // Mapping dari backend 'nomor_telepon'
+        address: user.alamat || "",      // Mapping dari backend 'alamat'
+        avatar: user.avatar_url          // Mapping dari backend 'avatar_url'
+      });
+      setLoading(false);
+    } catch (error) {
+      console.error("Gagal mengambil profil:", error);
+      if (error.response && error.response.status === 401) {
+          navigate('/login'); // Redirect jika token expired
+      }
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
   }, []);
 
   // --- BUKA MODAL EDIT ---
@@ -48,42 +66,84 @@ function ProfilPerental() {
       setShowEditProfile(true);
   };
 
-  // --- 3. SIMPAN PROFIL BARU ---
-  const saveProfile = (e) => {
+  // --- 3. SIMPAN PROFIL KE DATABASE ---
+  const saveProfile = async (e) => {
       e.preventDefault();
-      // Validasi sederhana
-      if(!editForm.name || !editForm.email || !editForm.phone) {
-          alert("Nama, Email, dan No. Telepon wajib diisi!");
-          return;
+      try {
+        const token = localStorage.getItem('token');
+        // Kirim data ke API AuthController@updateProfile
+        await axios.put('http://localhost:8000/api/profile', {
+            name: editForm.name,
+            nomor_telepon: editForm.phone, // Sesuaikan nama kolom DB
+            alamat: editForm.address       // Sesuaikan nama kolom DB
+        }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        alert("Profil berhasil diperbarui!");
+        fetchUserProfile(); // Refresh data tampilan
+        setShowEditProfile(false);
+      } catch (error) {
+        console.error("Gagal update profil:", error);
+        alert("Gagal memperbarui profil. Cek koneksi atau inputan.");
       }
-      
-      // Update State
-      setUserData(editForm);
-      
-      // Simpan ke LocalStorage agar permanen
-      localStorage.setItem('userName', editForm.name);
-      localStorage.setItem('userEmail', editForm.email);
-      localStorage.setItem('userPhone', editForm.phone);
-      localStorage.setItem('userAddress', editForm.address);
-      
-      alert("Profil berhasil diperbarui!");
-      setShowEditProfile(false);
   };
 
-  // --- SIMPAN PASSWORD (Simulasi) ---
-  const savePassword = (e) => {
+  // --- 4. GANTI PASSWORD ---
+  const savePassword = async (e) => {
       e.preventDefault();
-      if(!passForm.oldPass || !passForm.newPass) {
-          alert("Mohon lengkapi semua kolom password.");
-          return;
-      }
       if(passForm.newPass !== passForm.confirmPass) {
-          alert("Password baru dan konfirmasi tidak cocok!");
+          alert("Konfirmasi password tidak cocok!");
           return;
       }
-      alert("Password berhasil diubah!");
-      setShowChangePass(false);
-      setPassForm({ oldPass: '', newPass: '', confirmPass: '' });
+
+      try {
+        const token = localStorage.getItem('token');
+        await axios.put('http://localhost:8000/api/password', {
+            current_password: passForm.oldPass,
+            new_password: passForm.newPass,
+            new_password_confirmation: passForm.confirmPass
+        }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        alert("Password berhasil diubah!");
+        setShowChangePass(false);
+        setPassForm({ oldPass: '', newPass: '', confirmPass: '' });
+      } catch (error) {
+        console.error("Gagal ganti password:", error);
+        alert(error.response?.data?.message || "Password lama salah atau terjadi kesalahan.");
+      }
+  };
+
+  // --- 5. UPLOAD FOTO PROFIL (AVATAR) ---
+  const handleAvatarClick = () => {
+    fileInputRef.current.click(); // Memicu klik pada input file tersembunyi
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.post('http://localhost:8000/api/avatar', formData, {
+            headers: { 
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        
+        // Update tampilan avatar langsung
+        setUserData(prev => ({ ...prev, avatar: response.data.avatar_url }));
+        alert("Foto profil berhasil diganti!");
+    } catch (error) {
+        console.error("Gagal upload avatar:", error);
+        alert("Gagal mengupload foto. Pastikan ukuran < 2MB.");
+    }
   };
 
   // --- LOGOUT ---
@@ -94,6 +154,22 @@ function ProfilPerental() {
     }
   };
 
+  if (loading) {
+  return (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      height: '100vh', // Memastikan tinggi full layar
+      flexDirection: 'column',
+      backgroundColor: '#f3f4f6' // Warna background abu-abu muda (opsional)
+    }}>
+      {/* Tambahkan Spinner biar keren dikit */}
+      <div className="spinner" style={{ marginBottom: '10px' }}></div>
+      <p style={{ color: '#6b7280', fontSize: '1rem' }}>Memuat Profil...</p>
+    </div>
+  );
+}
   return (
     <div className="mobile-wrapper">
       
@@ -105,22 +181,37 @@ function ProfilPerental() {
       {/* CARD PROFIL UTAMA */}
       <div className="profile-card-floating">
           <div className="avatar-large">
-              {userData.name.charAt(0).toUpperCase()}
-              <div className="edit-avatar-badge" onClick={() => alert("Fitur upload foto butuh Backend")}>
+              {/* Tampilkan Gambar dari Server atau Inisial */}
+              {userData.avatar ? (
+                  <img src={userData.avatar} alt="Profile" className="avatar-img-real" />
+              ) : (
+                  userData.name.charAt(0).toUpperCase()
+              )}
+              
+              {/* Tombol Edit Avatar */}
+              <div className="edit-avatar-badge" onClick={handleAvatarClick}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </div>
+              {/* Input File Tersembunyi */}
+              <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  style={{display:'none'}} 
+                  accept="image/*"
+                  onChange={handleFileChange}
+              />
           </div>
           <h2 className="profile-name">{userData.name}</h2>
           <p className="profile-role">{userData.email}</p>
-          {/* Tampilkan No HP di sini juga */}
-          <p className="profile-role" style={{fontSize:'0.8rem', marginTop:'4px'}}>📞 {userData.phone}</p>
+          <p className="profile-role" style={{fontSize:'0.8rem', marginTop:'4px'}}>
+              {userData.phone ? `📞 ${userData.phone}` : 'No. HP belum diatur'}
+          </p>
           
           <button className="btn-edit-profile" onClick={openEditProfile}>Edit Profil</button>
       </div>
 
       {/* MENU SETTINGS */}
       <div className="content-scroll">
-          
           <div className="menu-section">
               <div className="section-label">Akun</div>
               <div className="menu-group">
@@ -142,14 +233,12 @@ function ProfilPerental() {
           </div>
 
           <div className="menu-section">
-            
               <div className="menu-group">
                   <div className="menu-item" onClick={() => navigate('/perental/notifikasi')}>
                       <div className="menu-left">
                           <div className="menu-icon orange">🔔</div>
                           <span className="menu-label">Notifikasi</span>
                       </div>
-                   
                   </div>
               </div>
           </div>
@@ -162,7 +251,7 @@ function ProfilPerental() {
           </div>
       </div>
 
-      {/* --- MODAL EDIT PROFIL (UPDATE TERBARU) --- */}
+      {/* --- MODAL EDIT PROFIL --- */}
       {showEditProfile && (
           <div className="modal-overlay">
               <div className="modal-box slide-up">
@@ -172,19 +261,14 @@ function ProfilPerental() {
                           <label>Nama Lengkap</label>
                           <input type="text" className="input-modern" value={editForm.name} onChange={(e) => setEditForm({...editForm, name: e.target.value})} />
                       </div>
-                      
                       <div className="form-group">
-                          <label>Email</label>
-                          <input type="email" className="input-modern" value={editForm.email} onChange={(e) => setEditForm({...editForm, email: e.target.value})} />
+                          <label>Email (Tidak dapat diubah)</label>
+                          <input type="email" className="input-modern" value={editForm.email} disabled style={{backgroundColor:'#f1f5f9', color:'#94a3b8'}} />
                       </div>
-
-                      {/* Input Baru: No HP */}
                       <div className="form-group">
                           <label>No. Telepon / WhatsApp</label>
-                          <input type="tel" className="input-modern" value={editForm.phone} onChange={(e) => setEditForm({...editForm, phone: e.target.value})} placeholder="Contoh: 0812..." />
+                          <input type="tel" className="input-modern" value={editForm.phone} onChange={(e) => setEditForm({...editForm, phone: e.target.value})} placeholder="0812..." />
                       </div>
-
-                      {/* Input Baru: Alamat (Textarea) */}
                       <div className="form-group">
                           <label>Alamat Garasi / Rumah</label>
                           <textarea 
@@ -192,11 +276,10 @@ function ProfilPerental() {
                             rows="3"
                             value={editForm.address} 
                             onChange={(e) => setEditForm({...editForm, address: e.target.value})} 
-                            placeholder="Alamat lengkap untuk penjemputan unit..."
+                            placeholder="Alamat lengkap..."
                             style={{resize:'none'}}
                           />
                       </div>
-
                       <div className="modal-actions">
                           <button type="button" className="btn-secondary" onClick={() => setShowEditProfile(false)}>Batal</button>
                           <button type="submit" className="btn-primary-full" style={{marginTop:0}}>Simpan</button>
@@ -233,23 +316,25 @@ function ProfilPerental() {
           </div>
       )}
 
-      {/* --- BOTTOM NAVBAR --- */}
-      <nav className="bottom-nav-float">
-          <button className="nav-btn" onClick={() => navigate('/perental/dashboard')}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-              <span>Home</span>
-          </button>
-          
-          <button className="nav-btn" onClick={() => navigate('/pesanan-masuk')}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-              <span>Pesanan</span>
-          </button>
-          
-          <button className="nav-btn active">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              <span>Profil</span>
-          </button>
-      </nav>
+      {/* --- BOTTOM NAV (FIXED) --- */}
+      <div className="nav-container-fixed">
+          <nav className="bottom-nav-perental">
+              <button className="nav-btn" onClick={() => navigate('/perental/dashboard')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  <span>Home</span>
+              </button>
+              
+              <button className="nav-btn" onClick={() => navigate('/pesanan-masuk')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                  <span>Pesanan</span>
+              </button>
+
+              <button className="nav-btn active" onClick={() => navigate('/perental/profil')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  <span>Profil</span>
+              </button>
+          </nav>
+      </div>
     </div>
   );
 }

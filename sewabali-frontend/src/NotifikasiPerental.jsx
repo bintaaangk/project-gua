@@ -1,91 +1,108 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './NotifikasiPerental.css';
 
 const NotifikasiPerental = () => {
     const navigate = useNavigate();
 
-    // --- DATA DUMMY NOTIFIKASI ---
-    const [notifications, setNotifications] = useState([
-        {
-            id: 1,
-            type: 'order', // order, system, success, alert
-            title: 'Pesanan Baru Masuk! 📦',
-            desc: 'Halo Bos! Ada pelanggan bernama Budi Santoso yang ingin menyewa Toyota Avanza Zenix untuk tanggal 20-23 Nov. Silakan cek ketersediaan unit dan konfirmasi pesanan ini segera agar pelanggan tidak menunggu lama.',
-            time: '2 Menit yang lalu',
-            isRead: false
-        },
-        {
-            id: 2,
-            type: 'success',
-            title: 'Saldo Masuk Rp 1.050.000',
-            desc: 'Hore! Pembayaran dari transaksi #TRX-998877 telah berhasil diverifikasi oleh sistem. Dana sudah masuk ke dompet saldo Anda dan bisa ditarik kapan saja.',
-            time: '1 Jam yang lalu',
-            isRead: false
-        },
-        {
-            id: 3,
-            type: 'alert',
-            title: 'Unit Perlu Servis 🔧',
-            desc: 'Peringatan sistem: Jadwal servis rutin Honda Brio RS sudah dekat (KM 49.000). Harap segera lakukan perawatan berkala untuk menjaga performa kendaraan dan keselamatan penyewa.',
-            time: 'Kemarin',
-            isRead: true
-        },
-        {
-            id: 4,
-            type: 'system',
-            title: 'Selamat Datang di SewaBali',
-            desc: 'Akun Anda berhasil diverifikasi. Mulai tambahkan unit kendaraan Anda sekarang juga untuk mendapatkan pelanggan pertama Anda!',
-            time: '3 Hari yang lalu',
-            isRead: true
-        }
-    ]);
+    // --- STATE NOTIFIKASI (Sekarang kosong karena akan ambil dari Database) ---
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     // --- STATE UNTUK MODAL DETAIL ---
-    const [selectedNotif, setSelectedNotif] = useState(null); // Menyimpan notif yg diklik
+    const [selectedNotif, setSelectedNotif] = useState(null);
 
-    // Fungsi Tandai Semua Dibaca
-    const handleMarkAllRead = () => {
-        const updated = notifications.map(n => ({ ...n, isRead: true }));
-        setNotifications(updated);
-        alert("Semua notifikasi ditandai sudah dibaca.");
+    // --- FUNGSI AMBIL DATA DARI DATABASE ---
+    const fetchNotifications = async () => {
+        try {
+            const token = localStorage.getItem('token'); // Pastikan token tersimpan saat login
+            const response = await axios.get('http://localhost:8000/api/notifikasi', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+            setNotifications(response.data);
+            setLoading(false);
+        } catch (error) {
+            console.error("Gagal mengambil notifikasi:", error);
+            setLoading(false);
+        }
     };
 
-    // Fungsi Klik Item (Buka Modal)
-    const handleItemClick = (notif) => {
-        // 1. Tandai sudah dibaca
-        const updated = notifications.map(n => 
-            n.id === notif.id ? { ...n, isRead: true } : n
-        );
-        setNotifications(updated);
+    useEffect(() => {
+        fetchNotifications();
 
-        // 2. Set data notif yang dipilih & Buka Modal
+        // Polling sederhana: Cek notifikasi baru setiap 20 detik (opsional)
+        const interval = setInterval(fetchNotifications, 20000);
+        return () => clearInterval(interval);
+    }, []);
+
+    // --- FUNGSI TANDAI SEMUA DIBACA (API) ---
+    const handleMarkAllRead = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put('http://localhost:8000/api/notifikasi/read-all', {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            // Refresh data setelah update
+            fetchNotifications();
+        } catch (error) {
+            console.error("Gagal menandai semua dibaca:", error);
+        }
+    };
+
+    // --- FUNGSI KLIK ITEM (TANDAI DIBACA & BUKA MODAL) ---
+    const handleItemClick = async (notif) => {
+        if (!notif.isRead) {
+            try {
+                const token = localStorage.getItem('token');
+                await axios.put(`http://localhost:8000/api/notifikasi/${notif.id}/read`, {}, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                // Refresh data agar status unread di UI hilang
+                fetchNotifications();
+            } catch (error) {
+                console.error("Gagal menandai dibaca:", error);
+            }
+        }
         setSelectedNotif(notif);
     };
 
-    // Fungsi Tutup Modal
+    // --- FUNGSI TUTUP MODAL ---
     const closeModal = () => {
         setSelectedNotif(null);
     };
 
-    // Helper render Icon (Dipakai di list & modal)
+    // --- HELPER RENDER ICON ---
     const renderIcon = (type) => {
         switch(type) {
             case 'order': return '📦';
-            case 'success': return '💰';
+            case 'success': return '✅';
             case 'alert': return '⚠️';
+            case 'system': return '🔑';
             default: return '📢';
         }
     };
 
-    // Helper Aksi Tombol di Modal
-    const handleModalAction = () => {
-        if (selectedNotif?.type === 'order') {
-            navigate('/pesanan-masuk');
+    // --- HELPER AKSI TOMBOL DI MODAL ---
+   // --- HELPER AKSI TOMBOL DI MODAL ---
+const handleModalAction = () => {
+    if (selectedNotif?.type === 'order') {
+        // Langsung bawa perental ke daftar pesanan masuk
+        navigate('/pesanan-masuk');
+    } else if (selectedNotif?.type === 'success') {
+        // Jika ada id_kendaraan di data notif, arahkan ke detailnya
+        if (selectedNotif.id_kendaraan) {
+            navigate(`/perental/kendaraan/${selectedNotif.id_kendaraan}`);
         } else {
-            closeModal();
+            // Fallback jika id tidak ditemukan
+            navigate('/perental/dashboard');
         }
-    };
+    } else {
+        closeModal();
+    }
+};
 
     return (
         <div className="mobile-wrapper">
@@ -100,7 +117,11 @@ const NotifikasiPerental = () => {
 
             {/* LIST NOTIFIKASI */}
             <div className="notif-list">
-                {notifications.length === 0 ? (
+                {loading ? (
+                    <div className="empty-state-notif">
+                        <p>Memuat notifikasi...</p>
+                    </div>
+                ) : notifications.length === 0 ? (
                     <div className="empty-state-notif">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                         <h3>Tidak ada notifikasi</h3>
@@ -118,12 +139,7 @@ const NotifikasiPerental = () => {
                             </div>
                             <div className="notif-content">
                                 <h4 className="notif-title">{item.title}</h4>
-                                <p className="notif-desc" style={{
-                                    whiteSpace: 'nowrap', 
-                                    overflow: 'hidden', 
-                                    textOverflow: 'ellipsis', 
-                                    maxWidth: '220px'
-                                }}>
+                                <p className="notif-desc">
                                     {item.desc}
                                 </p>
                                 <span className="notif-time">{item.time}</span>
@@ -133,12 +149,12 @@ const NotifikasiPerental = () => {
                 )}
             </div>
 
-            {/* --- MODAL POPUP DETAIL (BARU) --- */}
+            {/* --- MODAL POPUP DETAIL --- */}
             {selectedNotif && (
                 <div className="modal-overlay" onClick={closeModal}>
                     <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
-                            <span className="modal-title">Detail Pesan</span>
+                            <span className="modal-title">Detail Notifikasi</span>
                             <button className="btn-close-modal" onClick={closeModal}>✕</button>
                         </div>
 
@@ -154,7 +170,8 @@ const NotifikasiPerental = () => {
                         </p>
 
                         <button className="btn-action-primary" onClick={handleModalAction}>
-                            {selectedNotif.type === 'order' ? 'Lihat Pesanan' : 'Tutup'}
+                            {selectedNotif.type === 'order' ? 'Verifikasi Sekarang' : 
+                             selectedNotif.type === 'success' ? 'Cek Unit Saya' : 'Tutup'}
                         </button>
                     </div>
                 </div>

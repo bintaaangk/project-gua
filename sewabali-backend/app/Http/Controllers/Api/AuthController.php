@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use App\Models\Notifikasi;
 
 class AuthController extends Controller
 {
@@ -75,47 +76,69 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        // 1. Validasi Input
         $validator = Validator::make($request->all(), [
             'email'    => 'required|email',
             'password' => 'required',
-            'role'     => 'required|in:penyewa,perental,admin' // Tambah admin jika perlu
+            // Role tetap divalidasi agar tidak kosong, tapi isinya nanti kita cek manual
+            'role'     => 'required|in:penyewa,perental,admin' 
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        // PERBAIKAN: Cek Email + Password + Role sekaligus
-        // Ini memastikan user yang login memiliki role yang sesuai dengan inputan
+        // ============================================================
+        // PERUBAHAN 1: Hapus 'role' dari credentials
+        // Kita cek Email & Password dulu, urusan Role belakangan
+        // ============================================================
         $credentials = [
             'email' => $request->email,
-            'password' => $request->password,
-            'role' => $request->role // Filter user berdasarkan role juga
+            'password' => $request->password
         ];
 
-        // Khusus jika Admin login (karena admin mungkin tidak pilih role di awal, opsional)
-        if($request->role === 'admin') {
-             unset($credentials['role']); // Hapus filter role jika admin
-        }
-
+        // Cek Login ke Database
         if (!Auth::attempt($credentials)) {
-            // Cek manual apakah email ada tapi salah role
-            $userCheck = User::where('email', $request->email)->first();
-            if ($userCheck && $userCheck->role !== $request->role) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Akun ini terdaftar sebagai ' . ucfirst($userCheck->role) . ', bukan ' . ucfirst($request->role)
-                ], 403);
-            }
-
             return response()->json([
                 'success' => false,
                 'message' => 'Email atau Password salah.'
             ], 401);
         }
 
+        // Ambil data user yang berhasil login (Password sudah pasti benar di sini)
         $user = Auth::user();
+
+        // ============================================================
+        // PERUBAHAN 2: Logika Pengecekan Role "Sakti"
+        // ============================================================
+        
+        // Cek: Apakah user ini Admin?
+        // Jika YA ('admin'), biarkan dia masuk (return false di kondisi if, jadi lanjut ke bawah).
+        // Jika BUKAN ('penyewa'/'perental'), cek apakah role yang dipilih sesuai database.
+        
+        if ($user->role !== 'admin' && $user->role !== $request->role) {
+            // Jika masuk sini, berarti dia bukan admin DAN dia salah pilih role
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun ini terdaftar sebagai ' . ucfirst($user->role) . ', bukan ' . ucfirst($request->role)
+            ], 403);
+        }
+
+        // ============================================================
+        // JIKA LOLOS, LANJUT PROSES SEPERTI BIASA
+        // ============================================================
+
+        // Buat Token
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        // Buat Notifikasi Login
+        Notifikasi::create([
+            'user_id'      => $user->id,
+            'tipe'         => 'system',
+            'pesan'        => 'Sesi Login Baru: Kami mendeteksi login baru pada akun Anda hari ini.',
+            'pemesanan_id' => null,
+            'is_read'      => false
+        ]);
 
         return response()->json([
             'success' => true,
@@ -124,7 +147,6 @@ class AuthController extends Controller
             'token'   => $token
         ], 200);
     }
-
     /**
      * UPDATE PROFIL (Nama, Telepon, Alamat)
      */

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PemesananController;
 use App\Http\Controllers\Api\DokumenVerifikasiController;
 use App\Http\Controllers\Api\BuktiBayarController;
 use App\Http\Controllers\Api\AdminController; 
+use App\Http\Controllers\Api\NotifikasiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,10 +31,11 @@ Route::get('/kendaraan/{id}', [KendaraanController::class, 'show'])->where('id',
 */
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::put('/user/update', [AuthController::class, 'updateProfile']);
-    Route::post('/user/avatar', [AuthController::class, 'updateAvatar']);
-    Route::post('/user/password', [AuthController::class, 'updatePassword']);
-
+   Route::get('/user', function (Request $request) { return $request->user(); }); // Ambil data user
+    Route::put('/profile', [AuthController::class, 'updateProfile']); // Update Info
+    Route::put('/password', [AuthController::class, 'updatePassword']); // Ganti Password
+    Route::post('/avatar', [AuthController::class, 'updateAvatar']); // Upload Foto
+    // ... route lainnya
     // --- PROFIL & NOTIFIKASI ---
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -52,27 +54,22 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['message' => 'Notifikasi dibaca']);
     });
 
-    // --- FITUR PANEL ADMIN ---
-    Route::prefix('admin')->group(function () {
-        // Statistik Dashboard
-        Route::get('/stats', [AdminController::class, 'getStats']); // Tambahan untuk angka dashboard
-        
-        // Manajemen User
-        Route::get('/users', [AdminController::class, 'getUsers']);
-        Route::delete('/users/{id}', [AdminController::class, 'deleteUser']); // Tambahan fungsi hapus
-        
-        // Manajemen Armada
-        Route::get('/kendaraans', [AdminController::class, 'getKendaraans']);
-        
-        // Manajemen Transaksi
-        Route::get('/transaksi', [AdminController::class, 'getTransactions']);
-        Route::post('/transaksi/{id}/status', [AdminController::class, 'updateTransactionStatus']);
-        
-        // Manajemen Verifikasi Dokumen (Oleh Admin Utama)
-        Route::get('/verifikasi-dokumen', [AdminController::class, 'getVerifications']);
-        Route::post('/verifikasi/{id}', [AdminController::class, 'updateVerification']);
-    });
-
+   Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    // Pastikan e-nya ada dua (vehicles) dan s-nya ada di akhir
+    Route::get('/admin/users/pending', [AdminController::class, 'listPendingUsers']);
+    Route::post('/admin/users/approve/{id}', [AdminController::class, 'approveUser']);
+    Route::post('/admin/transactions/verify/{id}', [AdminController::class, 'verifyPayment']);
+    Route::get('/admin/revenue-report', [AdminController::class, 'getRevenueReport']);
+    Route::delete('/admin/vehicles/{id}', [AdminController::class, 'deleteVehicle']);
+    
+    // ROUTE YANG ERROR TADI:
+    Route::get('/admin/vehicles', [AdminController::class, 'listAllVehicles']);
+    Route::post('/admin/vehicles/toggle/{id}', [AdminController::class, 'toggleVehicleStatus']);
+    
+    // Route transaksi (untuk Tahap 6)
+    Route::get('/admin/transactions', [AdminController::class, 'listAllTransactions']);
+Route::get('/admin/stats', [AdminController::class, 'getStats']);
+});
     // --- FITUR PENYEWA ---
     Route::post('/pemesanan', [PemesananController::class, 'store']);
     Route::get('/riwayat', [PemesananController::class, 'indexRiwayat']);
@@ -99,5 +96,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Pastikan baris ini ada agar URL /api/transaksi/{id}/upload dikenali
 Route::post('/transaksi/{id}/upload', [PemesananController::class, 'uploadUlang']);
 Route::get('/pengingat-tenggat', [PemesananController::class, 'cekPengingat']);
+
+
+
+    Route::get('/notifikasi', [NotifikasiController::class, 'index']);
+    Route::put('/notifikasi/{id}/read', [NotifikasiController::class, 'markAsRead']);
+    Route::put('/notifikasi/read-all', [NotifikasiController::class, 'markAllRead']);
 
 });

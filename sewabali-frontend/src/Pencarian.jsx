@@ -16,30 +16,81 @@ const NavIcon = ({ d, label, active, to }) => (
 );
 
 // Komponen Card Hasil Pencarian (Mobile Style)
+// Komponen Card Hasil Pencarian (Updated dengan Status)
 function SearchResultCard({ item }) {
-  const formattedPrice = `Rp ${item.harga_per_hari.toLocaleString('id-ID')}`;
+  const formattedPrice = `Rp ${parseInt(item.harga_per_hari).toLocaleString('id-ID')}`;
   
+  // --- 1. LOGIKA STATUS (Sama seperti Beranda) ---
+  const isAvailable = item.status === 'Tersedia';
+  const badgeColor = isAvailable ? '#d1fae5' : '#fee2e2'; // Hijau muda / Merah muda
+  const textColor = isAvailable ? '#065f46' : '#b91c1c'; // Hijau tua / Merah tua
+  const statusText = isAvailable ? 'Tersedia' : 'Dalam Sewa';
+
   // Simulasi data jarak & lokasi
   const jarak = item.jarak || (Math.random() * 10 + 1).toFixed(1); 
   const lokasiTiruan = item.id % 2 === 0 ? 'Kuta' : 'Denpasar';
 
   return (
-    <Link to={`/kendaraan/${item.id}`} className="mobile-search-card">
+    <Link 
+      to={isAvailable ? `/kendaraan/${item.id}` : '#'} 
+      className="mobile-search-card"
+      // Cegah klik jika tidak tersedia
+      onClick={(e) => {
+        if (!isAvailable) e.preventDefault();
+      }}
+      style={{ 
+        cursor: isAvailable ? 'pointer' : 'not-allowed',
+        opacity: isAvailable ? 1 : 0.8 // Agak transparan jika habis
+      }}
+    >
       {/* Gambar di Kiri */}
-      <div className="card-img-wrapper">
+      <div className="card-img-wrapper" style={{ position: 'relative' }}>
+        
+        {/* --- BADGE STATUS (BARU) --- */}
+        <div style={{
+            position: 'absolute',
+            top: '4px',
+            left: '4px',
+            backgroundColor: badgeColor,
+            color: textColor,
+            padding: '2px 8px',
+            borderRadius: '4px',
+            fontSize: '0.6rem',
+            fontWeight: '700',
+            zIndex: 10,
+            boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+        }}>
+            {statusText}
+        </div>
+
         <img 
           src={item.gambar_url} 
           alt={item.nama} 
           className="card-img"
+          // Foto jadi hitam putih jika tidak tersedia
+          style={{ filter: isAvailable ? 'none' : 'grayscale(100%)' }}
           onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/150x100/e0e0e0/777?text=Gambar"; }} 
         />
-        <span className="badge-type">{item.tipe}</span>
+        
+        {/* Badge Tipe (Mobil/Motor) dipindah ke bawah kanan agar tidak menumpuk */}
+        <span className="badge-type" style={{ 
+            position: 'absolute', 
+            bottom: '4px', 
+            right: '4px', 
+            fontSize: '0.6rem',
+            padding: '2px 6px',
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            color: 'white',
+            borderRadius: '4px'
+        }}>
+            {item.tipe}
+        </span>
       </div>
 
       {/* Info di Kanan */}
       <div className="card-info">
         <div className="card-header">
-          <h3 className="item-name">{item.nama}</h3>
+          <h3 className="item-name" style={{ color: isAvailable ? '#333' : '#999' }}>{item.nama}</h3>
           <span className="item-distance">
              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
              {jarak} km • {lokasiTiruan}
@@ -51,7 +102,19 @@ function SearchResultCard({ item }) {
             <span className="price-label">Mulai dari</span>
             <span className="price-amount">{formattedPrice}<small>/hari</small></span>
           </div>
-          <button className="btn-pesan">Pesan</button>
+          
+          {/* Tombol Pesan / Habis */}
+          <button 
+            className="btn-pesan"
+            disabled={!isAvailable}
+            style={{
+                backgroundColor: isAvailable ? '' : '#9ca3af', // Abu-abu jika habis
+                cursor: isAvailable ? 'pointer' : 'not-allowed',
+                border: 'none'
+            }}
+          >
+            {isAvailable ? 'Pesan' : 'Habis'}
+          </button>
         </div>
       </div>
     </Link>

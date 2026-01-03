@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
 import axios from 'axios'; 
-import './Login.css'; // Pastikan file CSS ada
+import './Login.css';
 
 function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '', role: 'penyewa' }); // TAMBAH role
+  const [formData, setFormData] = useState({ 
+    email: '', 
+    password: '', 
+    role: 'penyewa' // Default role untuk UI
+  }); 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); 
@@ -18,21 +22,7 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     
-    // --- 1. CEK KHUSUS ADMIN (HARDCODED) ---
-    // PERBAIKAN: Gunakan formData.email dan formData.password
-    if (formData.email === 'admin@gmail.com' && formData.password === 'admin123') {
-        // Simpan token dummy biar tidak ditendang oleh useEffect di halaman admin
-        localStorage.setItem('token', 'admin-token-rahasia'); 
-        localStorage.setItem('userRole', 'admin'); // PERBAIKAN: Konsisten pakai 'userRole'
-        localStorage.setItem('userName', 'Super Admin');
-        
-        alert("Login Berhasil sebagai Admin! 🚀");
-        setLoading(false);
-        navigate('/admin-dashboard'); // Arahkan ke Dashboard Admin
-        return; // Berhenti di sini, jangan lanjut ke API
-    }
-
-    // 2. CONFIG HEADER (Sangat Penting agar Laravel menerima request)
+    // Config header agar Laravel mengenali request sebagai JSON
     const config = {
         headers: {
             'Content-Type': 'application/json',
@@ -41,42 +31,45 @@ function Login() {
     };
 
     try {
-      // 3. TEMBAK API LARAVEL
-      // Pastikan backend Laravel sudah jalan (php artisan serve)
+      // 1. TEMBAK API LARAVEL
+      // Data yang dikirim: email, password, dan role
       const response = await axios.post('http://127.0.0.1:8000/api/login', formData, config);
       
-      // 4. AMBIL DATA DARI RESPONSE
+      // 2. AMBIL DATA DARI RESPONSE
       const { token, user } = response.data;
       
       console.log("Login Sukses:", user);
 
-      // 5. SIMPAN TOKEN KE BROWSER (LocalStorage)
-      // Ini kuncinya agar user dianggap "sedang login"
+      // 3. SIMPAN DATA KE LOCALSTORAGE
+      // Gunakan nama key yang konsisten agar DashboardAdmin bisa membacanya
       localStorage.setItem('token', token);
-      localStorage.setItem('userRole', user.role); // Pastikan backend kirim field 'role'
+      localStorage.setItem('userRole', user.role); 
       localStorage.setItem('userName', user.name);
+      localStorage.setItem('userId', user.id);
 
-      // 6. REDIRECT SESUAI ROLE
-      // Beri sedikit jeda biar user lihat tombol sukses sebentar
-      setTimeout(() => {
-        if (user.role === 'perental') {
-            // Jika Perental -> Masuk Dashboard
-            navigate('/perental/dashboard');
-        } else {
-            // Jika Penyewa -> Masuk Beranda
-            navigate('/beranda'); 
-        }
-      }, 500);
+      // 4. REDIRECT BERDASARKAN ROLE DARI DATABASE
+      // Ini jauh lebih aman daripada hardcoded di frontend
+      if (user.role === 'admin') {
+          alert("Login Berhasil sebagai Admin! 🛡️");
+          navigate('/admin/dashboard'); 
+      } else if (user.role === 'perental') {
+          alert(`Selamat Datang Perental, ${user.name}! 🚗`);
+          navigate('/perental/dashboard');
+      } else {
+          alert(`Selamat Datang, ${user.name}! ✨`);
+          navigate('/beranda'); 
+      }
 
     } catch (err) {
       console.error("Login Error:", err);
       
-      // Tampilkan pesan error dari Backend jika ada
+      // Ambil pesan error spesifik dari Laravel (misal: "Email atau Password salah")
       if (err.response && err.response.data && err.response.data.message) {
-          setError(err.response.data.message); // Misal: "Email atau Password salah"
+          setError(err.response.data.message);
       } else {
-          setError('Gagal terhubung ke server. Cek koneksi internet/backend.');
+          setError('Gagal terhubung ke server. Pastikan Backend (Laravel) sudah jalan.');
       }
+    } finally {
       setLoading(false);
     }
   };
@@ -99,17 +92,38 @@ function Login() {
             <h2 className="card-heading">Selamat Datang Kembali! 👋</h2>
             
             {/* Tampilkan Error jika ada */}
-            {error && <div className="alert-message error">{error}</div>}
+            {error && (
+              <div className="alert-message error" style={{ 
+                backgroundColor: '#fee2e2', 
+                color: '#dc2626', 
+                padding: '10px', 
+                borderRadius: '8px', 
+                marginBottom: '15px',
+                fontSize: '0.9rem',
+                border: '1px solid #fecaca'
+              }}>
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit}>
-                {/* PILIHAN ROLE */}
+                {/* PILIHAN ROLE - Admin tidak perlu ada di sini karena dideteksi otomatis dari email */}
                 <div className="input-field">
                     <label>Login Sebagai</label>
                     <select 
                         name="role" 
                         value={formData.role} 
                         onChange={handleChange}
-                        style={{padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem'}}
+                        className="input-modern"
+                        style={{
+                          width: '100%', 
+                          padding: '12px', 
+                          borderRadius: '8px', 
+                          border: '1px solid #ddd', 
+                          fontSize: '1rem',
+                          appearance: 'none',
+                          backgroundColor: 'white'
+                        }}
                     >
                         <option value="penyewa">Penyewa (Cari Kendaraan)</option>
                         <option value="perental">Perental (Kelola Kendaraan)</option>
@@ -127,6 +141,7 @@ function Login() {
                         required 
                     />
                 </div>
+                
                 <div className="input-field">
                     <label>Password</label>
                     <input 

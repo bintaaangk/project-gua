@@ -145,6 +145,26 @@ function DetailKendaraan() {
             <p className="desc-text">{kendaraan.deskripsi || `${kendaraan.nama} adalah kendaraan tipe ${kendaraan.tipe} yang nyaman digunakan untuk keliling Bali.`}</p>
         </div>
 
+        {/* Tambahkan bagian Syarat Jaminan setelah bagian Deskripsi atau Fasilitas */}
+<div className="detail-section">
+    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '10px', color: '#1e293b' }}>
+        🛡️ Syarat Dokumen Jaminan
+    </h3>
+    <div style={{ 
+        backgroundColor: '#fff7ed', 
+        padding: '15px', 
+        borderRadius: '12px', 
+        border: '1px solid #ffedd5',
+        color: '#9a3412',
+        fontSize: '0.9rem',
+        lineHeight: '1.6'
+    }}>
+      {console.log("Cek Jaminan:", kendaraan.jaminan)}
+        {/* Pastikan menggunakan nama field yang sama dengan di database (jaminan) */}
+        {kendaraan.jaminan ? kendaraan.jaminan : "Hubungi perental untuk detail jaminan."}
+    </div>
+</div>
+
         <div className="divider"></div>
 
         {/* Profil Perental */}

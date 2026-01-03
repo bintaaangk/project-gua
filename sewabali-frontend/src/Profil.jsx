@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'; 
 import './Profil.css'; 
 
+// --- Komponen Navigasi Bawah (Tidak Diubah) ---
 const NavIcon = ({ d, label, active, to }) => ( 
   <Link to={to} className={`bottom-nav-item ${active ? 'active' : ''}`}>
     <div className="nav-icon-wrapper">
@@ -18,7 +19,7 @@ function Profil() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  // State awal kosong, akan diisi dari API
+  // --- State User (Tidak Diubah) ---
   const [user, setUser] = useState({
     nama: "",
     username: "",
@@ -26,6 +27,7 @@ function Profil() {
     avatar: "https://placehold.co/120x120/e2e8f0/cbd5e1?text=..." 
   });
 
+  // --- Fetch Data User (Tidak Diubah) ---
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -64,6 +66,7 @@ function Profil() {
     fetchUserData();
   }, [navigate]);
 
+  // --- Fungsi Logout (Tidak Diubah) ---
   const handleLogout = async () => {
     if(window.confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) {
         try {
@@ -76,10 +79,12 @@ function Profil() {
     }
   };
 
+  // --- Navigasi Edit Profil ---
   const handleEditProfile = () => {
       navigate('/akun-saya');
   };
 
+  // --- Ganti Foto ---
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -88,52 +93,39 @@ function Profil() {
     }
   };
 
-  // --- BAGIAN INI YANG DIPERBAIKI AGAR POSISI DI TENGAH ---
+  // --- Loading Screen (Tidak Diubah) ---
   if (loading) {
       return (
         <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh', // Tinggi sepenuh layar
-            width: '100%',
-            backgroundColor: '#f8f9fa'
+            display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+            height: '100vh', width: '100%', backgroundColor: '#f8f9fa'
         }}>
-            {/* Spinner Animasi Sederhana (Optional) */}
             <div style={{
-                width: '40px',
-                height: '40px',
-                border: '4px solid #e2e8f0',
-                borderTop: '4px solid #3b82f6',
-                borderRadius: '50%',
+                width: '40px', height: '40px', border: '4px solid #e2e8f0',
+                borderTop: '4px solid #3b82f6', borderRadius: '50%',
                 animation: 'spin 1s linear infinite'
             }}></div>
             <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-            
             <p style={{ marginTop: '15px', color: '#64748B', fontWeight: 500 }}>Memuat Profil...</p>
         </div>
       );
   }
 
-  return (
+  // --- TAMPILAN UTAMA ---
+ return (
     <div className="mobile-page-container">
       
-      {/* 1. Header Background Biru */}
+      {/* 1. Header Background */}
       <div className="profile-header-bg"></div>
 
       <div className="profil-content-wrapper">
         
-        {/* 2. Kartu Identitas Floating */}
+        {/* 2. Kartu Identitas */}
         <div className="identity-section">
-            
-            {/* Wrapper Foto Profil */}
             <div className="avatar-container">
                 <div className="avatar-frame">
                     <img src={user.avatar} alt="Profile" className="avatar-img" />
                 </div>
-                
-                {/* Input File & Tombol Kamera */}
                 <input 
                     type="file" 
                     id="file-input-profile" 
@@ -154,48 +146,78 @@ function Profil() {
             </button>
         </div>
 
-        {/* 3. Menu List */}
-        <div className="menu-group">
-            <h3 className="section-title">PENGATURAN AKUN</h3>
+        {/* =========================================== */}
+        {/* BAGIAN MENU DENGAN CLASS BARU (RESET STYLE) */}
+        {/* =========================================== */}
+
+        {/* GROUP 1: PENGATURAN AKUN */}
+        <h3 className="section-title">PENGATURAN AKUN</h3>
+        
+        {/* WADAH UTAMA (PEMBUNGKUS) */}
+        <div className="list-container-box">
             
-            <Link to="/akun-saya" className="menu-card">
+            {/* ITEM 1 */}
+            <Link to="/akun-saya" className="list-item-row">
                 <div className="icon-box blue">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 </div>
                 <div className="menu-text">
                     <h4>Informasi Pribadi</h4>
                     <p>Ubah nama, email, dan alamat</p>
                 </div>
-                <div className="chevron">&rsaquo;</div>
+                <div className="chevron">›</div>
             </Link>
 
-        </div>
+            {/* CONTOH ITEM KEDUA (Hanya untuk tes tampilan, bisa dihapus nanti) */}
+            {/* Supaya kamu bisa lihat efek list menyambung */}
+            {/* <Link to="/notifikasi" className="list-item-row">
+                <div className="icon-box blue">
+                   <svg ... />
+                </div>
+                <div className="menu-text">
+                    <h4>Notifikasi</h4>
+                    <p>Atur notifikasi aplikasi</p>
+                </div>
+                <div className="chevron">›</div>
+            </Link> 
+            */}
 
-        <div className="menu-group">
-            <h3 className="section-title">LAINNYA</h3>
+        </div> 
+        {/* Tutup Wadah Group 1 */}
 
-            <Link to="/about" className="menu-card">
+
+        {/* GROUP 2: LAINNYA */}
+        <h3 className="section-title">LAINNYA</h3>
+        
+        {/* WADAH UTAMA KEDUA */}
+        <div className="list-container-box">
+            
+            {/* ITEM 1: TENTANG */}
+            <Link to="/about" className="list-item-row">
                 <div className="icon-box purple">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 </div>
                 <div className="menu-text">
                     <h4>Tentang Aplikasi</h4>
                     <p>Versi 1.0.0</p>
                 </div>
-                <div className="chevron">&rsaquo;</div>
+                <div className="chevron">›</div>
             </Link>
 
-            <div className="menu-card logout" onClick={handleLogout}>
+            {/* ITEM 2: KELUAR */}
+            <div className="list-item-row" onClick={handleLogout}>
                 <div className="icon-box red">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                 </div>
                 <div className="menu-text">
-                    <h4 className="text-danger">Keluar</h4>
+                    <h4 style={{ color: '#ef4444' }}>Keluar</h4>
                     <p>Keluar dari akun anda</p>
                 </div>
-                <div className="chevron">&rsaquo;</div>
+                <div className="chevron">›</div>
             </div>
-        </div>
+
+        </div> 
+        {/* Tutup Wadah Group 2 */}
 
         <div style={{height: 100}}></div>
       </div>

@@ -16,6 +16,7 @@ body {
   position: relative;
   box-shadow: 0 0 20px rgba(0,0,0,0.05);
   padding-bottom: 80px; /* Ruang untuk navbar bawah */
+  overflow-x: hidden;
 }
 
 /* --- Header Background --- */
@@ -27,6 +28,7 @@ body {
 }
 
 /* Wrapper Konten Utama */
+/* PENTING: Padding 20px disini yang bikin semua konten rapi punya jarak dari pinggir layar */
 .profil-content-wrapper {
   padding: 0 20px;
   position: relative;
@@ -125,61 +127,83 @@ body {
   color: white;
 }
 
-/* --- Menu Settings --- */
-.menu-group {
-  margin-bottom: 24px;
-}
+/* --- BAGIAN MENU SETTINGS (PERBAIKAN) --- */
+/* ========================================================= */
+/* STYLE BARU (GANTI NAMA BIAR PASTI BERUBAH)          */
+/* ========================================================= */
 
+/* 1. Judul Section */
 .section-title {
   font-size: 12px;
   font-weight: 700;
-  color: #a1a1aa;
-  margin-bottom: 10px;
-  padding-left: 4px;
+  color: #94a3b8;
+  margin: 0 0 8px 5px; /* Margin bawah 8px, Kiri 5px */
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.menu-card {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  background-color: #fff;
-  border: 1px solid #f3f4f6;
-  border-radius: 16px;
-  margin-bottom: 10px;
-  text-decoration: none;
-  transition: transform 0.1s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+/* 2. WADAH KOTAK (PEMBUNGKUS) */
+.list-container-box {
+  display: flex !important;
+  flex-direction: column !important;
+  
+  background-color: #ffffff !important;
+  border-radius: 16px !important;    /* Sudut melengkung HANYA di wadah luar */
+  border: 1px solid #f3f4f6 !important;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02) !important;
+  
+  margin-bottom: 24px !important;
+  overflow: hidden !important;       /* Potong sudut item di dalamnya */
+  width: 100% !important;
+  padding: 0 !important;             /* Pastikan 0 padding di wadah */
 }
 
-.menu-card:active {
-  transform: scale(0.98);
-  background-color: #fafafa;
+/* 3. ITEM MENU (BARIS) */
+.list-item-row {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;            /* LEBAR PENUH */
+  padding: 16px 20px !important;     /* Jarak dalam */
+  box-sizing: border-box !important;
+  
+  background-color: #ffffff !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  
+  /* HAPUS SEMUA GAYA KOTAK LAMA */
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;       /* Hapus sudut melengkung per item */
+  box-shadow: none !important;
+  
+  /* Garis pemisah */
+  border-bottom: 1px solid #f1f5f9 !important;
 }
 
-/* Ikon Menu Berwarna */
+/* Hilangkan garis di item paling bawah */
+.list-item-row:last-child {
+  border-bottom: none !important;
+}
+
+/* Efek Klik */
+.list-item-row:active {
+  background-color: #f8fafc !important;
+}
+
+/* --- ICON & TEXT (Sama seperti sebelumnya) --- */
 .icon-box {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
-  flex-shrink: 0;
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-right: 16px; flex-shrink: 0;
 }
-.icon-box.blue { background-color: #eff6ff; color: #2563eb; }
-.icon-box.orange { background-color: #fff7ed; color: #ea580c; }
+.icon-box.blue { background-color: #e0f2fe; color: #0284c7; }
 .icon-box.purple { background-color: #f3e8ff; color: #9333ea; }
-.icon-box.red { background-color: #fef2f2; color: #ef4444; }
+.icon-box.red { background-color: #fee2e2; color: #dc2626; }
 
 .menu-text { flex: 1; }
-.menu-text h4 { margin: 0; font-size: 15px; font-weight: 600; color: #333; }
-.menu-text p { margin: 3px 0 0 0; font-size: 11px; color: #999; }
-
-.text-danger { color: #ef4444 !important; }
-.chevron { color: #d1d5db; font-size: 20px; }
+.menu-text h4 { margin: 0; font-size: 0.95rem; font-weight: 600; color: #1e293b; }
+.menu-text p { margin: 4px 0 0 0; font-size: 0.75rem; color: #64748b; }
+.chevron { color: #cbd5e1; font-size: 1.2rem; }
 
 /* --- Bottom Navigation --- */
 .bottom-nav {

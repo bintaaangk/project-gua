@@ -24,11 +24,12 @@ import Notifikasi from './Notifikasi';
 import DashboardPerental from './DashboardPerental'; 
 import VerifikasiDokumen from './VerifikasiDokumen'; 
 import VerifikasiBayar from './VerifikasiBayar'; 
-import PesananMasuk from './Pesananmasuk';
+import PesananMasuk from './PesananMasuk';
 import ProfilPerental from './ProfilPerental';
 import NotifikasiPerental from './NotifikasiPerental';
-import AdminDashboard from './AdminDashboard';
+import DashboardAdmin from './DashboardAdmin';
 import UploadPembayaran from './UploadPembayaran';
+import DetailKendaraanPerental from './DetailKendaraanPerental';
 
 function App() {
   return (
@@ -73,10 +74,12 @@ function App() {
         <Route path="/perental/profil" element={<ProfilPerental />} />
         <Route path="/perental/notifikasi" element={<NotifikasiPerental />} />
         <Route path="/upload-pembayaran/:id" element={<UploadPembayaran />} />
+        // Contoh pendaftaran rute
+<Route path="/perental/kendaraan/:id" element={<DetailKendaraanPerental />} />
+<Route path="/kendaraan/:id" element={<DetailKendaraan />} /> // Ini punya penyewa
         
         {/* Rute Admin */}
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-
+       <Route path="/admin/dashboard" element={<DashboardAdmin />} />
       </Routes>
     </Router>
   );

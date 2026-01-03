@@ -118,12 +118,17 @@
     opacity: 0.9;
 }
 
-/* --- MENU GRID --- */
+
+/* --- MENU GRID (PERBAIKAN AGAR SEJAJAR KANAN-KIRI) --- */
 .menu-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
+    display: flex;             /* Menggunakan flexbox agar sejajar ke samping */
+    flex-direction: row;       /* Memastikan arahnya horizontal */
+    justify-content: center;   /* Menempatkan grup di tengah */
+    align-items: stretch;      /* Menyamakan tinggi kedua kotak */
+    gap: 12px;                 /* Jarak antar kotak menu */
     margin-bottom: 28px;
+    width: 100%;               /* Mengambil lebar penuh container utama */
+    box-sizing: border-box;
 }
 
 .menu-card {
@@ -133,16 +138,37 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     cursor: pointer;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
     border: 1px solid #f1f5f9;
     transition: all 0.2s;
+
+    /* BAGIAN PENTING AGAR TIDAK TURUN */
+    flex: 1;                   /* Membagi ruang 50:50 secara otomatis */
+    max-width: 200px;          /* Batas lebar maksimal agar tidak terlalu gepeng di layar lebar */
+    min-width: 100px;          /* Batas minimal agar isi tidak berhimpitan */
 }
 
-.menu-card:active { transform: scale(0.95); background: #f8fafc; }
-.menu-card.active { border-color: #2563eb; background: #eff6ff; }
+/* Mencegah pembungkusan jika layar sangat kecil */
+@media (max-width: 320px) {
+    .menu-container {
+        gap: 8px;
+    }
+    .menu-text {
+        font-size: 0.65rem;
+    }
+}
+.menu-card:active { 
+    transform: scale(0.95); 
+    background: #f8fafc; 
+}
 
+.menu-card.active { 
+    border-color: #2563eb; 
+    background: #eff6ff; 
+}
 .icon-box {
     width: 40px;
     height: 40px;
@@ -506,4 +532,41 @@
 
 .nav-btn:active {
     transform: scale(0.9);
+}
+/* Pastikan container kartu punya position relative */
+.unit-card-new {
+    position: relative; /* Wajib ada */
+}
+
+/* Desain Tombol Hapus Overlay */
+.btn-delete-overlay {
+    position: absolute;
+    top: 10px;      /* Jarak dari atas */
+    right: 10px;    /* Jarak dari kanan */
+    width: 32px;
+    height: 32px;
+    background-color: rgba(255, 255, 255, 0.9); /* Putih bersih transparan */
+    border: none;
+    border-radius: 50%; /* Membuat lingkaran sempurna */
+    color: #ef4444;    /* Warna merah ikon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Bayangan halus */
+    z-index: 10;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px); /* Efek kaca modern */
+}
+
+.btn-delete-overlay:hover {
+    background-color: #ef4444; /* Berubah jadi merah saat diarahkan kursor */
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Memperbaiki posisi badge "Tersedia" agar tidak tabrakan */
+.badge-avail {
+    left: 10px !important; 
+    right: auto !important;
 }

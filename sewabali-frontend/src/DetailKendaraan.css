@@ -169,3 +169,47 @@ body {
   display: flex; align-items: center; justify-content: center;
   height: 100vh; color: #888;
 }
+/* --- Bagian Syarat Jaminan --- */
+.jaminan-section {
+    margin: 20px 0;
+    padding: 0 20px; /* Sesuaikan dengan padding halaman Anda */
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+.jaminan-container {
+    background-color: #fff7ed; /* Warna krem lembut agar menonjol tapi nyaman di mata */
+    border: 1px solid #ffedd5;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.jaminan-text {
+    font-size: 0.95rem;
+    color: #9a3412; /* Warna coklat tua kemerahan agar kontras dengan background krem */
+    line-height: 1.6;
+    margin-bottom: 10px;
+    white-space: pre-line; /* Agar baris baru/enter dari textarea perental terbaca */
+}
+
+.jaminan-note {
+    font-size: 0.75rem;
+    color: #c2410c;
+    font-weight: 600;
+    font-style: italic;
+    border-top: 1px dashed #fed7aa;
+    padding-top: 8px;
+}
+
+/* Responsif Mobile */
+@media (max-width: 480px) {
+    .jaminan-text {
+        font-size: 0.85rem;
+    }
+}

@@ -62,4 +62,8 @@ public function kendaraans()
 {
     return $this->hasMany(Kendaraan::class, 'user_id');
 }
+public function isAdmin()
+{
+    return $this->role === 'admin';
+}
 }

@@ -12,12 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pemesanans', function (Blueprint $table) {
-            // Cek dulu apakah kolom 'catatan' sudah ada atau belum untuk menghindari error
-            if (!Schema::hasColumn('pemesanans', 'catatan')) {
-                $table->text('catatan')->nullable()->after('status');
-            }
+            //
         });
+
     }
+    
 
     /**
      * Reverse the migrations.
@@ -25,10 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('pemesanans', function (Blueprint $table) {
-            // Menghapus kolom catatan jika migration di-rollback
-            if (Schema::hasColumn('pemesanans', 'catatan')) {
-                $table->dropColumn('catatan');
-            }
+            //
         });
+        
     }
 };

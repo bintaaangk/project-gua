@@ -14,18 +14,68 @@ function VehicleCard({ item }) {
   const formattedPrice = `Rp ${parseInt(item.harga_per_hari).toLocaleString('id-ID')}`;
   const navigate = useNavigate();
   
+  // 1. Cek ketersediaan
+  const isAvailable = item.status === 'Tersedia';
+
+  // 2. Tentukan warna badge
+  const badgeColor = isAvailable ? '#d1fae5' : '#fee2e2'; 
+  const textColor = isAvailable ? '#065f46' : '#b91c1c'; 
+  const statusText = isAvailable ? 'Tersedia' : 'Dalam Sewa';
+
+  // 3. Logic: Jika diklik saat 'Dalam Sewa', jangan lakukan apa-apa
+  const handleCardClick = () => {
+    if (!isAvailable) return; // Stop eksekusi
+    navigate(`/kendaraan/${item.id}`);
+  };
+
+  // 4. Logic Tombol Sewa
   const handleSewaClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    navigate(`/pemesanan/${item.id}`);
+    e.stopPropagation(); // Biar tidak memicu klik pada kartu
+    if (isAvailable) {
+      navigate(`/pemesanan/${item.id}`);
+    } else {
+      alert("Maaf, kendaraan ini sedang tidak tersedia.");
+    }
   };
 
   return (
-    <Link to={`/kendaraan/${item.id}`} className="mobile-vehicle-card" onClick={(e) => e.preventDefault()}>
-      <div className="card-img-container" onClick={() => navigate(`/kendaraan/${item.id}`)}>
+    <div 
+      className="mobile-vehicle-card" 
+      onClick={handleCardClick}
+      // --- BAGIAN INI YANG MENGATUR KURSOR ---
+      style={{ 
+          // Jika tersedia = jari telunjuk (pointer)
+          // Jika TIDAK tersedia = tanda dilarang (not-allowed) 🚫
+          cursor: isAvailable ? 'pointer' : 'not-allowed', 
+          
+          // Opsi tambahan: bikin agak transparan biar kelihatan non-aktif
+          opacity: isAvailable ? 1 : 0.7 
+      }}
+    >
+      <div className="card-img-container" style={{ position: 'relative' }}>
+        
+        {/* Badge Status */}
+        <div style={{
+            position: 'absolute',
+            top: '8px',
+            left: '8px',
+            backgroundColor: badgeColor,
+            color: textColor,
+            padding: '4px 10px',
+            borderRadius: '20px',
+            fontSize: '0.7rem',
+            fontWeight: '700',
+            zIndex: 10,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}>
+            {statusText}
+        </div>
+
         <img 
           src={item.gambar_url} 
           alt={item.nama}
+          // Gambar jadi hitam putih jika tidak tersedia
+          style={{ filter: isAvailable ? 'none' : 'grayscale(100%)' }} 
           onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/300x200/e0e0e0/777?text=Gambar+Rusak"; }} 
         />
         <div className="card-type-badge">{item.tipe}</div>
@@ -39,13 +89,27 @@ function VehicleCard({ item }) {
         </div>
         <div className="price-row">
             <span className="price-text">{formattedPrice}<small>/hari</small></span>
-            <button className="btn-sewa-sm" onClick={handleSewaClick}>Sewa</button>
+            
+            <button 
+                className="btn-sewa-sm" 
+                onClick={handleSewaClick}
+                disabled={!isAvailable}
+                // Styling tombol juga mengikuti status
+                style={{ 
+                    opacity: isAvailable ? 1 : 0.5, 
+                    cursor: isAvailable ? 'pointer' : 'not-allowed',
+                    backgroundColor: isAvailable ? '' : '#9ca3af'
+                }}
+            >
+                {isAvailable ? 'Sewa' : 'Habis'}
+            </button>
         </div>
       </div>
-    </Link>
+    </div>
   );
-}
 
+
+}
 function ScrollableSection({ title, items }) {
   return (
     <section className="section-block">

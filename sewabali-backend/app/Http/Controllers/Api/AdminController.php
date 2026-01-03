@@ -3,156 +3,161 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Kendaraan;
 use App\Models\Pemesanan;
-use App\Models\DokumenVerifikasi;
-use Exception;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
     /**
-     * DASHBOARD: Statistik Ringkas
+     * 1. STATISTIK DASHBOARD
      */
     public function getStats()
     {
-        try {
-            return response()->json([
-                'total_users' => User::count(),
-                'total_vehicles' => Kendaraan::count(),
-                'active_bookings' => Pemesanan::where('status', 'Lunas')->count(),
-                'pending_verifications' => DokumenVerifikasi::where('status', 'pending')->count(),
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        return response()->json([
+            'total_users' => User::where('role', '!=', 'admin')->count(),
+            'total_vehicles' => Kendaraan::where('status', 'Tersedia')->count(),
+            'total_transactions' => Pemesanan::count(),
+            'total_revenue' => Pemesanan::where('status', 'selesai')->sum('total_harga'),
+        ]);
     }
 
     /**
-     * MANAJEMEN USER
+     * 2. LAPORAN PENDAPATAN BULANAN
+     * Menghitung total uang masuk dari transaksi yang sudah selesai
      */
-    public function getUsers()
+    public function getRevenueReport()
     {
-        try {
-            $users = User::select('id', 'name', 'email', 'role', 'created_at')->get();
-            return response()->json($users);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
+        // Mengambil total harga dari pesanan yang 'selesai' dikelompokkan per bulan
+        $report = Pemesanan::where('status', 'selesai')
+            ->selectRaw('MONTHNAME(created_at) as bulan, SUM(total_harga) as total, COUNT(id_pemesanan) as jumlah_transaksi')
+            ->groupBy('bulan')
+            ->orderByRaw("MIN(created_at) ASC")
+            ->get();
 
-    public function deleteUser($id)
-    {
-        try {
-            User::findOrFail($id)->delete();
-            return response()->json(['message' => 'User berhasil dihapus']);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        return response()->json($report);
     }
 
     /**
-     * MANAJEMEN KENDARAAN
+     * 3. VERIFIKASI USER (KYC)
      */
-    public function getKendaraans()
+    public function listPendingUsers()
     {
-        try {
-            // Memastikan mengambil data yang dibutuhkan oleh tabel di React
-            $kendaraans = Kendaraan::with('user:id,name')->get()->map(function($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->nama,
-                    'owner' => $item->user->name ?? 'Tanpa Pemilik',
-                    'plat' => $item->plat_nomor,
-                    'price' => number_format($item->harga_sewa, 0, ',', '.'),
-                    'status' => $item->status,
-                ];
-            });
-            return response()->json($kendaraans);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        $users = User::where('is_verified', false)
+                     ->where('role', '!=', 'admin')
+                     ->get();
+                     
+        return response()->json($users);
+    }
+
+    public function approveUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->is_verified = true;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User ' . $user->name . ' berhasil diverifikasi.'
+        ]);
     }
 
     /**
-     * MANAJEMEN TRANSAKSI
+     * 4. MONITORING KENDARAAN
      */
-    public function getTransactions()
+    public function listAllVehicles()
     {
-        try {
-            $transactions = Pemesanan::with(['penyewa:id,name', 'kendaraan:id,nama'])
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function($item) {
-                    return [
-                        'id' => $item->id_pemesanan,
-                        'user' => $item->penyewa->name ?? 'Unknown',
-                        'vehicle' => $item->kendaraan->nama ?? 'Unknown',
-                        'dates' => $item->tanggal_pesan . ' (' . $item->durasi_hari . ' Hari)',
-                        'total' => number_format($item->total_harga, 0, ',', '.'),
-                        'status' => $item->status
-                    ];
-                });
-            return response()->json($transactions);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        $vehicles = Kendaraan::with('user')->get();
+        return response()->json($vehicles);
     }
 
-    // Fungsi Update Status Transaksi (Penting untuk tombol Konfirmasi Bayar & Selesai)
-    public function updateTransactionStatus(Request $request, $id)
+    public function toggleVehicleStatus($id)
     {
-        try {
-            $request->validate(['status' => 'required']);
-            $booking = Pemesanan::findOrFail($id);
-            $booking->update(['status' => $request->status]);
-
-            return response()->json(['message' => 'Status transaksi berhasil diperbarui']);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        $vehicle = Kendaraan::findOrFail($id);
+        
+        if ($vehicle->status === 'Tersedia') {
+            $vehicle->status = 'Nonaktif';
+            $pesan = "Unit " . $vehicle->nama . " berhasil dinonaktifkan.";
+        } else {
+            $vehicle->status = 'Tersedia';
+            $pesan = "Unit " . $vehicle->nama . " berhasil diaktifkan kembali.";
         }
+        
+        $vehicle->save();
+        return response()->json([
+            'success' => true,
+            'message' => $pesan,
+            'status' => $vehicle->status
+        ]);
     }
 
     /**
-     * MANAJEMEN VERIFIKASI DOKUMEN
+     * 5. MONITORING & VERIFIKASI TRANSAKSI
      */
-    public function getVerifications()
+    public function listAllTransactions()
     {
-        try {
-            $verifications = DokumenVerifikasi::with(['penyewa:id,name'])
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function($item) {
-                    return [
-                        'id' => $item->id_dokumen,
-                        'user' => $item->penyewa->name ?? 'Penyewa',
-                        'type' => 'KTP & Jaminan',
-                        'status' => $item->status,
-                        'note' => $item->catatan_verifikasi,
-                        'img' => $item->path_ktp // Nanti di React ditambahkan base_url storage
-                    ];
-                });
-            return response()->json($verifications);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        $transactions = Pemesanan::with(['user', 'kendaraan'])
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                        
+        return response()->json($transactions);
     }
 
-    public function updateVerification(Request $request, $id)
+    public function verifyPayment(Request $request, $id)
     {
-        try {
-            $dokumen = DokumenVerifikasi::findOrFail($id);
-            $dokumen->update([
-                'status' => $request->status,
-                'catatan_verifikasi' => $request->catatan_verifikasi,
-                'tanggal_verifikasi' => now()
-            ]);
+        $request->validate([
+            'status' => 'required|in:disetujui,ditolak',
+        ]);
 
-            return response()->json(['message' => 'Verifikasi berhasil diperbarui']);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        // Pastikan load relasi kendaraan
+        $pemesanan = Pemesanan::with('kendaraan')->findOrFail($id);
+        
+        if ($request->status === 'disetujui') {
+            $pemesanan->status = 'selesai'; // Atau 'menunggu_verifikasi_dokumen' tergantung alurmu
+            $pemesanan->status_pembayaran = 'disetujui';
+            $pesan = "Pembayaran Berhasil Diverifikasi.";
+        } else {
+            // === JIKA DITOLAK ===
+            $pemesanan->status = 'dibatalkan';
+            $pemesanan->status_pembayaran = 'ditolak';
+            $pesan = "Pembayaran Ditolak & Pesanan Dibatalkan.";
+
+            // === [TAMBAHAN BARU: KEMBALIKAN STATUS KENDARAAN] ===
+            // Jika pembayaran ditolak, mobil harus bisa disewa orang lain lagi
+            if ($pemesanan->kendaraan) {
+                $pemesanan->kendaraan->status = 'Tersedia';
+                $pemesanan->kendaraan->save();
+            }
+            // ====================================================
         }
+
+
+        $pemesanan->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => $pesan
+        ]);
+    }
+
+    public function deleteVehicle($id)
+    {
+        // Cari kendaraan
+        $vehicle = Kendaraan::findOrFail($id);
+
+        // (Opsional) Hapus gambar dari penyimpanan biar server gak penuh
+        if ($vehicle->gambar_url) {
+            $path = str_replace(url('storage/'), '', $vehicle->gambar_url);
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+        }
+
+        // Hapus data dari database
+        $vehicle->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Unit berhasil dihapus permanen oleh Admin.'
+        ]);
     }
 }

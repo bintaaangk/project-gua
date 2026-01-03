@@ -18,9 +18,8 @@ const NavIcon = ({ d, label, active, to }) => (
 function Riwayat() {
   const [riwayat, setRiwayat] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('semua');
+  const [activeTab, setActiveTab] = useState('menunggu');
   
-  // --- STATE UNTUK PENGINGAT ---
   const [showReminder, setShowReminder] = useState(false);
   const [reminderData, setReminderData] = useState(null);
   
@@ -37,11 +36,25 @@ function Riwayat() {
       const response = await axios.get('http://127.0.0.1:8000/api/riwayat', {
         headers: { 
             Authorization: `Bearer ${token}`,
-            'Accept': 'application/json' // Penting agar tidak diarahkan ke rute login
+            'Accept': 'application/json'
         }
       });
       
-      setRiwayat(response.data);
+      const data = response.data;
+      setRiwayat(data);
+
+      // --- LOGIKA OTOMATIS PINDAH TAB (AUTO-SWITCH) ---
+      // Jika tab saat ini kosong, otomatis pindah ke tab yang ada datanya
+      const currentTabHasData = data.some(item => checkStatusInTab(item.status, activeTab));
+      if (!currentTabHasData && data.length > 0) {
+          const priorityOrder = ['menunggu', 'dalam_sewa', 'sedang_disewa', 'selesai', 'batal'];
+          for (const tabId of priorityOrder) {
+              if (data.some(item => checkStatusInTab(item.status, tabId))) {
+                  setActiveTab(tabId);
+                  break;
+              }
+          }
+      }
     } catch (error) {
       console.error('Gagal mengambil riwayat:', error);
       if (error.response?.status === 401) navigate('/login');
@@ -50,20 +63,15 @@ function Riwayat() {
     }
   };
 
-  // --- FUNGSI CEK PENGINGAT (DENGAN HEADER YANG DIPERBAIKI) ---
   const checkDeadline = async () => {
     try {
         const token = localStorage.getItem('token');
-        console.log("Mengecek pengingat dengan token:", token); // Cek apakah token ada
-
         const response = await axios.get('http://127.0.0.1:8000/api/pengingat-tenggat', {
             headers: { 
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json' 
             }
         });
-
-        console.log("Respon Server:", response.data); // LIHAT DI CONSOLE F12
 
         if (response.data.ada_tenggat) {
             setReminderData(response.data);
@@ -72,27 +80,43 @@ function Riwayat() {
     } catch (err) {
         console.error("Error Pengingat:", err.response?.data || err.message);
     }
-};
+  };
 
   useEffect(() => {
     fetchRiwayat();
     checkDeadline(); 
   }, []);
 
-  const filteredRiwayat = riwayat.filter((item) => {
-    const status = (item.status || "").toLowerCase();
-    if (activeTab === 'semua') return true;
-    if (activeTab === 'menunggu') return status.includes('menunggu') || status.includes('verifikasi');
-    if (activeTab === 'selesai') return status === 'selesai';
-    if (activeTab === 'batal') return status === 'batal' || status === 'rejected';
-    return status === activeTab;
-  });
+  // --- HELPER UNTUK CEK STATUS DALAM TAB ---
+  const checkStatusInTab = (status, tab) => {
+    const s = (status || "").toLowerCase();
+    if (tab === 'menunggu') {
+        return s === 'menunggu_pembayaran' || s === 'menunggu_verifikasi' || s === 'menunggu_dokumen';
+    }
+    if (tab === 'dalam_sewa') {
+        // PERBAIKAN: Masukkan status 'dalam_sewa' dan 'disetujui' ke sini
+        return s === 'dalam_sewa' || s === 'disetujui';
+    }
+    if (tab === 'sedang_disewa') {
+        // Status ini biasanya untuk unit yang sudah dipickup oleh penyewa
+        return s === 'sedang_disewa';
+    }
+    if (tab === 'selesai') {
+        return s === 'selesai';
+    }
+    if (tab === 'batal') {
+        return s === 'batal' || s === 'rejected' || s === 'ditolak';
+    }
+    return false;
+  };
+
+  const filteredRiwayat = riwayat.filter((item) => checkStatusInTab(item.status, activeTab));
 
   const getStatusClass = (status) => {
     const s = (status || "").toLowerCase();
     if (s.includes('menunggu') || s.includes('verifikasi')) return 'badge-warning';
-    if (s === 'selesai' || s === 'dalam_sewa') return 'badge-success';
-    if (s === 'batal' || s === 'rejected') return 'badge-danger';
+    if (s === 'selesai' || s === 'dalam_sewa' || s === 'disetujui' || s === 'sedang_disewa') return 'badge-success';
+    if (s === 'batal' || s === 'rejected' || s === 'ditolak') return 'badge-danger';
     return 'badge-default';
   };
 
@@ -108,13 +132,19 @@ function Riwayat() {
           </div>
           
           <div className="tabs-wrapper">
-            {['semua', 'menunggu', 'selesai', 'batal'].map((tab) => (
+            {[
+                { id: 'menunggu', label: 'Menunggu' },
+                { id: 'dalam_sewa', label: 'Dalam Sewa' },
+                { id: 'sedang_disewa', label: 'Sedang Disewa' },
+                { id: 'selesai', label: 'Selesai' },
+                { id: 'batal', label: 'Batal' }
+            ].map((tab) => (
                 <button 
-                    key={tab}
-                    className={`tab-pill ${activeTab === tab ? 'active' : ''}`}
-                    onClick={() => setActiveTab(tab)}
+                    key={tab.id}
+                    className={`tab-pill ${activeTab === tab.id ? 'active' : ''}`}
+                    onClick={() => setActiveTab(tab.id)}
                 >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    {tab.label}
                 </button>
             ))}
           </div>
@@ -168,13 +198,12 @@ function Riwayat() {
         ) : (
             <div className="empty-state">
                 <div className="empty-icon">📝</div>
-                <h3>Belum ada transaksi</h3>
-                <p>Silakan lakukan pemesanan kendaraan terlebih dahulu.</p>
+                <h3>Tidak ada data</h3>
+                <p>Belum ada transaksi di kategori {activeTab.replace('_', ' ')}.</p>
             </div>
         )}
       </div>
 
-      {/* --- MODAL PENGINGAT DI SINI --- */}
       <ModalPengingat 
           show={showReminder} 
           onClose={() => setShowReminder(false)} 

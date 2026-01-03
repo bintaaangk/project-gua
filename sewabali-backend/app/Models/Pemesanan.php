@@ -23,7 +23,8 @@ class Pemesanan extends Model
         'durasi_hari',
         'total_harga',
         'status',
-        'catatan' // <--- TAMBAHAN: Untuk menyimpan alasan tolak
+        'catatan', // <--- TAMBAHAN: Untuk menyimpan alasan tolak
+        'tanggal_kembali', // Pastikan ini ada
     ];
 
     // --- RELASI (DISESUAIKAN DENGAN CONTROLLER) ---

@@ -1,0 +1,389 @@
+/* --- RESET & BASE STYLES --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* BACKGROUND UTAMA: Menggunakan warna abu-abu kebiruan lembut agar mata tidak cepat lelah */
+    background-color: #f1f5f9; 
+    color: #334155;
+    overflow-x: hidden;
+}
+
+/* --- DEFINISI ANIMASI (KEYFRAMES) --- */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* --- LAYOUT WRAPPER --- */
+.admin-layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* --- SIDEBAR NAVIGASI (BIRU MODERN) --- */
+.admin-sidebar {
+    width: 260px;
+    /* Gradasi Biru Deep Royal ke Navy */
+    background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); 
+    border-right: none;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+.fade-in-left {
+    animation: fadeInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sidebar-logo h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 40px;
+    padding-left: 10px;
+}
+
+.sidebar-logo span {
+    color: #60a5fa; /* Aksen Biru Langit */
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+}
+
+.sidebar-menu button {
+    padding: 14px 16px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.65);
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-menu button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    padding-left: 24px;
+}
+
+.sidebar-menu button.active {
+    background-color: #2563eb; 
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+.sidebar-bottom {
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    background: #ef4444;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* --- MAIN CONTENT AREA --- */
+.admin-main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    /* Menggunakan latar belakang Mist agar kartu putih terlihat pop-up */
+    background-color: #f1f5f9; 
+    overflow-y: auto;
+    padding: 40px;
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-out both;
+}
+
+.main-header {
+    margin-bottom: 40px;
+}
+
+.header-titles h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.header-titles p {
+    color: #64748b;
+    margin-top: 4px;
+}
+
+/* --- STATS GRID --- */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.stat-box {
+    padding: 24px;
+    background: #ffffff; /* Kotak tetap putih agar kontras dengan background mist */
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.stat-box:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+.slide-up {
+    animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stat-box label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-box h3 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-top: 10px;
+}
+
+.stat-box.blue {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+}
+
+.stat-box.blue label, .stat-box.blue h3 {
+    color: #ffffff;
+}
+
+/* --- CONTENT CARD & TAB ANIMATION --- */
+.content-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+.tab-animate-in {
+    animation: zoomIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* --- TABLE STYLES --- */
+.minimal-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.minimal-table th {
+    text-align: left;
+    padding: 18px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.minimal-table td {
+    padding: 20px 16px;
+    font-size: 0.95rem;
+    color: #334155;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.minimal-table tr:hover {
+    background-color: #f8fafc;
+}
+
+/* --- STATUS TAGS --- */
+.status-tag {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.status-tag.tersedia { background: #dcfce7; color: #166534; }
+.status-tag.nonaktif { background: #fee2e2; color: #b91c1c; } 
+.status-tag.selesai { background: #eff6ff; color: #1d4ed8; }
+.status-tag.menunggu_verifikasi { background: #fef9c3; color: #854d0e; }
+
+/* --- ACTION BUTTONS (HIJAU & MERAH) --- */
+.action-btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+/* HIJAU UNTUK SETUJU */
+.action-btn.verify, .verify-sm { 
+    background-color: #10b981; 
+    color: white; 
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+}
+.action-btn.verify:hover, .verify-sm:hover { 
+    background-color: #059669; 
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* MERAH UNTUK TOLAK / NONAKTIF */
+.action-btn.reject-sm, .action-btn.toggle { 
+    background-color: #ef4444; 
+    color: white; 
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+}
+.action-btn.reject-sm:hover, .action-btn.toggle:hover { 
+    background-color: #dc2626; 
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+}
+
+.verify-sm.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* TOMBOL LIHAT BUKTI */
+.btn-icon-animate {
+    background: #f1f5f9;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 10px;
+    color: #3b82f6;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s;
+}
+
+.btn-icon-animate:hover {
+    background: #3b82f6;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* --- MODAL --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 30px;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-zoom-in {
+    animation: zoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.img-animated {
+    max-width: 100%;
+    max-height: 75vh;
+    border-radius: 20px;
+    display: block;
+}
+
+/* --- LOADING --- */
+.admin-loading-screen {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f1f5f9;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid #e2e8f0;
+    border-top: 6px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- UTILS --- */
+.revenue-text {
+    font-weight: 800;
+    color: #10b981;
+}

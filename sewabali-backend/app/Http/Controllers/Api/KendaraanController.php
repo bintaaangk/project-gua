@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Kendaraan;
+use App\Models\Notifikasi;
 use Exception;
+
 
 class KendaraanController extends Controller
 {
@@ -116,7 +118,16 @@ class KendaraanController extends Controller
                 'gambar_url'     => $imagePath ? url('storage/' . $imagePath) : null,
                 
                 // HANYA INI TAMBAHAN YANG KITA BUTUHKAN
-                'no_rekening'    => $request->no_rekening, 
+                'no_rekening'    => $request->no_rekening,
+                'jaminan'        => $request->jaminan, 
+            ]);
+
+            Notifikasi::create([
+                'user_id'      => $request->user()->id, // Targetnya adalah si perental itu sendiri
+                'tipe'         => 'success',
+                'pesan'        => 'Unit Berhasil Ditambahkan: Hore! Unit ' . $kendaraan->nama . ' telah berhasil didaftarkan dan sekarang siap untuk disewa.',
+                'pemesanan_id' => null, // Belum ada pesanan karena baru input unit
+                'is_read'      => false
             ]);
 
             return response()->json([

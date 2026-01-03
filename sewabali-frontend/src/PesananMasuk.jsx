@@ -11,7 +11,8 @@ const PesananMasuk = () => {
     const [loading, setLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [rejectReason, setRejectReason] = useState(""); // State untuk alasan custom
+    const [rejectReason, setRejectReason] = useState("");
+    const [activeTab, setActiveTab] = useState('verifikasi'); 
 
     const [verificationStatus, setVerificationStatus] = useState({
         ktp: null,
@@ -22,7 +23,6 @@ const PesananMasuk = () => {
 
     const token = localStorage.getItem('token');
 
-    // Helper URL Gambar dengan encodeURI untuk mengatasi karakter spesial (#, emoji, spasi)
     const getImgUrl = (path) => {
         if (!path) return null;
         if (path.startsWith('http')) return path;
@@ -47,6 +47,27 @@ const PesananMasuk = () => {
         fetchOrders();
     }, [navigate, token]);
 
+    // --- LOGIKA FILTER TAB ---
+    const filteredOrders = orders.filter(order => {
+        const status = order.status.toLowerCase();
+        if (activeTab === 'verifikasi') {
+            return status === 'menunggu_verifikasi' || status === 'menunggu_dokumen';
+        }
+        if (activeTab === 'serahkan') {
+            return status === 'dalam_sewa' || status === 'disetujui';
+        }
+        if (activeTab === 'selesaikan') {
+            return status === 'sedang_disewa';
+        }
+        if (activeTab === 'selesai') {
+            return status === 'selesai';
+        }
+        if (activeTab === 'ditolak') {
+            return status === 'ditolak' || status === 'batal';
+        }
+        return false;
+    });
+
     const handleUpdateStatus = async (id, newStatus, catatan = '') => {
         const confirmMsg = newStatus === 'sedang_disewa' 
             ? "Konfirmasi: Kendaraan telah diserahkan ke penyewa?" 
@@ -64,6 +85,13 @@ const PesananMasuk = () => {
 
             alert("Status berhasil diperbarui!");
             setShowModal(false);
+            
+            // Pindahkan tab secara otomatis setelah aksi berhasil
+            if (newStatus === 'Dikonfirmasi') setActiveTab('serahkan');
+            if (newStatus === 'sedang_disewa') setActiveTab('selesaikan');
+            if (newStatus === 'selesai') setActiveTab('selesai');
+            if (newStatus === 'Ditolak') setActiveTab('ditolak');
+
             fetchOrders();
         } catch (error) {
             alert("Gagal memperbarui status.");
@@ -98,16 +126,7 @@ const PesananMasuk = () => {
         
         let catatan = "";
         if (hasInvalidItem) {
-            if (rejectReason.trim() !== "") {
-                catatan = rejectReason;
-            } else {
-                const reasons = [];
-                if (verificationStatus.ktp === 'invalid') reasons.push('KTP tidak jelas');
-                if (verificationStatus.sim === 'invalid') reasons.push('SIM tidak valid');
-                if (verificationStatus.jaminan === 'invalid') reasons.push('Jaminan kurang');
-                if (verificationStatus.pembayaran === 'invalid') reasons.push('Bukti bayar salah');
-                catatan = "Penolakan: " + reasons.join(', ');
-            }
+            catatan = rejectReason.trim() !== "" ? rejectReason : "Ada dokumen yang tidak valid.";
         } else {
             catatan = 'Dokumen valid dan lengkap.';
         }
@@ -151,7 +170,6 @@ const PesananMasuk = () => {
                             <VerifyRow label="Dokumen Jaminan" imgPath={doc.path_jaminan} stateKey="jaminan" />
                             <VerifyRow label="Bukti Pembayaran" imgPath={pay.file_path} stateKey="pembayaran" />
 
-                            {/* TEXTAREA ALASAN PENOLAKAN */}
                             {Object.values(verificationStatus).includes('invalid') && (
                                 <div style={{ marginTop: '15px' }}>
                                     <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#f43f5e' }}>Alasan Penolakan:</label>
@@ -166,13 +184,9 @@ const PesananMasuk = () => {
                         </div>
                     </div>
                     <div className="modal-footer">
-                        {selectedOrder.status === 'dalam_sewa' ? (
-                             <button className="btn-submit-action" onClick={() => handleUpdateStatus(selectedOrder.id, 'sedang_disewa', 'Unit diserahkan')}>🔑 Serahkan Kendaraan</button>
-                        ) : (
-                            <button className={`btn-submit-action ${!isAllChecked(selectedOrder) ? 'disabled' : ''}`} disabled={!isAllChecked(selectedOrder)} onClick={handleSubmitDecision}>
-                                {Object.values(verificationStatus).includes('invalid') ? 'Kirim Penolakan' : 'Terima & Konfirmasi'}
-                            </button>
-                        )}
+                        <button className={`btn-submit-action ${!isAllChecked(selectedOrder) ? 'disabled' : ''}`} disabled={!isAllChecked(selectedOrder)} onClick={handleSubmitDecision}>
+                            {Object.values(verificationStatus).includes('invalid') ? 'Kirim Penolakan' : 'Terima & Konfirmasi'}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -185,41 +199,84 @@ const PesananMasuk = () => {
                 <button className="btn-back-circle" onClick={() => navigate('/perental/dashboard')}>❮</button>
                 <div className="header-text">
                     <h3>Pesanan Masuk</h3>
-                    <p>{orders.length} Transaksi</p>
+                    <p>{filteredOrders.length} Pesanan Baru</p>
                 </div>
             </header>
-            <div className="mobile-content">
-                {orders.map(item => (
-                    <div key={item.id} className="order-card-premium">
-                        <div className="card-top">
-                            <span className="trx-code">{item.kode}</span>
-                            <span className={`status-badge ${item.status}`}>{item.status_label}</span>
-                        </div>
-                        <div className="card-middle">
-                            <div className="car-image-box">
-                                <img src={getImgUrl(item.kendaraan?.gambar_url)} alt="mobil" />
-                            </div>
-                            <div className="order-details">
-                                <h4>{item.kendaraan?.nama}</h4>
-                                <p>👤 {item.user?.name}</p>
-                                <p className="price-total">Rp {item.total_harga?.toLocaleString('id-ID')}</p>
-                            </div>
-                        </div>
-                        <div className="card-bottom">
-                            {item.status === 'dalam_sewa' ? (
-                                <button className="btn-verify-now" style={{ backgroundColor: '#007bff', color: 'white' }} onClick={() => handleUpdateStatus(item.id, 'sedang_disewa', 'Kunci diserahkan')}>🔑 Serahkan Kendaraan</button>
-                            ) : item.status === 'sedang_disewa' ? (
-                                <button className="btn-verify-now" style={{ backgroundColor: '#28a745', color: 'white' }} onClick={() => handleUpdateStatus(item.id, 'selesai', 'Kembali dengan baik')}>🏁 Selesaikan Pesanan</button>
-                            ) : item.status === 'selesai' ? (
-                                <button className="btn-verify-now disabled" disabled>✅ Selesai</button>
-                            ) : (
-                                <button className="btn-verify-now" onClick={() => openDetailModal(item)}>🔍 Verifikasi</button>
-                            )}
-                        </div>
-                    </div>
-                ))}
+
+            {/* TAB NAVIGATION */}
+            <div className="order-tabs">
+                <button className={activeTab === 'verifikasi' ? 'active' : ''} onClick={() => setActiveTab('verifikasi')}>Verifikasi</button>
+                <button className={activeTab === 'serahkan' ? 'active' : ''} onClick={() => setActiveTab('serahkan')}>Serahkan</button>
+                <button className={activeTab === 'selesaikan' ? 'active' : ''} onClick={() => setActiveTab('selesaikan')}>Selesaikan</button>
+                <button className={activeTab === 'selesai' ? 'active' : ''} onClick={() => setActiveTab('selesai')}>Selesai</button>
+                <button className={activeTab === 'ditolak' ? 'active' : ''} onClick={() => setActiveTab('ditolak')}>Ditolak</button>
             </div>
+
+            <div className="mobile-content">
+                {loading ? (
+                    <div className="loading-state">Memuat data...</div>
+                ) : filteredOrders.length === 0 ? (
+                    <div className="empty-state">Tidak ada pesanan di kategori ini</div>
+                ) : (
+                    filteredOrders.map(item => (
+                        <div key={item.id} className="order-card-premium">
+                            <div className="card-top">
+                                <span className="trx-code">{item.kode}</span>
+                                <span className={`status-badge ${item.status}`}>{item.status_label}</span>
+                            </div>
+                            <div className="card-middle">
+                                <div className="car-image-box">
+                                    <img src={getImgUrl(item.kendaraan?.gambar_url)} alt="mobil" />
+                                </div>
+                                <div className="order-details">
+                                    <h4>{item.kendaraan?.nama}</h4>
+                                    <p>👤 {item.user?.name}</p>
+                                    <p className="price-total">Rp {item.total_harga?.toLocaleString('id-ID')}</p>
+                                </div>
+                            </div>
+                            <div className="card-bottom">
+                                {(item.status === 'dalam_sewa' || item.status === 'disetujui') && (
+                                    <button className="btn-verify-now" style={{ backgroundColor: '#007bff', color: 'white' }} onClick={() => handleUpdateStatus(item.id, 'sedang_disewa', 'Unit diserahkan')}>🔑 Serahkan Kendaraan</button>
+                                )}
+                                {item.status === 'sedang_disewa' && (
+                                    <button className="btn-verify-now" style={{ backgroundColor: '#28a745', color: 'white' }} onClick={() => handleUpdateStatus(item.id, 'selesai', 'Kembali dengan baik')}>🏁 Selesaikan Pesanan</button>
+                                )}
+                                {item.status === 'selesai' && (
+                                    <button className="btn-verify-now disabled" disabled>✅ Transaksi Selesai</button>
+                                )}
+                                {(item.status === 'menunggu_verifikasi' || item.status === 'menunggu_dokumen') && (
+                                    <button className="btn-verify-now" onClick={() => openDetailModal(item)}>🔍 Verifikasi Dokumen</button>
+                                )}
+                                {item.status === 'ditolak' && (
+                                    <div className="reject-info">Menunggu penyewa memperbaiki dokumen</div>
+                                )}
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+
             {renderModal()}
+
+            {/* BOTTOM NAV */}
+            <div className="nav-container-fixed">
+                <nav className="bottom-nav-perental">
+                    <button className="nav-btn" onClick={() => navigate('/perental/dashboard')}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        <span>Home</span>
+                    </button>
+                    
+                    <button className="nav-btn active" onClick={() => navigate('/pesanan-masuk')}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        <span>Pesanan</span>
+                    </button>
+
+                    <button className="nav-btn" onClick={() => navigate('/perental/profil')}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <span>Profil</span>
+                    </button>
+                </nav>
+            </div>
         </div>
     );
 };

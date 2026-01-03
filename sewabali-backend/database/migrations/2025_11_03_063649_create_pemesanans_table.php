@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('tanggal_pesan'); 
             $table->integer('durasi_hari'); 
             $table->decimal('total_harga', 12, 2); // Dinaikkan menjadi 12 agar aman untuk nominal jutaan
+            $table->date('tanggal_kembali');
             
             // PERBAIKAN: Tambahkan 'menunggu_dokumen', 'menunggu_pembayaran', dan 'batal'
             $table->enum('status', [

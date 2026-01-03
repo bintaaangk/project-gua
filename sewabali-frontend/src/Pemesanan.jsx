@@ -237,10 +237,7 @@ function Pemesanan() {
                 <span>Harga Sewa x {formData.durasi_hari} Hari</span>
                 <span>{formattedTotal}</span>
             </div>
-            <div className="cost-row">
-                <span>Biaya Layanan</span>
-                <span>Rp 0</span>
-            </div>
+         
             <div className="cost-row total">
                 <span>Total Pembayaran</span>
                 <span className="highlight-price">{formattedTotal}</span>
